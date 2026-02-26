@@ -29,7 +29,7 @@ snowflake:
   machine-id: 1
 
 minio:
-  access-key: 4nrbxrwxZVXWBbaP3Mcn
-  secret-key: WHyel3EhVJ17rOZk1of8FZxUJR5ipbQNyGUm0Mhr
+  access-key: BzficlpDtD3O6Rh99P8o
+  secret-key: 4buck04HhieSBKvIxwifS0wVTpr17N64Sv8L1TAJ
   endpoint: http://127.0.0.1:9000
   bucket-name: movie-time

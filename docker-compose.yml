@@ -1,0 +1,68 @@
+version: "3.8"
+
+services:
+  mysql:
+    image: mysql:8.0.45
+    container_name: movie-time-mysql
+    ports:
+      - "3306:3306"
+    environment:
+      TZ: Asia/Shanghai
+      MYSQL_ROOT_PASSWORD: cdwater
+    volumes:
+      - mysql-data:/var/lib/mysql
+    networks:
+      - movie-time-network
+
+  redis:
+    image: redis:7.2.12
+    container_name: movie-time-redis
+    ports:
+      - "6379:6379"
+    environment:
+      TZ: Asia/Shanghai
+    command: redis-server --requirepass cdwater
+    volumes:
+      - redis-data:/data
+    networks:
+      - movie-time-network
+
+  rabbitmq:
+    image: rabbitmq:4.2.2-management
+    container_name: movie-time-rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: admin
+      RABBITMQ_DEFAULT_PASS: cdwater
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+    networks:
+      - movie-time-network
+
+  minio:
+    image: quay.io/minio/minio:RELEASE.2025-04-22T22-12-26Z
+    container_name: movie-time-minio
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      TZ: Asia/Shanghai
+      MINIO_ROOT_USER: admin
+      MINIO_ROOT_PASSWORD: cdwater666
+    command: server /data --console-address ":9001"
+    volumes:
+      - minio-data:/data
+    networks:
+      - movie-time-network
+
+volumes:
+  mysql-data:
+  redis-data:
+  rabbitmq-data:
+  minio-data:
+
+networks:
+  movie-time-network:
+    driver: bridge
