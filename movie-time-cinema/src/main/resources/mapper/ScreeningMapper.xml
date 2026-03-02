@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cdwater.movietimecinema.mapper.ScreeningMapper">
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO screening (movie_id, cinema_id, hall_name, row_count, col_count, start_time, end_time, price)
+        VALUES (#{movieId}, #{cinemaId}, #{hallName}, #{rowCount}, #{colCount}, #{startTime}, #{endTime}, #{price})
+    </insert>
+    <update id="updateById">
+        UPDATE screening
+        <set>
+            <if test="movieId != null">movie_id = #{movieId},</if>
+            <if test="hallName != null">hall_name = #{hallName},</if>
+            <if test="rowCount != null">row_count = #{rowCount},</if>
+            <if test="colCount != null">col_count = #{colCount},</if>
+            <if test="startTime != null">start_time = #{startTime},</if>
+            <if test="endTime != null">end_time = #{endTime},</if>
+            <if test="price != null">price = #{price},</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+    <delete id="delete">
+        DELETE
+        FROM screening
+        WHERE id = #{id}
+    </delete>
+    <select id="selectById" resultType="com.cdwater.movietimecinema.model.entity.Screening">
+        SELECT id,
+               movie_id,
+               cinema_id,
+               hall_name,
+               row_count,
+               col_count,
+               start_time,
+               end_time,
+               price
+        FROM screening
+        WHERE id = #{id}
+    </select>
+    <select id="selectPage" resultType="com.cdwater.movietimecinema.model.vo.ScreeningPageVO">
+        SELECT s.id,
+        m.name AS movieName,
+        s.hall_name,
+        s.row_count,
+        s.col_count,
+        s.start_time,
+        s.end_time,
+        s.price,
+        s.create_time,
+        s.update_time
+        FROM screening s
+        LEFT JOIN movie m ON s.movie_id = m.id
+        <where>
+            <if test="cinemaId != null">
+                AND s.cinema_id = #{cinemaId}
+            </if>
+            <if test="movieName != null and movieName != ''">
+                AND m.name LIKE concat('%', #{movieName}, '%')
+            </if>
+        </where>
+        ORDER BY s.update_time DESC
+    </select>
+    <select id="selectLatestByCinemaIdAndMovieId"
+            resultType="com.cdwater.movietimecinema.model.vo.ScreeningListVO">
+        SELECT id,
+               hall_name,
+               start_time,
+               end_time,
+               price
+        FROM screening
+        WHERE cinema_id = #{cinemaId}
+          AND movie_id = #{movieId}
+          AND start_time > NOW()
+        ORDER BY start_time
+    </select>
+</mapper>

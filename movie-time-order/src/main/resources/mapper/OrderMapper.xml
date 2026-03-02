@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cdwater.movietimeorder.mapper.OrderMapper">
+    <insert id="insert">
+        INSERT INTO `order` (order_no, user_id, screening_id, seat_info, ticket_count, amount, status)
+        VALUES (#{orderNo}, #{userId}, #{screeningId}, #{seatInfo}, #{ticketCount}, #{amount}, #{status})
+    </insert>
+    <update id="updateStatus">
+        UPDATE `order`
+        <set>
+            status = #{status},
+            <if test="status == 1">pay_time = NOW(),</if>
+            <if test="status == 2">cancel_time = NOW(),</if>
+        </set>
+        WHERE order_no = #{orderNo} AND status = 0
+    </update>
+    <select id="selectPage" resultType="com.cdwater.movietimeorder.model.vo.OrderPageVO">
+        SELECT o.order_no,u.nickname AS userNickname,m.name AS movieName,
+        c.name AS cinemaName,s.hall_name,
+        o.seat_info, o.ticket_count, o.amount, o.status,o.pay_time,
+        o.cancel_time, o.create_time, o.update_time FROM `order` o
+        LEFT JOIN user u ON o.user_id = u.id
+        LEFT JOIN screening s ON o.screening_id = s.id
+        LEFT JOIN movie m ON s.movie_id = m.id
+        LEFT JOIN cinema c ON s.cinema_id = c.id
+        <where>
+            <if test="orderNo != null">
+                AND o.order_no = #{orderNo}
+            </if>
+            <if test="status != null">
+                AND o.status = #{status}
+            </if>
+        </where>
+        ORDER BY o.create_time DESC
+    </select>
+    <select id="count" resultType="java.lang.Long">
+        SELECT COUNT(*)
+        FROM `order`
+    </select>
+    <select id="selectByUserId" resultType="com.cdwater.movietimeorder.model.vo.OrderListVO">
+        SELECT o.order_no,
+               o.seat_info,
+               o.ticket_count,
+               o.amount,
+               o.status,
+               m.id    AS movieId,
+               m.name  AS movieName,
+               m.cover AS movieCover,
+               c.id    AS cinemaId,
+               c.name  AS cinemaName,
+               s.hall_name,
+               s.start_time,
+               s.end_time
+        FROM `order` o
+                 LEFT JOIN screening s ON o.screening_id = s.id
+                 LEFT JOIN movie m ON s.movie_id = m.id
+                 LEFT JOIN cinema c ON s.cinema_id = c.id
+        WHERE user_id = #{userId}
+        ORDER BY o.create_time DESC
+    </select>
+    <select id="selectByOrderNo" resultType="com.cdwater.movietimeorder.model.entity.Order">
+        SELECT order_no,
+               user_id,
+               screening_id,
+               seat_info,
+               ticket_count,
+               amount,
+               status,
+               pay_time,
+               cancel_time
+        FROM `order`
+        WHERE order_no = #{orderNo}
+    </select>
+    <select id="selectRecentlyOneDay" resultType="com.cdwater.movietimeorder.model.entity.Order">
+        SELECT o.screening_id,
+               o.seat_info,
+               s.col_count as ticketCount -- 作为中间量保存一下列数。。。
+        FROM `order` o
+                 LEFT JOIN screening s ON o.screening_id = s.id
+        WHERE o.create_time &gt; DATE_SUB(NOW(), INTERVAL 1 DAY)
+          AND o.status != 2
+    </select>
+</mapper>

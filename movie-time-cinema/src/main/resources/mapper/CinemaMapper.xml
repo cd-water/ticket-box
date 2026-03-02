@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cdwater.movietimecinema.mapper.CinemaMapper">
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO cinema (name, address, longitude, latitude, phone, tags)
+        VALUES (#{name}, #{address}, #{longitude}, #{latitude}, #{phone}, #{tags})
+    </insert>
+    <update id="updateById">
+        UPDATE cinema
+        <set>
+            <if test="name != null">name = #{name},</if>
+            <if test="address != null">address = #{address},</if>
+            <if test="longitude != null">longitude = #{longitude},</if>
+            <if test="latitude != null">latitude = #{latitude},</if>
+            <if test="phone != null">phone = #{phone},</if>
+            <if test="tags != null">tags = #{tags},</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+    <delete id="deleteById">
+        DELETE
+        FROM cinema
+        WHERE id = #{id}
+    </delete>
+    <select id="selectById" resultType="com.cdwater.movietimecinema.model.entity.Cinema">
+        SELECT id,
+               name,
+               address,
+               longitude,
+               latitude,
+               phone,
+               tags
+        FROM cinema
+        WHERE id = #{id}
+    </select>
+    <select id="selectPage" resultType="com.cdwater.movietimecinema.model.vo.CinemaPageVO">
+        SELECT id,
+        name,
+        address,
+        phone,
+        tags,
+        create_time,
+        update_time
+        FROM cinema
+        <where>
+            <if test="name != null and name != ''">
+                AND name LIKE concat('%', #{name}, '%')
+            </if>
+        </where>
+        ORDER BY update_time DESC
+    </select>
+    <select id="count" resultType="java.lang.Long">
+        SELECT COUNT(*)
+        FROM cinema
+    </select>
+    <select id="selectList" resultType="com.cdwater.movietimecinema.model.entity.Cinema">
+        SELECT id,
+               name,
+               address,
+               longitude,
+               latitude,
+               phone,
+               tags
+        FROM cinema
+    </select>
+
+    <resultMap id="CinemaDetailResultMap" type="com.cdwater.movietimecinema.model.vo.CinemaDetailVO">
+        <id property="id" column="id"/>
+        <result property="name" column="name"/>
+        <result property="address" column="address"/>
+        <result property="longitude" column="longitude"/>
+        <result property="latitude" column="latitude"/>
+        <result property="phone" column="phone"/>
+        <result property="tags" column="tags"/>
+        <collection property="movies" ofType="com.cdwater.movietimecinema.model.vo.MovieInCinemaVO">
+            <id property="id" column="movieId"/>
+            <result property="name" column="movieName"/>
+            <result property="cover" column="movieCover"/>
+            <result property="type" column="movieType"/>
+            <result property="duration" column="movieDuration"/>
+            <result property="rating" column="movieRating"/>
+        </collection>
+    </resultMap>
+
+    <select id="selectDetail" resultMap="CinemaDetailResultMap">
+        SELECT c.id,
+               c.name,
+               c.address,
+               c.longitude,
+               c.latitude,
+               c.phone,
+               c.tags,
+               m.id       as movieId,
+               m.name     as movieName,
+               m.cover    as movieCover,
+               m.type     as movieType,
+               m.duration as movieDuration,
+               m.rating   as movieRating
+        FROM cinema c
+                 LEFT JOIN screening s ON c.id = s.cinema_id
+                 LEFT JOIN movie m ON s.movie_id = m.id AND m.status = 1
+        WHERE c.id = #{id}
+    </select>
+</mapper>

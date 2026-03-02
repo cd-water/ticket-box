@@ -1,0 +1,35 @@
+mysql:
+  host: 127.0.0.1
+  port: 3306
+  database: movie_time
+  username: root
+  password: cdwater
+
+redis:
+  host: 127.0.0.1
+  port: 6379
+  password: cdwater
+  database: 0
+
+rabbitmq:
+  host: 127.0.0.1
+  port: 5672
+  virtual-host: /
+  username: admin
+  password: cdwater
+
+jwt:
+  secret: thisIsCdwaterSecretForMovieTimeProject
+  admin-token-ttl: 7200000 # 2 hour
+  access-token-ttl: 1800000 # 30 minute
+  refresh-token-ttl: 604800000 # 7 day
+
+snowflake:
+  datacenter-id: 1
+  machine-id: 1
+
+minio:
+  access-key: 4nrbxrwxZVXWBbaP3Mcn
+  secret-key: WHyel3EhVJ17rOZk1of8FZxUJR5ipbQNyGUm0Mhr
+  endpoint: http://127.0.0.1:9000
+  bucket-name: movie-time

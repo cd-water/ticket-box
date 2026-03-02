@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cdwater.movietimeuser.mapper.AdminMapper">
+    <insert id="insert">
+        INSERT INTO admin
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="username != null">username,</if>
+            <if test="password != null">password,</if>
+            <if test="top != null">top,</if>
+        </trim>
+        <trim prefix="VALUES (" suffix=")" suffixOverrides=",">
+            <if test="username != null">#{username},</if>
+            <if test="password != null">#{password},</if>
+            <if test="top != null">#{top},</if>
+        </trim>
+    </insert>
+    <update id="updatePwdById">
+        UPDATE admin
+        SET password = #{password}
+        WHERE id = #{id}
+    </update>
+    <delete id="deleteById">
+        DELETE
+        FROM admin
+        WHERE id = #{id}
+    </delete>
+    <select id="selectByUsername" resultType="com.cdwater.movietimeuser.model.entity.Admin">
+        SELECT id, username, password, top
+        FROM admin
+        WHERE username = #{username}
+    </select>
+    <select id="selectPwdById" resultType="java.lang.String">
+        SELECT password
+        FROM admin
+        WHERE id = #{id}
+    </select>
+    <select id="selectPage" resultType="com.cdwater.movietimeuser.model.vo.AdminPageVO">
+        SELECT id, username, top, create_time, update_time
+        FROM admin
+        <where>
+            <if test="username != null and username != ''">
+                AND username LIKE concat('%', #{username}, '%')
+            </if>
+        </where>
+        ORDER BY create_time
+    </select>
+</mapper>

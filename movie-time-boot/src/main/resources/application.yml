@@ -1,0 +1,69 @@
+server:
+  port: 8086
+
+spring:
+  application:
+    name: movie-time
+  profiles:
+    active: dev
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://${mysql.host}:${mysql.port}/${mysql.database}?useSSL=false&serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf8
+    username: ${mysql.username}
+    password: ${mysql.password}
+    hikari:
+      maximum-pool-size: 60
+      minimum-idle: 20
+      connection-timeout: 8000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+      connection-test-query: SELECT 1
+  data:
+    redis:
+      host: ${redis.host}
+      port: ${redis.port}
+      password: ${redis.password}
+      database: ${redis.database}
+      lettuce:
+        pool:
+          enabled: true
+          max-active: 200
+          max-idle: 100
+          min-idle: 30
+          max-wait: 8000
+  rabbitmq:
+    host: ${rabbitmq.host}
+    port: ${rabbitmq.port}
+    virtual-host: ${rabbitmq.virtual-host}
+    username: ${rabbitmq.username}
+    password: ${rabbitmq.password}
+    listener:
+      simple:
+        prefetch: 1
+        retry:
+          enabled: true
+
+mybatis:
+  configuration:
+    map-underscore-to-camel-case: true
+  mapper-locations: classpath*:mapper/*.xml
+
+logging:
+  level:
+    com.cdwater: debug
+
+jwt:
+  secret: ${jwt.secret}
+  admin-token-ttl: ${jwt.admin-token-ttl}
+  access-token-ttl: ${jwt.access-token-ttl}
+  refresh-token-ttl: ${jwt.access-token-ttl}
+
+snowflake:
+  datacenter-id: ${snowflake.datacenter-id}
+  machine-id: ${snowflake.machine-id}
+
+minio:
+  access-key: ${minio.access-key}
+  secret-key: ${minio.secret-key}
+  endpoint: ${minio.endpoint}
+  bucket-name: ${minio.bucket-name}

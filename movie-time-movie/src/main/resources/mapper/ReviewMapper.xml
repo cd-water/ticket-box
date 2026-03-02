@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cdwater.movietimemovie.mapper.ReviewMapper">
+    <insert id="insertLike">
+        INSERT IGNORE INTO review_like (user_id, review_id)
+        VALUES (#{userId}, #{reviewId})
+    </insert>
+    <insert id="insert">
+        INSERT INTO review (user_id, movie_id, content, parent_id)
+        VALUES (#{userId}, #{movieId}, #{content}, #{parentId})
+    </insert>
+    <update id="goDead">
+        UPDATE review
+        SET status = 1
+        WHERE id = #{id}
+    </update>
+    <update id="goAlive">
+        UPDATE review
+        SET status = 0
+        WHERE id = #{id}
+    </update>
+    <delete id="deleteLike">
+        DELETE
+        FROM review_like
+        WHERE user_id = #{userId}
+          AND review_id = #{reviewId}
+    </delete>
+    <select id="selectPage" resultType="com.cdwater.movietimemovie.model.vo.ReviewPageVO">
+        SELECT r.id,
+        u.nickname AS userNickname,
+        r.content,
+        COALESCE(like_counts.like_count, 0) AS like_count,
+        COALESCE(reply_counts.reply_count, 0) AS reply_count,
+        r.status,
+        r.create_time,
+        r.update_time
+        FROM review r
+        LEFT JOIN user u ON r.user_id = u.id
+        LEFT JOIN (
+        SELECT review_id, COUNT(*) AS like_count
+        FROM review_like
+        GROUP BY review_id
+        ) like_counts ON r.id = like_counts.review_id
+        LEFT JOIN (
+        SELECT parent_id, COUNT(*) AS reply_count
+        FROM review
+        WHERE parent_id != 0
+        GROUP BY parent_id
+        ) reply_counts ON r.id = reply_counts.parent_id
+        <where>
+            <if test="userNickname != null and userNickname != ''">
+                AND u.nickname LIKE concat('%', #{userNickname}, '%')
+            </if>
+            <if test="movieId != null">
+                AND r.movie_id = #{movieId}
+            </if>
+            <if test="status != null">
+                AND r.status = #{status}
+            </if>
+        </where>
+        ORDER BY r.id DESC
+    </select>
+    <select id="selectByMovieIdAndParentId" resultType="com.cdwater.movietimemovie.model.vo.ReviewVO">
+        SELECT r.id,
+               r.content,
+               r.create_time,
+               u.id       AS userId,
+               u.nickname AS userNickname,
+               u.avatar   AS userAvatar
+        FROM review r
+                 LEFT JOIN user u ON r.user_id = u.id
+        WHERE r.movie_id = #{movieId}
+          AND r.parent_id = #{parentId}
+          AND r.status = 0
+        ORDER BY r.create_time DESC
+    </select>
+    <select id="selectByUserId" resultType="com.cdwater.movietimemovie.model.vo.ReviewVO">
+        SELECT r.id,
+               r.content,
+               r.create_time,
+               m.id    AS movieId,
+               m.name  AS movieName,
+               m.cover AS movieCover
+        FROM review r
+                 LEFT JOIN movie m ON r.movie_id = m.id
+        WHERE r.user_id = #{userId}
+          AND r.status = 0
+        ORDER BY r.create_time DESC
+    </select>
+    <select id="selectLike" resultType="com.cdwater.movietimemovie.model.entity.ReviewLike">
+        SELECT id, user_id, review_id, create_time
+        FROM review_like
+    </select>
+</mapper>

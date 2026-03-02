@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cdwater.movietimemovie.mapper.MovieMapper">
+    <insert id="insert">
+        INSERT INTO movie
+        (name, cover, type, release_date, duration, description, director, actors, status)
+        VALUES (#{name}, #{cover}, #{type}, #{releaseDate}, #{duration},
+                #{description}, #{director}, #{actors}, #{status})
+    </insert>
+    <update id="updateById">
+        UPDATE movie
+        <set>
+            <if test="name != null">name = #{name},</if>
+            <if test="cover != null">cover = #{cover},</if>
+            <if test="type != null">type = #{type},</if>
+            <if test="releaseDate != null">release_date = #{releaseDate},</if>
+            <if test="duration != null">duration = #{duration},</if>
+            <if test="description != null">description = #{description},</if>
+            <if test="director != null">director = #{director},</if>
+            <if test="actors != null">actors = #{actors},</if>
+            <if test="status != null">status = #{status},</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+    <select id="selectById" resultType="com.cdwater.movietimemovie.model.entity.Movie">
+        SELECT id,
+               name,
+               cover,
+               type,
+               release_date,
+               duration,
+               description,
+               director,
+               actors,
+               rating,
+               status
+        FROM movie
+        WHERE id = #{id}
+    </select>
+    <select id="selectPage" resultType="com.cdwater.movietimemovie.model.vo.MoviePageVO">
+        SELECT id, name, cover, type, release_date, duration, description,
+        director, actors, rating, status,create_time, update_time
+        FROM movie
+        <where>
+            <if test="name != null and name != ''">
+                AND name LIKE concat('%', #{name}, '%')
+            </if>
+            <if test="status != null">
+                AND status = #{status}
+            </if>
+        </where>
+        ORDER BY update_time DESC
+    </select>
+    <select id="selectMapByStatus" resultType="com.cdwater.movietimemovie.model.vo.MovieShowingVO">
+        SELECT id, name
+        FROM movie
+        WHERE status = #{status}
+    </select>
+    <select id="count" resultType="java.lang.Long">
+        SELECT COUNT(*)
+        FROM movie
+    </select>
+    <select id="selectListByStatus" resultType="com.cdwater.movietimemovie.model.entity.Movie">
+        SELECT id,
+               name,
+               cover,
+               type,
+               release_date,
+               duration,
+               description,
+               director,
+               actors,
+               rating,
+               status,
+               create_time,
+               update_time
+        FROM movie
+        WHERE status = #{status}
+    </select>
+</mapper>
