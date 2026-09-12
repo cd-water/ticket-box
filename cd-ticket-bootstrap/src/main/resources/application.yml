@@ -4,6 +4,10 @@ server:
 spring:
   application:
     name: cd-ticket
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 5MB
   datasource:
     url: jdbc:mysql://localhost:3306/cd_ticket?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true&useSSL=false
     username: root
@@ -43,3 +47,9 @@ jwt:
 
 sms:
   code-expire-seconds: 300
+
+minio:
+  endpoint: http://localhost:9000
+  access-key: cdwaterminio
+  secret-key: cdwaterminio
+  bucket: cd-ticket

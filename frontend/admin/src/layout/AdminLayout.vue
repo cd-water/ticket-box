@@ -3,13 +3,12 @@ import { computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { adminLogout } from '@/api/auth'
 import { useAuthStore } from '@/stores/auth'
-import { menusForRole } from '@/config/menu'
+import { MENUS } from '@/config/menu'
 
 const auth = useAuthStore()
 const route = useRoute()
 const router = useRouter()
 
-const menus = computed(() => menusForRole(auth.admin?.role))
 const activeTitle = computed(() => (route.meta.title as string) || '')
 
 async function onLogout() {
@@ -36,21 +35,16 @@ async function onLogout() {
 
       <nav class="menu">
         <div
-          v-for="m in menus"
+          v-for="m in MENUS"
           :key="m.key"
           class="menu-item"
-          :class="{ on: route.path === `/${m.key}` }"
+          :class="{ on: route.path.startsWith(`/${m.key}`) }"
           @click="router.push(`/${m.key}`)"
         >
           <el-icon class="ic"><component :is="m.icon" /></el-icon>
           <span>{{ m.title }}</span>
         </div>
       </nav>
-
-      <div class="side-foot">
-        <div class="scope">{{ auth.scopeLabel }}</div>
-        <div class="sub">{{ auth.roleLabel }}</div>
-      </div>
     </aside>
 
     <div class="main">
@@ -142,23 +136,6 @@ async function onLogout() {
   font-size: 16px;
 }
 
-.side-foot {
-  border-top: 1px solid var(--line);
-  padding: 16px 22px;
-}
-
-.side-foot .scope {
-  font-family: var(--font-serif);
-  font-size: 13px;
-  font-weight: 700;
-}
-
-.side-foot .sub {
-  font-size: 11px;
-  color: var(--ink-2);
-  margin-top: 2px;
-}
-
 /* ---- 主区 ---- */
 .main {
   flex: 1;
@@ -235,7 +212,7 @@ async function onLogout() {
   padding: 26px 28px;
 }
 
-/* ---- 窄屏：侧边栏收成图标栏（同 demo） ---- */
+/* ---- 窄屏：侧边栏收成图标栏 ---- */
 @media (max-width: 900px) {
   .sidebar {
     width: 70px;
@@ -262,10 +239,6 @@ async function onLogout() {
   }
 
   .menu-item span:not(.ic) {
-    display: none;
-  }
-
-  .side-foot {
     display: none;
   }
 }
