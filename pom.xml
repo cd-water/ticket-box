@@ -17,64 +17,49 @@
     <description>cd-ticket</description>
 
     <modules>
-        <module>cd-ticket-bootstrap</module>
-        <module>cd-ticket-common</module>
-        <module>cd-ticket-user</module>
-        <module>cd-ticket-movie</module>
-        <module>cd-ticket-cinema</module>
-        <module>cd-ticket-screening</module>
-        <module>cd-ticket-order</module>
-        <module>cd-ticket-payment</module>
+        <module>cd-ticket-app</module>
+        <module>cd-ticket-admin</module>
     </modules>
 
     <properties>
         <java.version>21</java.version>
         <mybatis-plus.version>3.5.17</mybatis-plus.version>
-        <redisson.version>3.52.0</redisson.version>
-        <mapstruct.version>1.6.3</mapstruct.version>
+        <minio.version>8.5.17</minio.version>
         <jjwt.version>0.12.6</jjwt.version>
-        <minio.version>8.6.0</minio.version>
+        <mapstruct.version>1.6.3</mapstruct.version>
+        <tika.version>3.0.0</tika.version>
+        <redisson.version>3.45.1</redisson.version>
     </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-validation</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mapstruct</groupId>
+            <artifactId>mapstruct</artifactId>
+            <version>${mapstruct.version}</version>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
 
     <dependencyManagement>
         <dependencies>
-            <dependency>
-                <groupId>com.cdwater</groupId>
-                <artifactId>cd-ticket-common</artifactId>
-                <version>0.0.1-SNAPSHOT</version>
-            </dependency>
-            <dependency>
-                <groupId>com.cdwater</groupId>
-                <artifactId>cd-ticket-user</artifactId>
-                <version>0.0.1-SNAPSHOT</version>
-            </dependency>
-            <dependency>
-                <groupId>com.cdwater</groupId>
-                <artifactId>cd-ticket-movie</artifactId>
-                <version>0.0.1-SNAPSHOT</version>
-            </dependency>
-            <dependency>
-                <groupId>com.cdwater</groupId>
-                <artifactId>cd-ticket-cinema</artifactId>
-                <version>0.0.1-SNAPSHOT</version>
-            </dependency>
-            <dependency>
-                <groupId>com.cdwater</groupId>
-                <artifactId>cd-ticket-screening</artifactId>
-                <version>0.0.1-SNAPSHOT</version>
-            </dependency>
-            <dependency>
-                <groupId>com.cdwater</groupId>
-                <artifactId>cd-ticket-order</artifactId>
-                <version>0.0.1-SNAPSHOT</version>
-            </dependency>
-            <dependency>
-                <groupId>com.cdwater</groupId>
-                <artifactId>cd-ticket-payment</artifactId>
-                <version>0.0.1-SNAPSHOT</version>
-            </dependency>
-
-            <!-- MyBatis-Plus -->
             <dependency>
                 <groupId>com.baomidou</groupId>
                 <artifactId>mybatis-plus-spring-boot3-starter</artifactId>
@@ -85,15 +70,11 @@
                 <artifactId>mybatis-plus-jsqlparser</artifactId>
                 <version>${mybatis-plus.version}</version>
             </dependency>
-
-            <!-- MapStruct -->
             <dependency>
-                <groupId>org.mapstruct</groupId>
-                <artifactId>mapstruct</artifactId>
-                <version>${mapstruct.version}</version>
+                <groupId>io.minio</groupId>
+                <artifactId>minio</artifactId>
+                <version>${minio.version}</version>
             </dependency>
-
-            <!-- JWT -->
             <dependency>
                 <groupId>io.jsonwebtoken</groupId>
                 <artifactId>jjwt-api</artifactId>
@@ -111,49 +92,18 @@
                 <version>${jjwt.version}</version>
                 <scope>runtime</scope>
             </dependency>
-
-            <!-- MinIO -->
             <dependency>
-                <groupId>io.minio</groupId>
-                <artifactId>minio</artifactId>
-                <version>${minio.version}</version>
+                <groupId>org.apache.tika</groupId>
+                <artifactId>tika-core</artifactId>
+                <version>${tika.version}</version>
             </dependency>
-
-            <!-- Redis 分布式锁（Redisson） -->
             <dependency>
                 <groupId>org.redisson</groupId>
-                <artifactId>redisson-spring-boot-starter</artifactId>
+                <artifactId>redisson</artifactId>
                 <version>${redisson.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
-
-    <dependencies>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-test</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-validation</artifactId>
-        </dependency>
-        <!-- 已下沉到 cd-ticket-common 模块：spring-kafka / spring-boot-starter-data-redis / mysql-connector-j -->
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.mapstruct</groupId>
-            <artifactId>mapstruct</artifactId>
-            <version>${mapstruct.version}</version>
-        </dependency>
-    </dependencies>
 
     <build>
         <plugins>

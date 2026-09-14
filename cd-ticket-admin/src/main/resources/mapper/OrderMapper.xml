@@ -8,10 +8,17 @@
         o.status, o.total_amount, o.pay_expire_time, o.pay_time,
         o.create_time, o.update_time,
         u.phone AS user_phone,
-        m.title AS movie_title
+        m.title AS movie_title,
+        s.hall_id AS hall_id,
+        h.name AS hall_name,
+        c.name AS cinema_name,
+        s.start_time AS start_time
         FROM t_order o
         LEFT JOIN t_user u ON u.id = o.user_id
         LEFT JOIN t_movie m ON m.id = o.movie_id
+        LEFT JOIN t_screening s ON s.id = o.screening_id
+        LEFT JOIN t_hall h ON h.id = s.hall_id
+        LEFT JOIN t_cinema c ON c.id = o.cinema_id
         <where>
             <if test="orderNo != null">
                 AND o.order_no = #{orderNo}
@@ -24,5 +31,31 @@
             </if>
         </where>
         ORDER BY o.create_time DESC
+    </select>
+
+    <select id="countByStatus" resultType="long">
+        SELECT COUNT(*) FROM t_order WHERE status = #{status}
+    </select>
+
+    <select id="countByStatusSince" resultType="long">
+        SELECT COUNT(*) FROM t_order WHERE status = #{status} AND create_time &gt;= #{start}
+    </select>
+
+    <select id="sumPaidTotal" resultType="java.math.BigDecimal">
+        SELECT COALESCE(SUM(total_amount), 0) FROM t_order WHERE status = 1
+    </select>
+
+    <select id="sumPaidSince" resultType="java.math.BigDecimal">
+        SELECT COALESCE(SUM(total_amount), 0) FROM t_order WHERE status = 1 AND create_time &gt;= #{start}
+    </select>
+
+    <select id="selectDailyStats" resultType="com.cdwater.cdticket.admin.dto.dashboard.DailyOrderStat">
+        SELECT DATE_FORMAT(create_time, '%Y-%m-%d') AS date,
+               COUNT(*) AS order_count,
+               COALESCE(SUM(total_amount), 0) AS revenue
+        FROM t_order
+        WHERE status = 1 AND create_time &gt;= #{start}
+        GROUP BY DATE_FORMAT(create_time, '%Y-%m-%d')
+        ORDER BY date
     </select>
 </mapper>

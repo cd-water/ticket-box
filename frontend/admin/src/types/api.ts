@@ -227,6 +227,12 @@ export interface OrderVO {
   screeningId: number
   movieId: number
   movieTitle: string
+  hallId: number | null
+  hallName: string | null
+  cinemaId: number
+  cinemaName: string | null
+  /** yyyy-MM-dd HH:mm:ss */
+  startTime: string | null
   /** 0-待支付 1-已支付 2-已取消 */
   status: number
   totalAmount: number
@@ -240,6 +246,19 @@ export interface OrderListQuery extends PageQuery {
   /** 精确匹配，按字符串透传（t_order.order_no 是 BIGINT） */
   orderNo?: string
   status?: number
+}
+
+/** GET /api/admin/orders/{orderId}/items 的元素，按 seatRow/Col 升序 */
+export interface OrderItemVO {
+  id: number
+  orderId: number
+  screeningId: number
+  seatRow: number
+  seatCol: number
+  /** 展示座位号，如 "3排5座" */
+  seatNo: string
+  price: number
+  createTime: string
 }
 
 /* ---------- 用户 ---------- */
@@ -258,6 +277,65 @@ export interface UserVO {
 export interface UserListQuery extends PageQuery {
   phone?: string
   status?: number
+}
+
+/* ---------- 仪表盘 ---------- */
+
+/** GET /api/admin/dashboard */
+export interface DashboardVO {
+  /** 热映：上架中且已上映（release_date ≤ 今天） */
+  hotMovieCount: number
+  /** 待映：上架中且未上映（release_date > 今天） */
+  upcomingMovieCount: number
+  /** 营业中的影院数（status=1） */
+  cinemaOpenCount: number
+  /** 停业的影院数（status=0） */
+  cinemaClosedCount: number
+  /** 用户总数（不论状态） */
+  userCount: number
+  todayPendingCount: number
+  todayPaidCount: number
+  todayCancelledCount: number
+  /** 今日已支付订单营收 */
+  todayRevenue: number
+  /** 全部已支付订单营收 */
+  totalRevenue: number
+  totalOrderCount: number
+  totalPendingCount: number
+  totalPaidCount: number
+  totalCancelledCount: number
+  /** 各影院经营汇总（已支付营收降序） */
+  perCinemaStats: CinemaStat[]
+  /** 影片票房排行 Top 5（已支付营收降序） */
+  movieRanking: MovieRank[]
+  /** 近 7 日已支付订单/营收，缺失日期补 0 */
+  dailyStats: DailyOrderStat[]
+}
+
+/** 单个影院的经营汇总（仅已支付订单计营收与订单数） */
+export interface CinemaStat {
+  name: string
+  /** 已支付订单数 */
+  orderCount: number
+  /** 已支付订单营收 */
+  revenue: number
+}
+
+/** 影片票房排行条目（仅已支付订单） */
+export interface MovieRank {
+  title: string
+  /** 已支付订单数 */
+  orderCount: number
+  /** 已支付订单营收 */
+  revenue: number
+}
+
+/** 单日订单统计（仅已支付订单） */
+export interface DailyOrderStat {
+  /** yyyy-MM-dd */
+  date: string
+  orderCount: number
+  revenue: number
 }
 
 /* ---------- 轮播图 ---------- */
