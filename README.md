@@ -1,52 +1,58 @@
-# CD-TICKET 电影票务系统
-
-C 端涵盖电影/影院浏览、选座购票；B 端支持多影院后台管理。
+# ticket-system 高并发票务系统
 
 ## 技术栈
 
-Spring Boot 3.5 (Java 21) · MyBatis-Plus · MySQL · Redis (Redisson) · Kafka · Spring Security · MinIO
-前端：React 19 + Vite + Tailwind（C 端） / Vue 3 + Element Plus（B 端）
+**后端**：Java 21、Spring Boot 3.5、Maven 多模块、Spring Security + JWT（JJWT）、MyBatis-Plus、Redis（Redisson）、RabbitMQ（延迟消息插件）、AWS S3 SDK（MinIO）、MapStruct、Lombok
 
-## 模块
+**前端**：Vue 3、TypeScript、Vite、pnpm、Tailwind CSS 4、shadcn-vue（reka-ui）、Pinia（持久化插件）、Vue Router、vee-validate + zod、axios
 
-| 模块 | 说明 | 端口 |
-|---|---|---|
-| `cd-ticket-app` | C 端后端（分层：interfaces / application / domain / infrastructure） | 8600 |
-| `cd-ticket-admin` | B 端后台管理后端 | 8601 |
-| `frontend/web` | C 端前端（React） | 5600 (dev) |
-| `frontend/admin` | B 端前端（Vue） | 5601 (dev) |
-| `script/sql` | `table.sql` 建表 + `seed.sql` 演示数据 | — |
-| `docs/api.md` | C 端选座购票接口契约 | — |
+**基础设施**：Docker Compose — MySQL 8、Redis 7、RabbitMQ 4.1、MinIO
 
-## 快速开始
+## 项目结构
 
-```bash
-# 1. 基础设施（MySQL / Redis / Kafka / MinIO，凭据见 docker-compose.yaml）
-docker compose up -d
-
-# 2. 建表 + 初始化数据
-mysql -uroot -pcdwatermysql cd_ticket < script/sql/table.sql
-mysql -uroot -pcdwatermysql cd_ticket < script/sql/seed.sql
-
-# 3. 后端（根目录 Maven wrapper）
-./mvnw -pl cd-ticket-app spring-boot:run      # C 端 :8600
-./mvnw -pl cd-ticket-admin spring-boot:run    # B 端 :8601
-
-# 4. 前端（各自目录 pnpm）
-cd frontend/web && pnpm dev                   # C 端 :5600
-cd frontend/admin && pnpm dev                 # B 端 :5601
+```
+├── ticket-common/    # 公共基础：Result 响应封装、异常、实体；统一声明技术栈依赖
+├── ticket-auth/      # 认证模块
+├── ticket-event/     # 演出/赛事模块
+├── ticket-booking/   # 购票/订单模块（依赖 auth、event）
+├── ticket-boot/      # 启动模块：唯一可运行入口，端口 8600
+├── frontend/         # Vue 3 前端，端口 5600，/api 代理到后端 8600
+└── infra/
+    ├── docker/       # docker-compose：MySQL / Redis / RabbitMQ / MinIO
+    ├── db/           # 建表 schema.sql、初始数据 seed.sql
+    └── rabbitmq/     # 延迟消息插件
 ```
 
-测试：`./mvnw test`（单模块单测：`./mvnw test -pl cd-ticket-admin -Dtest=MovieServiceTest`）
+模块依赖方向：`ticket-boot → ticket-booking → { ticket-auth, ticket-event } → ticket-common`
 
-演示账号：C 端 `13800000001 / Aa123456`，B 端 `admin / Aa123456`
+## 命令
 
-## 核心设计
+### 基础设施（后端启动前必须先启动）
 
-- **座位锁定**：Redis Bitmap + Lua 原子检查与锁定，座位图整图一次 GET 解析，已售位图懒加载自 DB
-- **超时关单**：Redis ZSet 延迟队列 + 轮询，`status` CAS（乐观锁）解决支付/关单并发，落败方自动退款补偿
-- **认证**：C 端双 Token 无感刷新（access 15m + refresh 7d）；B 端单 Token + Redis（单设备、可即时吊销）
-- **缓存**：逻辑过期 + Redisson 互斥锁异步重建（防击穿）、布隆过滤 + 空值缓存（防穿透）、TTL 抖动 + 启动预热（防雪崩）
-- **限流**：Redis ZSet + Lua 滑动窗口（座位图按场次、下单按用户）
-- **异步解耦**：短信与票房统计经本地消息表 + 定时任务投递 Kafka，失败指数退避重试
-- **支付**：当前为服务端模拟（接口同步完成 0→1，生成 8 位取票码），网关接入时改由支付回调驱动
+```bash
+cd infra/docker
+cp .env.example .env    # 已有 .env 则跳过
+docker compose up -d    # MySQL :3306、Redis :6379、RabbitMQ :5672/:15672、MinIO :9000/:9001
+```
+
+`schema.sql` / `seed.sql` 仅在 MySQL 数据卷首次初始化时执行。种子账号：`13800000001` / `Aa123456`。
+
+### 后端（Maven 多模块，使用 wrapper）
+
+```bash
+./mvnw verify                          # 构建全部模块并运行测试
+./mvnw -DskipTests package             # 跳过测试打包
+./mvnw spring-boot:run -pl ticket-boot # 启动应用，端口 8600
+./mvnw test -pl ticket-boot -Dtest=TicketSystemApplicationTests   # 运行单个测试
+```
+
+Windows 下使用 `mvnw.cmd`。配置位于 `ticket-boot/src/main/resources/application.yml`。
+
+### 前端
+
+```bash
+cd frontend
+pnpm install
+pnpm dev       # 开发服务器，端口 5600，/api 代理到 localhost:8600
+pnpm build     # 类型检查（vue-tsc）+ 生产构建
+```

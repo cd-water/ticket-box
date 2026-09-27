@@ -31,3 +31,8 @@ build/
 
 ### VS Code ###
 .vscode/
+
+infra/docker/.env
+.codegraph
+CLAUDE.md
+AGENTS.md
