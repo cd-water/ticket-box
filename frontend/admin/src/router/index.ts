@@ -2,7 +2,17 @@ import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import AdminLayout from '@/layouts/AdminLayout.vue'
 import LoginView from '@/views/LoginView.vue'
-import PlaceholderView from '@/views/PlaceholderView.vue'
+import OverviewView from '@/views/OverviewView.vue'
+import MovieView from '@/views/MovieView.vue'
+import CinemaView from '@/views/CinemaView.vue'
+import ShowView from '@/views/ShowView.vue'
+import PlayView from '@/views/PlayView.vue'
+import OrderView from '@/views/OrderView.vue'
+import UserView from '@/views/UserView.vue'
+import SupportView from '@/views/SupportView.vue'
+import KnowledgeView from '@/views/KnowledgeView.vue'
+import ModelConfigView from '@/views/ModelConfigView.vue'
+import SystemView from '@/views/SystemView.vue'
 
 declare module 'vue-router' {
   interface RouteMeta {
@@ -11,7 +21,7 @@ declare module 'vue-router' {
   }
 }
 
-const DEFAULT_REDIRECT = '/menu-1'
+const DEFAULT_REDIRECT = '/overview'
 
 const router = createRouter({
   history: createWebHistory(),
@@ -23,9 +33,17 @@ const router = createRouter({
       redirect: DEFAULT_REDIRECT,
       meta: { requiresAuth: true },
       children: [
-        { path: 'menu-1', component: PlaceholderView, meta: { title: '菜单1' } },
-        { path: 'menu-2', component: PlaceholderView, meta: { title: '菜单2' } },
-        { path: 'menu-3', component: PlaceholderView, meta: { title: '菜单3' } },
+        { path: 'overview', component: OverviewView, meta: { title: '数据概览' } },
+        { path: 'movies', component: MovieView, meta: { title: '电影管理' } },
+        { path: 'cinemas', component: CinemaView, meta: { title: '影院管理' } },
+        { path: 'shows', component: ShowView, meta: { title: '演出管理' } },
+        { path: 'play', component: PlayView, meta: { title: '玩乐管理' } },
+        { path: 'orders', component: OrderView, meta: { title: '订单管理' } },
+        { path: 'users', component: UserView, meta: { title: '用户管理' } },
+        { path: 'support', component: SupportView, meta: { title: '客服中心' } },
+        { path: 'knowledge', component: KnowledgeView, meta: { title: '知识库' } },
+        { path: 'models', component: ModelConfigView, meta: { title: '模型配置' } },
+        { path: 'system', component: SystemView, meta: { title: '系统管理' } },
       ],
     },
   ],

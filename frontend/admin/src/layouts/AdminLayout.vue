@@ -2,7 +2,22 @@
 import { useDark, useToggle } from '@vueuse/core'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessageBox } from 'element-plus'
-import { Document, Moon, Setting, Sunny, SwitchButton, Ticket } from '@element-plus/icons-vue'
+import {
+  Basketball,
+  Cpu,
+  DataAnalysis,
+  Film,
+  Moon,
+  OfficeBuilding,
+  Reading,
+  Service,
+  Setting,
+  Sunny,
+  SwitchButton,
+  Ticket,
+  Tickets,
+  User,
+} from '@element-plus/icons-vue'
 import { useAuthStore } from '@/stores/auth'
 import BrandMark from '@/components/BrandMark.vue'
 
@@ -11,9 +26,17 @@ const router = useRouter()
 const auth = useAuthStore()
 
 const menuItems = [
-  { path: '/menu-1', title: '菜单1', icon: Ticket },
-  { path: '/menu-2', title: '菜单2', icon: Document },
-  { path: '/menu-3', title: '菜单3', icon: Setting },
+  { path: '/overview', title: '数据概览', icon: DataAnalysis },
+  { path: '/movies', title: '电影管理', icon: Film },
+  { path: '/cinemas', title: '影院管理', icon: OfficeBuilding },
+  { path: '/shows', title: '演出管理', icon: Ticket },
+  { path: '/play', title: '玩乐管理', icon: Basketball },
+  { path: '/orders', title: '订单管理', icon: Tickets },
+  { path: '/users', title: '用户管理', icon: User },
+  { path: '/support', title: '客服中心', icon: Service },
+  { path: '/knowledge', title: '知识库', icon: Reading },
+  { path: '/models', title: '模型配置', icon: Cpu },
+  { path: '/system', title: '系统管理', icon: Setting },
 ]
 
 const isDark = useDark()
@@ -100,6 +123,7 @@ async function handleLogout() {
 
 .menu {
   flex: 1;
+  overflow-y: auto;
   border-right: none;
 }
 

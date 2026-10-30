@@ -37,7 +37,7 @@ function safeRedirectPath(state: unknown): string {
   const from = (state as { from?: unknown } | null)?.from
   return typeof from === 'string' && from.startsWith('/') && !from.startsWith('//')
     ? from
-    : '/page-1'
+    : '/home'
 }
 
 function ErrorLine({ msg }: { msg?: string }) {
@@ -85,7 +85,7 @@ export default function LoginPage() {
     onSuccess: async (data) => {
       useAuthStore.getState().setAuth(data.tokenValue)
       queryClient.removeQueries()
-      await queryClient.fetchQuery(userInfoOptions).catch(() => undefined)
+      await queryClient.query(userInfoOptions).catch(() => undefined)
       navigate(safeRedirectPath(location.state), { replace: true })
     },
   })
@@ -109,10 +109,10 @@ export default function LoginPage() {
 
   return (
     <div className="flex min-h-svh items-center justify-center bg-background px-4">
-      <div className="w-full max-w-sm rounded-lg border border-border bg-card p-8">
+      <div className="w-full max-w-sm rounded-lg border border-border bg-card p-6 md:p-8">
         <div className="flex items-center justify-center gap-3">
           <BrandMark size={40} />
-          <h1 className="text-xl font-semibold tracking-tight text-foreground">
+          <h1 className="text-2xl font-semibold tracking-tight text-foreground">
             TicketBox <span className="font-normal">|</span> 票务盒子
           </h1>
         </div>
@@ -179,7 +179,7 @@ export default function LoginPage() {
               <Button
                 type="button"
                 variant="outline"
-                className="h-10 shrink-0 border-input bg-card text-foreground"
+                className="h-10 shrink-0 border-input bg-card text-[15px] text-foreground"
                 disabled={countdown > 0 || sendCodeMutation.isPending}
                 onClick={handleSendCode}
               >
@@ -210,7 +210,7 @@ export default function LoginPage() {
           <Button
             type="submit"
             size="lg"
-            className="w-full"
+            className="h-10 w-full text-[15px]"
             disabled={loginMutation.isPending}
           >
             {loginMutation.isPending ? (
