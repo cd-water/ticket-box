@@ -54,7 +54,7 @@ export interface SeatMap {
 }
 
 export const cinemaApi = {
-  list: (params: { page: number; size?: number; name?: string }) =>
+  list: (params: { page: number; size?: number; name?: string; movieId?: number }) =>
     http.get<PageResult<CinemaListItem>>('/cinemas', { params }),
   detail: (id: number) => http.get<CinemaDetail>(`/cinemas/${id}`),
   screenings: (cinemaId: number, movieId: number) =>

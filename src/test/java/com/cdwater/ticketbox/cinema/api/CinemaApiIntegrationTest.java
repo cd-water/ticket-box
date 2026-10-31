@@ -80,6 +80,30 @@ class CinemaApiIntegrationTest {
     }
 
     @Test
+    void cinema_list_filtered_by_movie() {
+        String token = token();
+
+        JsonNode movie1 = get("/api/cinemas?page=1&size=10&movieId=1", token);
+        assertEquals("A200", movie1.get("code").asString(), movie1.toString());
+        assertEquals(2, movie1.get("data").get("total").asInt());
+        String names = movie1.get("data").get("records").toString();
+        assertTrue(names.contains("星光"));
+        assertTrue(names.contains("金逸"));
+
+        JsonNode named = get("/api/cinemas?page=1&size=10&movieId=1&name=星光", token);
+        assertEquals(1, named.get("data").get("total").asInt());
+
+        JsonNode upcoming = get("/api/cinemas?page=1&size=10&movieId=3", token);
+        assertEquals(0, upcoming.get("data").get("total").asInt());
+
+        JsonNode invalid = get("/api/cinemas?page=1&size=10&movieId=0", token);
+        assertEquals("C400", invalid.get("code").asString());
+
+        JsonNode missing = get("/api/cinemas?page=1&size=10&movieId=999999", token);
+        assertEquals(0, missing.get("data").get("total").asInt());
+    }
+
+    @Test
     void cinema_detail_contains_movies() {
         String token = token();
         JsonNode node = get("/api/cinemas/1", token);

@@ -20,10 +20,19 @@ public class CinemaRepositoryImpl implements CinemaRepository {
     private final CinemaMapper cinemaMapper;
 
     @Override
-    public PageResult<Cinema> page(String name, long page, long size) {
+    public PageResult<Cinema> page(String name, Long movieId, long page, long size) {
         LambdaQueryWrapper<Cinema> wrapper = new LambdaQueryWrapper<Cinema>()
-                .eq(Cinema::getStatus, 1)
-                .orderByDesc(Cinema::getId);
+                .eq(Cinema::getStatus, 1);
+        if (movieId != null) {
+            wrapper.exists("""
+                    SELECT 1 FROM t_screening s
+                    WHERE s.cinema_id = t_cinema.id
+                      AND s.movie_id = {0}
+                      AND s.status = 1
+                      AND s.start_time >= NOW()
+                    """, movieId);
+        }
+        wrapper.orderByDesc(Cinema::getId);
         if (StringUtils.hasText(name)) {
             wrapper.like(Cinema::getName, LikeUtils.escape(name.trim()));
         }

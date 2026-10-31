@@ -21,6 +21,7 @@ import {
 } from '@/components/ui/pagination'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useCinemaList } from '@/hooks/useCinemaQueries'
+import { useMovieDetail } from '@/hooks/useMovieQueries'
 import { getPageItems } from '@/lib/pagination'
 
 const PAGE_SIZE = 10
@@ -29,8 +30,14 @@ export default function CinemaPage() {
   const [params, setParams] = useSearchParams()
   const name = params.get('name') ?? ''
   const page = Math.max(1, Number(params.get('page') ?? 1) || 1)
+  const movieId = Number(params.get('movie')) || 0
   const [searchText, setSearchText] = useState(name)
-  const { data, isPending, isError, refetch, isFetching } = useCinemaList(name, page)
+  const { data: movie } = useMovieDetail(movieId)
+  const { data, isPending, isError, refetch, isFetching } = useCinemaList(
+    name,
+    page,
+    movieId || undefined,
+  )
   const totalPages = data ? Math.max(1, Math.ceil(data.total / PAGE_SIZE)) : 1
 
   useEffect(() => {
@@ -62,7 +69,14 @@ export default function CinemaPage() {
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-        <h1 className="text-2xl font-semibold text-foreground">影院</h1>
+        <div>
+          <h1 className="text-2xl font-semibold text-foreground">影院</h1>
+          {movieId > 0 ? (
+            <p className="mt-1 text-sm text-muted-foreground">
+              《{movie?.title ?? '该影片'}》可购票影院
+            </p>
+          ) : null}
+        </div>
         <form
           className="flex w-full gap-2 md:w-auto"
           onSubmit={(event) => {
@@ -110,8 +124,10 @@ export default function CinemaPage() {
         <div className="py-16">
           <Empty className="p-0">
             <EmptyHeader>
-              <EmptyTitle>暂无影院</EmptyTitle>
-              <EmptyDescription>换个名称试试</EmptyDescription>
+              <EmptyTitle>{movieId > 0 ? '暂无放映影院' : '暂无影院'}</EmptyTitle>
+              <EmptyDescription>
+                {movieId > 0 ? '该影片暂无未来场次' : '换个名称试试'}
+              </EmptyDescription>
             </EmptyHeader>
           </Empty>
         </div>
@@ -121,7 +137,7 @@ export default function CinemaPage() {
         <>
           <div className={`space-y-3 ${isFetching ? 'opacity-70' : ''}`}>
             {data.records.map((cinema) => (
-              <CinemaCard key={cinema.id} cinema={cinema} />
+              <CinemaCard key={cinema.id} cinema={cinema} movieId={movieId || undefined} />
             ))}
           </div>
 

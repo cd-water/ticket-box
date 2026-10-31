@@ -7,7 +7,7 @@ import java.util.Optional;
 
 public interface CinemaRepository {
 
-    PageResult<Cinema> page(String name, long page, long size);
+    PageResult<Cinema> page(String name, Long movieId, long page, long size);
 
     Optional<Cinema> findById(Long id);
 }

@@ -3,10 +3,17 @@ import { Link } from 'react-router'
 import type { CinemaListItem } from '@/api/cinema'
 import { Badge } from '@/components/ui/badge'
 
-export function CinemaCard({ cinema }: { cinema: CinemaListItem }) {
+export function CinemaCard({
+  cinema,
+  movieId,
+}: {
+  cinema: CinemaListItem
+  movieId?: number
+}) {
+  const to = movieId ? `/cinema/${cinema.id}?movie=${movieId}` : `/cinema/${cinema.id}`
   return (
     <Link
-      to={`/cinema/${cinema.id}`}
+      to={to}
       className="block rounded-xl border border-border bg-card p-5 transition-colors hover:border-primary/60"
     >
       <div className="flex items-center justify-between gap-3">

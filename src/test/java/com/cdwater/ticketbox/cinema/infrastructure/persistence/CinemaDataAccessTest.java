@@ -52,13 +52,31 @@ class CinemaDataAccessTest {
 
     @Test
     void cinema_page_and_name_filter() {
-        PageResult<Cinema> all = cinemaRepository.page("", 1, 10);
+        PageResult<Cinema> all = cinemaRepository.page("", null, 1, 10);
         assertEquals(12, all.getTotal());
         assertEquals(10, all.getRecords().size());
 
-        PageResult<Cinema> filtered = cinemaRepository.page("星光", 1, 10);
+        PageResult<Cinema> filtered = cinemaRepository.page("星光", null, 1, 10);
         assertEquals(1, filtered.getTotal());
         assertEquals("星光国际影城（人民广场店）", filtered.getRecords().get(0).getName());
+    }
+
+    @Test
+    void cinema_page_filters_by_movie_with_future_screenings() {
+        PageResult<Cinema> movie1 = cinemaRepository.page("", 1L, 1, 10);
+        assertEquals(2, movie1.getTotal());
+        assertEquals(java.util.Set.of(1L, 8L),
+                movie1.getRecords().stream().map(Cinema::getId).collect(java.util.stream.Collectors.toSet()));
+
+        PageResult<Cinema> movie1Named = cinemaRepository.page("星光", 1L, 1, 10);
+        assertEquals(1, movie1Named.getTotal());
+
+        PageResult<Cinema> upcoming = cinemaRepository.page("", 3L, 1, 10);
+        assertEquals(0, upcoming.getTotal());
+
+        PageResult<Cinema> page2 = cinemaRepository.page("", 1L, 2, 1);
+        assertEquals(2, page2.getTotal());
+        assertEquals(1, page2.getRecords().size());
     }
 
     @Test

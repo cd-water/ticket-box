@@ -28,7 +28,8 @@ public class CinemaQueryService {
     private final MovieQueryService movieQueryService;
 
     public PageResult<CinemaListItemVO> list(CinemaListQuery query) {
-        PageResult<Cinema> page = cinemaRepository.page(query.getName(), query.getPage(), query.getSize());
+        PageResult<Cinema> page = cinemaRepository.page(
+                query.getName(), query.getMovieId(), query.getPage(), query.getSize());
         List<CinemaListItemVO> records = page.getRecords().stream()
                 .map(c -> new CinemaListItemVO(c.getId(), c.getName(), c.getAddress(), c.getPhone()))
                 .toList();

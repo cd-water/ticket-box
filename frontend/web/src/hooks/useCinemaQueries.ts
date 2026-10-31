@@ -2,17 +2,23 @@ import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import { cinemaApi } from '@/api/cinema'
 
 export const cinemaKeys = {
-  list: (name: string, page: number) => ['cinemas', 'list', name, page] as const,
+  list: (name: string, page: number, movieId?: number) =>
+    ['cinemas', 'list', name, page, movieId ?? 0] as const,
   detail: (id: number) => ['cinemas', 'detail', id] as const,
   screenings: (cinemaId: number, movieId: number) =>
     ['cinemas', cinemaId, 'movies', movieId, 'screenings'] as const,
   seatMap: (screeningId: number) => ['screenings', screeningId, 'seats'] as const,
 }
 
-export function useCinemaList(name: string, page: number) {
+export function useCinemaList(name: string, page: number, movieId?: number) {
   return useQuery({
-    queryKey: cinemaKeys.list(name, page),
-    queryFn: () => cinemaApi.list({ page, size: 10, name: name || undefined }),
+    queryKey: cinemaKeys.list(name, page, movieId),
+    queryFn: () => cinemaApi.list({
+      page,
+      size: 10,
+      name: name || undefined,
+      movieId: movieId || undefined,
+    }),
     staleTime: 60_000,
     placeholderData: keepPreviousData,
   })

@@ -12,6 +12,9 @@ public class CinemaListQuery {
     private String name = "";
 
     @Min(1)
+    private Long movieId;
+
+    @Min(1)
     private long page = 1;
 
     @Min(1)

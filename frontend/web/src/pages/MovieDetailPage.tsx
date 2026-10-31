@@ -105,8 +105,12 @@ export default function MovieDetailPage() {
             {formatDateTime(data.releaseDate)} · {data.duration} 分钟
           </p>
 
-          {/* 购票入口：功能待实现 */}
-          <Button type="button" size="lg" className="h-10 w-fit px-6">
+          <Button
+            size="lg"
+            className="h-10 w-fit px-6"
+            nativeButton={false}
+            render={<Link to={`/cinema?movie=${data.id}`} />}
+          >
             选座购票
           </Button>
 
