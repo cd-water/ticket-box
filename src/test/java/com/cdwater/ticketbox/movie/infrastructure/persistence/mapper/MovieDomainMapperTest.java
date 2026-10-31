@@ -42,8 +42,8 @@ class MovieDomainMapperTest {
         Long upcoming = movieMapper.selectCount(new LambdaQueryWrapper<Movie>()
                 .eq(Movie::getStatus, 1)
                 .gt(Movie::getReleaseDate, now));
-        assertEquals(9L, hot);
-        assertEquals(8L, upcoming);
+        assertEquals(15L, hot);
+        assertEquals(15L, upcoming);
     }
 
     @Test

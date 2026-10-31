@@ -54,7 +54,7 @@ class MovieApiIntegrationTest {
         JsonNode node = get("/api/movies?tab=showing&page=1&size=5", token);
         assertEquals("A200", node.get("code").asString(), node.toString());
         JsonNode data = node.get("data");
-        assertEquals(9, data.get("total").asInt());
+        assertEquals(15, data.get("total").asInt());
         assertEquals(5, data.get("records").size());
         assertEquals(1, data.get("page").asInt());
         assertEquals("城市脉搏", data.get("records").get(0).get("title").asString());
@@ -66,7 +66,7 @@ class MovieApiIntegrationTest {
     void upcoming_list_and_search_scope() {
         String token = token();
         JsonNode upcoming = get("/api/movies?tab=upcoming&page=1&size=12", token);
-        assertEquals(8, upcoming.get("data").get("total").asInt());
+        assertEquals(15, upcoming.get("data").get("total").asInt());
         assertTrue(upcoming.get("data").get("records").toString().contains("午夜列车"));
 
         JsonNode showingHit = get("/api/movies?tab=showing&keyword=星际", token);

@@ -127,3 +127,121 @@ CREATE TABLE `t_movie_comment_like`
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_0900_ai_ci COMMENT = '影评点赞关联表';
+
+CREATE TABLE `t_cinema`
+(
+    `id`          BIGINT       NOT NULL AUTO_INCREMENT COMMENT '影院ID（主键）',
+    `name`        VARCHAR(64)  NOT NULL COMMENT '影院名称',
+    `address`     VARCHAR(255) NOT NULL DEFAULT '' COMMENT '影院地址',
+    `phone`       VARCHAR(20)  NOT NULL DEFAULT '' COMMENT '联系电话',
+    `status`      TINYINT      NOT NULL DEFAULT 1 COMMENT '状态 0-停用 1-启用',
+    `create_time` DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `update_time` DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    PRIMARY KEY (`id`),
+    KEY `idx_name` (`name`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4
+  COLLATE = utf8mb4_0900_ai_ci COMMENT = '影院表';
+
+CREATE TABLE `t_hall`
+(
+    `id`          BIGINT      NOT NULL AUTO_INCREMENT COMMENT '影厅ID（主键）',
+    `cinema_id`   BIGINT      NOT NULL COMMENT '关联影院ID(t_cinema.id)',
+    `name`        VARCHAR(32) NOT NULL COMMENT '影厅名称',
+    `status`      TINYINT     NOT NULL DEFAULT 1 COMMENT '状态 0-停用 1-启用',
+    `create_time` DATETIME    NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `update_time` DATETIME    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uk_cinema_name` (`cinema_id`, `name`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4
+  COLLATE = utf8mb4_0900_ai_ci COMMENT = '影厅表';
+
+CREATE TABLE `t_seat`
+(
+    `id`          BIGINT   NOT NULL AUTO_INCREMENT COMMENT '座位ID（主键）',
+    `hall_id`     BIGINT   NOT NULL COMMENT '关联影厅ID(t_hall.id)',
+    `row_num`     INT      NOT NULL COMMENT '排号',
+    `col_num`     INT      NOT NULL COMMENT '列号',
+    `create_time` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `update_time` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uk_hall_row_col` (`hall_id`, `row_num`, `col_num`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4
+  COLLATE = utf8mb4_0900_ai_ci COMMENT = '座位表';
+
+CREATE TABLE `t_screening`
+(
+    `id`          BIGINT         NOT NULL AUTO_INCREMENT COMMENT '排场ID（主键）',
+    `cinema_id`   BIGINT         NOT NULL COMMENT '关联影院ID(t_cinema.id)',
+    `hall_id`     BIGINT         NOT NULL COMMENT '关联影厅ID(t_hall.id)',
+    `movie_id`    BIGINT         NOT NULL COMMENT '关联电影ID(t_movie.id)',
+    `start_time`  DATETIME       NOT NULL COMMENT '开场时间',
+    `end_time`    DATETIME       NOT NULL COMMENT '散场时间',
+    `price`       DECIMAL(10, 2) NOT NULL COMMENT '票价（元）',
+    `status`      TINYINT        NOT NULL DEFAULT 1 COMMENT '状态 0-取消 1-正常',
+    `create_time` DATETIME       NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `update_time` DATETIME       NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    PRIMARY KEY (`id`),
+    KEY `idx_cinema_movie_start` (`cinema_id`, `movie_id`, `status`, `start_time`),
+    KEY `idx_cinema_start` (`cinema_id`, `status`, `start_time`),
+    KEY `idx_hall_start` (`hall_id`, `status`, `start_time`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4
+  COLLATE = utf8mb4_0900_ai_ci COMMENT = '排场表';
+
+CREATE TABLE `t_screening_seat`
+(
+    `id`               BIGINT   NOT NULL AUTO_INCREMENT COMMENT '排场座位ID（主键）',
+    `screening_id`     BIGINT   NOT NULL COMMENT '关联排场ID(t_screening.id)',
+    `seat_id`          BIGINT   NOT NULL COMMENT '关联座位ID(t_seat.id)',
+    `status`           TINYINT  NOT NULL DEFAULT 0 COMMENT '状态 0-可售 1-锁定 2-已售',
+    `lock_order_id`    BIGINT   NULL COMMENT '锁定订单ID(t_order.id)',
+    `lock_expire_time` DATETIME NULL COMMENT '锁定过期时间',
+    `create_time`      DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `update_time`      DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uk_screening_seat` (`screening_id`, `seat_id`),
+    KEY `idx_screening_status` (`screening_id`, `status`),
+    KEY `idx_lock_order` (`lock_order_id`),
+    KEY `idx_status_expire` (`status`, `lock_expire_time`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4
+  COLLATE = utf8mb4_0900_ai_ci COMMENT = '排场座位表';
+
+CREATE TABLE `t_order`
+(
+    `id`           BIGINT         NOT NULL AUTO_INCREMENT COMMENT '订单ID（主键）',
+    `order_no`     BIGINT         NOT NULL COMMENT '订单号（雪花算法）',
+    `user_id`      BIGINT         NOT NULL COMMENT '关联用户ID(t_user.id)',
+    `screening_id` BIGINT         NOT NULL COMMENT '关联排场ID(t_screening.id)',
+    `total_amount` DECIMAL(10, 2) NOT NULL COMMENT '订单总金额（元）',
+    `status`       TINYINT        NOT NULL DEFAULT 0 COMMENT '状态 0-待支付 1-已支付 2-已取消 3-已超时',
+    `expire_time`  DATETIME       NOT NULL COMMENT '支付截止时间',
+    `create_time`  DATETIME       NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `update_time`  DATETIME       NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uk_order_no` (`order_no`),
+    KEY `idx_user_time` (`user_id`, `create_time`),
+    KEY `idx_screening` (`screening_id`),
+    KEY `idx_status_expire` (`status`, `expire_time`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4
+  COLLATE = utf8mb4_0900_ai_ci COMMENT = '订单表';
+
+CREATE TABLE `t_order_seat`
+(
+    `id`          BIGINT         NOT NULL AUTO_INCREMENT COMMENT '订单座位ID（主键）',
+    `order_id`    BIGINT         NOT NULL COMMENT '关联订单ID(t_order.id)',
+    `seat_id`     BIGINT         NOT NULL COMMENT '关联座位ID(t_seat.id)',
+    `row_num`     INT            NOT NULL COMMENT '下单时排号快照',
+    `col_num`     INT            NOT NULL COMMENT '下单时列号快照',
+    `price`       DECIMAL(10, 2) NOT NULL COMMENT '票价（元）',
+    `create_time` DATETIME       NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uk_order_seat` (`order_id`, `seat_id`),
+    KEY `idx_seat` (`seat_id`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4
+  COLLATE = utf8mb4_0900_ai_ci COMMENT = '订单座位表';

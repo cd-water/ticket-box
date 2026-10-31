@@ -19,7 +19,7 @@ VALUES (1, '13800000001', '$2a$10$GIo5IeU8h/hoUoXFt6sFOu91qMy.0QrjdS6zO0jcC9znCQ
 INSERT INTO `t_admin` (`id`, `username`, `password`)
 VALUES (1, 'admin', '$2a$10$GIo5IeU8h/hoUoXFt6sFOu91qMy.0QrjdS6zO0jcC9znCQ.5cIvpC');
 
--- 电影：1-2、6-10、16-17 热映；3-4、11-14、18-19 待映；5、15、20 已下架
+-- 电影：1-2、6-10、16-17、21-26 热映；3-4、11-14、18-19、27-33 待映；5、15、20 已下架
 INSERT INTO `t_movie` (`id`, `title`, `poster`, `synopsis`, `duration`, `release_date`, `status`)
 VALUES (1, '星际征途', 'https://github.com/cd-water.png',
         '一支深空探险队穿越虫洞寻找人类新家园，途中遭遇未知文明。',
@@ -80,7 +80,46 @@ VALUES (1, '星际征途', 'https://github.com/cd-water.png',
         124, DATE_ADD(NOW(), INTERVAL 18 DAY), 1),
        (20, '温暖的院子', 'https://github.com/cd-water.png',
         '一座老院子里，几户人家在一年四季里互相扶持。',
-        100, DATE_SUB(NOW(), INTERVAL 120 DAY), 0);
+        100, DATE_SUB(NOW(), INTERVAL 120 DAY), 0),
+       (21, '深海灯塔', 'https://github.com/cd-water.png',
+        '一名灯塔守望者在风暴夜救起陌生潜水员，却发现对方带着海底秘密。',
+        114, DATE_SUB(NOW(), INTERVAL 2 DAY), 1),
+       (22, '荒原骑士', 'https://github.com/cd-water.png',
+        '末世荒原上，一名独行骑士护送最后的种子库穿越沙暴。',
+        128, DATE_SUB(NOW(), INTERVAL 4 DAY), 1),
+       (23, '街角书店', 'https://github.com/cd-water.png',
+        '即将关门的旧书店里，店主与常客们用一本书交换一段人生。',
+        101, DATE_SUB(NOW(), INTERVAL 5 DAY), 1),
+       (24, '星火燎原', 'https://github.com/cd-water.png',
+        '战火中的一支通信班，用断断续续的电波守住最后一座城。',
+        136, DATE_SUB(NOW(), INTERVAL 6 DAY), 1),
+       (25, '雾港谜案', 'https://github.com/cd-water.png',
+        '港口连续失踪案背后，警探发现所有线索都指向二十年前的沉船。',
+        119, DATE_SUB(NOW(), INTERVAL 9 DAY), 1),
+       (26, '春风十里', 'https://github.com/cd-water.png',
+        '两个重逢的旧友在南方小城度过一个春天，重新学会告别。',
+        107, DATE_SUB(NOW(), INTERVAL 10 DAY), 1),
+       (27, '深空边境', 'https://github.com/cd-water.png',
+        '人类在深空边境建立前哨站，一名舰长必须在救援与撤离间做选择。',
+        143, DATE_ADD(NOW(), INTERVAL 3 DAY), 1),
+       (28, '山海之外', 'https://github.com/cd-water.png',
+        '少女跟随灵兽穿过山海图卷，寻找被时间抹去的故乡。',
+        121, DATE_ADD(NOW(), INTERVAL 10 DAY), 1),
+       (29, '无声证词', 'https://github.com/cd-water.png',
+        '一名律师为失语证人辩护，在沉默中拼出案件真相。',
+        116, DATE_ADD(NOW(), INTERVAL 12 DAY), 1),
+       (30, '夏日终章', 'https://github.com/cd-water.png',
+        '毕业前的最后一个夏天，两个少年决定把未说出口的话写进歌里。',
+        104, DATE_ADD(NOW(), INTERVAL 25 DAY), 1),
+       (31, '雪国来信', 'https://github.com/cd-water.png',
+        '一封寄错地址的信，让两个陌生人在雪国小镇开始通信。',
+        111, DATE_ADD(NOW(), INTERVAL 35 DAY), 1),
+       (32, '铁血黎明', 'https://github.com/cd-water.png',
+        '黎明前的阵地上，一支突击队必须在增援到达前守住高地。',
+        139, DATE_ADD(NOW(), INTERVAL 40 DAY), 1),
+       (33, '风筝与云', 'https://github.com/cd-water.png',
+        '一个放风筝的孩子和一朵迷路的云，在天空展开一段冒险。',
+        99, DATE_ADD(NOW(), INTERVAL 50 DAY), 1);
 
 -- 电影类型字典
 INSERT INTO `t_genre` (`id`, `name`, `sort_order`)
@@ -120,7 +159,20 @@ VALUES (1, 1), (1, 2),
        (17, 6), (17, 7),
        (18, 12), (18, 9),
        (19, 1), (19, 5),
-       (20, 8), (20, 6);
+       (20, 8), (20, 6),
+       (21, 5), (21, 6),
+       (22, 9), (22, 2),
+       (23, 6), (23, 8),
+       (24, 12), (24, 6),
+       (25, 5), (25, 9),
+       (26, 11), (26, 6),
+       (27, 1), (27, 2),
+       (28, 4), (28, 2),
+       (29, 5), (29, 6),
+       (30, 7), (30, 11),
+       (31, 11), (31, 6),
+       (32, 12), (32, 9),
+       (33, 3), (33, 8);
 
 -- 人员：导演与演员
 INSERT INTO `t_person` (`id`, `name`, `avatar`, `intro`)
@@ -188,7 +240,46 @@ VALUES (1, 1, 1, 1, '', 0),
        (39, 19, 20, 1, '', 0),
        (40, 19, 6, 2, '旅人', 1),
        (41, 20, 10, 1, '', 0),
-       (42, 20, 3, 2, '老周', 1);
+       (42, 20, 3, 2, '老周', 1),
+       (43, 21, 7, 1, '', 0),
+       (44, 21, 6, 2, '守塔人', 1),
+       (45, 21, 13, 2, '记者', 2),
+       (46, 22, 11, 1, '', 0),
+       (47, 22, 12, 2, '骑士', 1),
+       (48, 22, 19, 2, '首领', 2),
+       (49, 23, 8, 1, '', 0),
+       (50, 23, 9, 2, '店主', 1),
+       (51, 23, 17, 2, '常客', 2),
+       (52, 24, 18, 1, '', 0),
+       (53, 24, 19, 2, '营长', 1),
+       (54, 24, 2, 2, '通讯员', 2),
+       (55, 25, 7, 1, '', 0),
+       (56, 25, 6, 2, '警探', 1),
+       (57, 25, 3, 2, '目击者', 2),
+       (58, 26, 16, 1, '', 0),
+       (59, 26, 17, 2, '林夏', 1),
+       (60, 26, 2, 2, '周明', 2),
+       (61, 27, 1, 1, '', 0),
+       (62, 27, 5, 2, '舰长', 1),
+       (63, 27, 12, 2, '驾驶员', 2),
+       (64, 28, 4, 1, '', 0),
+       (65, 28, 5, 2, '灵兽', 1),
+       (66, 28, 13, 2, '少女', 2),
+       (67, 29, 7, 1, '', 0),
+       (68, 29, 6, 2, '律师', 1),
+       (69, 29, 9, 2, '证人', 2),
+       (70, 30, 8, 1, '', 0),
+       (71, 30, 17, 2, '夏禾', 1),
+       (72, 30, 13, 2, '陈夏', 2),
+       (73, 31, 16, 1, '', 0),
+       (74, 31, 17, 2, '沈冬', 1),
+       (75, 31, 3, 2, '邮差', 2),
+       (76, 32, 18, 1, '', 0),
+       (77, 32, 19, 2, '连长', 1),
+       (78, 32, 12, 2, '突击手', 2),
+       (79, 33, 10, 1, '', 0),
+       (80, 33, 5, 2, '风筝', 1),
+       (81, 33, 15, 2, '小云', 2);
 
 -- 影评：1-5 正常（含楼中楼），6 用户已删除，7 管理员已隐藏；其余覆盖多部电影
 INSERT INTO `t_movie_comment` (`id`, `movie_id`, `user_id`, `root_id`, `parent_id`, `content`, `status`, `create_time`)
@@ -285,3 +376,114 @@ UPDATE `t_movie_comment` c
                GROUP BY root_id) r ON r.root_id = c.id
 SET c.reply_count = COALESCE(r.cnt, 0)
 WHERE c.root_id = 0;
+
+-- 影院
+INSERT INTO `t_cinema` (`id`, `name`, `address`, `phone`, `status`)
+VALUES (1, '星光国际影城（人民广场店）', '人民路88号', '021-88880001', 1),
+       (2, '万象影城（滨江店）', '滨江大道120号', '021-88880002', 1),
+       (3, '幸福蓝海影城（大学城店）', '学府路66号', '021-88880003', 1),
+       (4, '橙天嘉禾影城（中心店）', '中山路200号', '021-88880004', 1),
+       (5, '博纳国际影城（科技园店）', '科创路18号', '021-88880005', 1),
+       (6, '大地影院（老城店）', '解放路35号', '021-88880006', 1),
+       (7, '横店电影城（新城店）', '湖滨路9号', '021-88880007', 1),
+       (8, '金逸影城（购物中心店）', '购物中心5层', '021-88880008', 1),
+       (9, '中影国际影城（文化宫店）', '文化宫路12号', '021-88880009', 1),
+       (10, '耀莱成龙影城（东站店）', '东站广场3层', '021-88880010', 1),
+       (11, '保利国际影城（北湖店）', '北湖路77号', '021-88880011', 1),
+       (12, 'SFC上影影城（南岸店）', '南岸路101号', '021-88880012', 1);
+
+-- 影厅：每个影院 2 个影厅
+INSERT INTO `t_hall` (`id`, `cinema_id`, `name`, `status`)
+VALUES (1, 1, '1号厅', 1), (2, 1, '2号厅', 1),
+       (3, 2, '1号厅', 1), (4, 2, '2号厅', 1),
+       (5, 3, '1号厅', 1), (6, 3, '2号厅', 1),
+       (7, 4, '1号厅', 1), (8, 4, '2号厅', 1),
+       (9, 5, '1号厅', 1), (10, 5, '2号厅', 1),
+       (11, 6, '1号厅', 1), (12, 6, '2号厅', 1),
+       (13, 7, '1号厅', 1), (14, 7, '2号厅', 1),
+       (15, 8, '1号厅', 1), (16, 8, '2号厅', 1),
+       (17, 9, '1号厅', 1), (18, 9, '2号厅', 1),
+       (19, 10, '1号厅', 1), (20, 10, '2号厅', 1),
+       (21, 11, '1号厅', 1), (22, 11, '2号厅', 1),
+       (23, 12, '1号厅', 1), (24, 12, '2号厅', 1);
+
+-- 座位：所有影厅统一 10 排 × 12 座
+INSERT INTO `t_seat` (`hall_id`, `row_num`, `col_num`)
+SELECT h.id, r.n, c.n
+FROM `t_hall` h
+CROSS JOIN (SELECT 1 AS n UNION ALL SELECT 2 UNION ALL SELECT 3 UNION ALL SELECT 4
+            UNION ALL SELECT 5 UNION ALL SELECT 6 UNION ALL SELECT 7 UNION ALL SELECT 8
+            UNION ALL SELECT 9 UNION ALL SELECT 10) r
+CROSS JOIN (SELECT 1 AS n UNION ALL SELECT 2 UNION ALL SELECT 3 UNION ALL SELECT 4
+            UNION ALL SELECT 5 UNION ALL SELECT 6 UNION ALL SELECT 7 UNION ALL SELECT 8
+            UNION ALL SELECT 9 UNION ALL SELECT 10 UNION ALL SELECT 11 UNION ALL SELECT 12) c;
+
+-- 排场：每个影院 2 个未来场次，仅安排热映电影
+INSERT INTO `t_screening` (`id`, `cinema_id`, `hall_id`, `movie_id`, `start_time`, `end_time`, `price`, `status`)
+SELECT sch.id, sch.cinema_id, sch.hall_id, sch.movie_id,
+       DATE_ADD(NOW(), INTERVAL sch.start_min MINUTE),
+       DATE_ADD(DATE_ADD(NOW(), INTERVAL sch.start_min MINUTE), INTERVAL m.duration MINUTE),
+       sch.price, 1
+FROM (SELECT 1 AS id, 1 AS cinema_id, 1 AS hall_id, 1 AS movie_id, 120 AS start_min, 49.90 AS price
+      UNION ALL SELECT 2, 1, 2, 2, 180, 45.90
+      UNION ALL SELECT 3, 2, 3, 6, 120, 52.90
+      UNION ALL SELECT 4, 2, 4, 7, 200, 39.90
+      UNION ALL SELECT 5, 3, 5, 8, 150, 42.90
+      UNION ALL SELECT 6, 3, 6, 9, 220, 55.90
+      UNION ALL SELECT 7, 4, 7, 10, 120, 38.90
+      UNION ALL SELECT 8, 4, 8, 16, 240, 48.90
+      UNION ALL SELECT 9, 5, 9, 17, 130, 46.90
+      UNION ALL SELECT 10, 5, 10, 21, 190, 51.90
+      UNION ALL SELECT 11, 6, 11, 22, 140, 44.90
+      UNION ALL SELECT 12, 6, 12, 23, 210, 36.90
+      UNION ALL SELECT 13, 7, 13, 24, 120, 58.90
+      UNION ALL SELECT 14, 7, 14, 25, 180, 49.90
+      UNION ALL SELECT 15, 8, 15, 26, 150, 43.90
+      UNION ALL SELECT 16, 8, 16, 1, 230, 54.90
+      UNION ALL SELECT 17, 9, 17, 2, 120, 41.90
+      UNION ALL SELECT 18, 9, 18, 6, 200, 47.90
+      UNION ALL SELECT 19, 10, 19, 7, 130, 39.90
+      UNION ALL SELECT 20, 10, 20, 8, 190, 45.90
+      UNION ALL SELECT 21, 11, 21, 9, 140, 53.90
+      UNION ALL SELECT 22, 11, 22, 10, 220, 37.90
+      UNION ALL SELECT 23, 12, 23, 16, 160, 50.90
+      UNION ALL SELECT 24, 12, 24, 17, 250, 44.90
+      UNION ALL SELECT 25, 1, 1, 1, 300, 49.90
+      UNION ALL SELECT 26, 1, 2, 2, 330, 45.90) sch
+JOIN `t_movie` m ON m.id = sch.movie_id;
+
+-- 每个排场按影厅座位生成座位快照
+INSERT INTO `t_screening_seat` (`screening_id`, `seat_id`)
+SELECT sc.id, s.id
+FROM `t_screening` sc
+JOIN `t_seat` s ON s.hall_id = sc.hall_id;
+
+-- 订单：1 个待支付、1 个已支付，均使用 1 号排场
+INSERT INTO `t_order` (`id`, `order_no`, `user_id`, `screening_id`, `total_amount`, `status`, `expire_time`)
+VALUES (1, 1900000000000000001, 1, 1, 99.80, 0, DATE_ADD(NOW(), INTERVAL 15 MINUTE)),
+       (2, 1900000000000000002, 1, 1, 99.80, 1, DATE_ADD(NOW(), INTERVAL 15 MINUTE));
+
+INSERT INTO `t_order_seat` (`order_id`, `seat_id`, `row_num`, `col_num`, `price`)
+SELECT 1, s.id, s.row_num, s.col_num, 49.90
+FROM `t_seat` s
+WHERE s.hall_id = 1 AND s.row_num = 1 AND s.col_num IN (1, 2);
+
+INSERT INTO `t_order_seat` (`order_id`, `seat_id`, `row_num`, `col_num`, `price`)
+SELECT 2, s.id, s.row_num, s.col_num, 49.90
+FROM `t_seat` s
+WHERE s.hall_id = 1 AND s.row_num = 1 AND s.col_num IN (3, 4);
+
+-- 待支付订单锁定 1-2 号座，已支付订单占用 3-4 号座
+UPDATE `t_screening_seat` ss
+JOIN `t_seat` s ON s.id = ss.seat_id
+SET ss.status = 1,
+    ss.lock_order_id = 1,
+    ss.lock_expire_time = DATE_ADD(NOW(), INTERVAL 15 MINUTE)
+WHERE ss.screening_id = 1 AND s.row_num = 1 AND s.col_num IN (1, 2);
+
+UPDATE `t_screening_seat` ss
+JOIN `t_seat` s ON s.id = ss.seat_id
+SET ss.status = 2,
+    ss.lock_order_id = 2,
+    ss.lock_expire_time = NULL
+WHERE ss.screening_id = 1 AND s.row_num = 1 AND s.col_num IN (3, 4);
