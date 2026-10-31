@@ -14,8 +14,8 @@ class SaTokenConfigTest {
 
     @Test
     void user_config_matches_spec() {
-        SaTokenConfig c = StpKit.USER.getConfig();
-        assertEquals("user", StpKit.USER.getLoginType());
+        SaTokenConfig c = SaTokenSetup.USER.getConfig();
+        assertEquals("user", SaTokenSetup.USER.getLoginType());
         assertEquals("Authorization", c.getTokenName());
         assertEquals("Bearer", c.getTokenPrefix());
         assertEquals(5184000L, c.getTimeout());
@@ -32,8 +32,8 @@ class SaTokenConfigTest {
 
     @Test
     void admin_config_matches_spec() {
-        SaTokenConfig c = StpKit.ADMIN.getConfig();
-        assertEquals("admin", StpKit.ADMIN.getLoginType());
+        SaTokenConfig c = SaTokenSetup.ADMIN.getConfig();
+        assertEquals("admin", SaTokenSetup.ADMIN.getLoginType());
         assertEquals("Authorization", c.getTokenName());
         assertEquals("Bearer", c.getTokenPrefix());
         assertEquals(1296000L, c.getTimeout());
@@ -50,6 +50,6 @@ class SaTokenConfigTest {
 
     @Test
     void two_logics_use_independent_config_instances() {
-        assertNotSame(StpKit.USER.getConfig(), StpKit.ADMIN.getConfig());
+        assertNotSame(SaTokenSetup.USER.getConfig(), SaTokenSetup.ADMIN.getConfig());
     }
 }

@@ -1,7 +1,7 @@
 package com.cdwater.ticketbox.cinema.domain.repository;
 
 import com.cdwater.ticketbox.cinema.domain.model.Screening;
-import com.cdwater.ticketbox.cinema.infrastructure.persistence.projection.ScreeningRow;
+import com.cdwater.ticketbox.cinema.domain.model.ScreeningDetails;
 
 import java.util.Collection;
 import java.util.List;
@@ -12,7 +12,7 @@ public interface ScreeningRepository {
 
     List<Long> findFutureMovieIds(Long cinemaId);
 
-    List<ScreeningRow> findFutureWithHall(Long cinemaId, Long movieId);
+    List<ScreeningDetails> findFutureWithHall(Long cinemaId, Long movieId);
 
     Optional<Screening> findById(Long id);
 

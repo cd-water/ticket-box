@@ -9,14 +9,9 @@ export const useAuthStore = defineStore(
     const username = ref('')
     const isLoggedIn = computed(() => tokenValue.value !== '')
 
-    async function login(username: string, password: string) {
-      const data = await authApi.login(username, password)
+    async function login(usernameInput: string, password: string) {
+      const data = await authApi.login(usernameInput, password)
       tokenValue.value = data.tokenValue
-      await fetchInfo()
-    }
-
-    async function fetchInfo() {
-      const data = await authApi.info()
       username.value = data.username
     }
 
@@ -33,7 +28,7 @@ export const useAuthStore = defineStore(
       }
     }
 
-    return { tokenValue, username, isLoggedIn, login, fetchInfo, logout, reset }
+    return { tokenValue, username, isLoggedIn, login, logout, reset }
   },
   { persist: true },
 )

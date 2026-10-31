@@ -1,15 +1,15 @@
 import http from '@/api/request'
 
-export interface LoginResult {
-  tokenName: string
-  tokenValue: string
-}
-
 export interface UserProfile {
   id: number
   phone: string
   nickname: string
   avatar: string
+}
+
+export interface LoginResult extends UserProfile {
+  tokenName: string
+  tokenValue: string
 }
 
 export const userApi = {
@@ -19,5 +19,4 @@ export const userApi = {
   loginByPassword: (phone: string, password: string) =>
     http.post<LoginResult>('/user/login/by-pwd', { phone, password }),
   logout: () => http.post<void>('/user/logout'),
-  info: () => http.get<UserProfile>('/user/info'),
 }

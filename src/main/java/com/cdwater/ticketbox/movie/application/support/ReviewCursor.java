@@ -1,7 +1,10 @@
 package com.cdwater.ticketbox.movie.application.support;
 
-import com.cdwater.ticketbox.common.exception.BizException;
-import com.cdwater.ticketbox.common.result.ResultCode;
+import com.cdwater.ticketbox.shared.error.BizException;
+import com.cdwater.ticketbox.shared.error.ResultCode;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
@@ -58,6 +61,12 @@ public final class ReviewCursor {
         return new BizException(ResultCode.BAD_REQUEST, "无效的分页游标");
     }
 
-    public record Cursor(String value, long id) {
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class Cursor {
+
+        private String value;
+        private long id;
     }
 }

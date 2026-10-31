@@ -1,7 +1,7 @@
 package com.cdwater.ticketbox.movie.application.support;
 
-import com.cdwater.ticketbox.common.exception.BizException;
-import com.cdwater.ticketbox.common.result.ResultCode;
+import com.cdwater.ticketbox.shared.error.BizException;
+import com.cdwater.ticketbox.shared.error.ResultCode;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
@@ -15,9 +15,9 @@ class ReviewCursorTest {
     void hot_cursor_round_trip() {
         String cursor = ReviewCursor.encode("8", 1L);
         ReviewCursor.Cursor decoded = ReviewCursor.decode(cursor);
-        assertEquals("8", decoded.value());
-        assertEquals(1L, decoded.id());
-        assertEquals(8, ReviewCursor.parseInt(decoded.value()));
+        assertEquals("8", decoded.getValue());
+        assertEquals(1L, decoded.getId());
+        assertEquals(8, ReviewCursor.parseInt(decoded.getValue()));
     }
 
     @Test
@@ -25,8 +25,8 @@ class ReviewCursorTest {
         LocalDateTime time = LocalDateTime.of(2026, 10, 31, 10, 0, 0);
         String cursor = ReviewCursor.encode(time.toString(), 42L);
         ReviewCursor.Cursor decoded = ReviewCursor.decode(cursor);
-        assertEquals(time, ReviewCursor.parseTime(decoded.value()));
-        assertEquals(42L, decoded.id());
+        assertEquals(time, ReviewCursor.parseTime(decoded.getValue()));
+        assertEquals(42L, decoded.getId());
     }
 
     @Test

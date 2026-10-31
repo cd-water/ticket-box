@@ -10,7 +10,6 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { userApi } from '@/api/auth'
-import { userInfoOptions } from '@/hooks/useUserInfo'
 import { useAuthStore } from '@/stores/auth'
 
 type LoginMode = 'code' | 'pwd'
@@ -82,10 +81,11 @@ export default function LoginPage() {
       values.mode === 'code'
         ? userApi.loginByCode(values.phone, values.code)
         : userApi.loginByPassword(values.phone, values.password),
-    onSuccess: async (data) => {
-      useAuthStore.getState().setAuth(data.tokenValue)
+    onSuccess: (data) => {
+      const auth = useAuthStore.getState()
+      auth.setAuth(data.tokenValue)
+      auth.setProfile(data)
       queryClient.removeQueries()
-      await queryClient.query(userInfoOptions).catch(() => undefined)
       navigate(safeRedirectPath(location.state), { replace: true })
     },
   })

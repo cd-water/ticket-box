@@ -9,7 +9,6 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { useLogout } from '@/hooks/useLogout'
-import { useUserInfo } from '@/hooks/useUserInfo'
 import { useAuthStore } from '@/stores/auth'
 
 const DEFAULT_AVATAR = 'https://github.com/cd-water.png'
@@ -19,9 +18,8 @@ export function UserMenu() {
   const logoutMutation = useLogout()
   const nickname = useAuthStore((s) => s.nickname)
   const avatar = useAuthStore((s) => s.avatar)
-  const { data } = useUserInfo()
 
-  const displayName = nickname || data?.nickname || '用户'
+  const displayName = nickname || '用户'
 
   return (
     <DropdownMenu>

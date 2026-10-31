@@ -3,57 +3,23 @@ package com.cdwater.ticketbox.config;
 import cn.dev33.satoken.config.SaTokenConfig;
 import cn.dev33.satoken.interceptor.SaInterceptor;
 import cn.dev33.satoken.router.SaRouter;
+import cn.dev33.satoken.stp.StpLogic;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.resource.ResourceHttpRequestHandler;
 
-/**
- * Sa-Token 代码化配置：双端差异化参数 + 路由鉴权（不使用 yml）。
- * 在构造器中完成配置注入，确保早于 WebMvcConfigurer 回调执行。
- */
+/** 双端 Sa-Token 会话与路由鉴权配置。 */
 @Configuration
 public class SaTokenSetup implements WebMvcConfigurer {
 
-    private static final long DAY_SECONDS = 24 * 60 * 60L;
+    public static final StpLogic USER = new StpLogic("user");
+    public static final StpLogic ADMIN = new StpLogic("admin");
+
+    private static final long DAY = 24 * 60 * 60L;
 
     public SaTokenSetup() {
-        StpKit.USER.setConfig(base()
-                .setTimeout(60 * DAY_SECONDS)
-                .setActiveTimeout(30 * DAY_SECONDS)
-                .setTokenStyle("uuid"));
-        StpKit.ADMIN.setConfig(base()
-                .setTimeout(15 * DAY_SECONDS)
-                .setActiveTimeout(7 * DAY_SECONDS)
-                .setTokenStyle("random-64"));
-    }
-
-    @Override
-    public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(new SaInterceptor(handler -> {
-            // 落到静态资源兜底 handler = 没有匹配的控制器（未知路由）：跳过鉴权，让其自然返回 C404
-            if (handler instanceof ResourceHttpRequestHandler) {
-                return;
-            }
-            // 用户端：放行发送验证码与两个登录接口
-            SaRouter.match("/api/user/**")
-                    .notMatch("/api/user/send-code", "/api/user/login/**")
-                    .check(r -> StpKit.USER.checkLogin());
-            // 电影域：列表、详情、影评、点赞全部要求用户登录
-            SaRouter.match("/api/movies/**", "/api/reviews/**")
-                    .check(r -> StpKit.USER.checkLogin());
-            SaRouter.match("/api/cinemas/**", "/api/screenings/**", "/api/orders/**")
-                    .check(r -> StpKit.USER.checkLogin());
-            // 管理端：放行登录接口
-            SaRouter.match("/api/admin/**")
-                    .notMatch("/api/admin/login")
-                    .check(r -> StpKit.ADMIN.checkLogin());
-        })).addPathPatterns("/**");
-    }
-
-    /** 双端公共配置（每次调用产生独立实例，避免两套 StpLogic 共享可变配置） */
-    private SaTokenConfig base() {
-        return new SaTokenConfig()
+        USER.setConfig(new SaTokenConfig()
                 .setTokenName("Authorization")
                 .setTokenPrefix("Bearer")
                 .setIsReadHeader(true)
@@ -62,6 +28,37 @@ public class SaTokenSetup implements WebMvcConfigurer {
                 .setIsConcurrent(true)
                 .setIsShare(false)
                 .setAutoRenew(true)
-                .setIsLog(true);
+                .setIsLog(true)
+                .setTimeout(60 * DAY)
+                .setActiveTimeout(30 * DAY)
+                .setTokenStyle("uuid"));
+        ADMIN.setConfig(new SaTokenConfig()
+                .setTokenName("Authorization")
+                .setTokenPrefix("Bearer")
+                .setIsReadHeader(true)
+                .setIsReadCookie(false)
+                .setIsReadBody(false)
+                .setIsConcurrent(true)
+                .setIsShare(false)
+                .setAutoRenew(true)
+                .setIsLog(true)
+                .setTimeout(15 * DAY)
+                .setActiveTimeout(7 * DAY)
+                .setTokenStyle("random-64"));
+    }
+
+    @Override
+    public void addInterceptors(InterceptorRegistry registry) {
+        registry.addInterceptor(new SaInterceptor(handler -> {
+            if (handler instanceof ResourceHttpRequestHandler) {
+                return;
+            }
+            SaRouter.match("/api/admin/**")
+                    .notMatch("/api/admin/login")
+                    .check(r -> ADMIN.checkLogin());
+            SaRouter.match("/api/**")
+                    .notMatch("/api/admin/**", "/api/user/send-code", "/api/user/login/**")
+                    .check(r -> USER.checkLogin());
+        })).addPathPatterns("/api/**");
     }
 }
