@@ -4,6 +4,7 @@ import AppLayout from '@/layouts/AppLayout'
 import LoginPage from '@/pages/LoginPage'
 import HomePage from '@/pages/HomePage'
 import MoviePage from '@/pages/MoviePage'
+import MovieDetailPage from '@/pages/MovieDetailPage'
 import CinemaPage from '@/pages/CinemaPage'
 import ShowPage from '@/pages/ShowPage'
 import PlayPage from '@/pages/PlayPage'
@@ -21,6 +22,7 @@ export const router = createBrowserRouter([
           { index: true, element: <Navigate to="/home" replace /> },
           { path: 'home', element: <HomePage /> },
           { path: 'movie', element: <MoviePage /> },
+          { path: 'movie/:id', element: <MovieDetailPage /> },
           { path: 'cinema', element: <CinemaPage /> },
           { path: 'show', element: <ShowPage /> },
           { path: 'play', element: <PlayPage /> },

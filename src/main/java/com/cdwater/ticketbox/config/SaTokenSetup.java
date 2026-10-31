@@ -39,6 +39,9 @@ public class SaTokenSetup implements WebMvcConfigurer {
             SaRouter.match("/api/user/**")
                     .notMatch("/api/user/send-code", "/api/user/login/**")
                     .check(r -> StpKit.USER.checkLogin());
+            // 电影域：列表、详情、影评、点赞全部要求用户登录
+            SaRouter.match("/api/movies/**", "/api/reviews/**")
+                    .check(r -> StpKit.USER.checkLogin());
             // 管理端：放行登录接口
             SaRouter.match("/api/admin/**")
                     .notMatch("/api/admin/login")

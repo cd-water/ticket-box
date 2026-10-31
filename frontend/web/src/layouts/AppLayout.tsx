@@ -14,6 +14,10 @@ const NAV_TABS = [
 export default function AppLayout() {
   const location = useLocation()
   const navigate = useNavigate()
+  const activeTab =
+    NAV_TABS.find(
+      (tab) => location.pathname === tab.value || location.pathname.startsWith(`${tab.value}/`),
+    )?.value ?? location.pathname
 
   return (
     <div className="flex min-h-svh flex-col bg-background">
@@ -27,7 +31,7 @@ export default function AppLayout() {
           </div>
           <Tabs
             className="min-w-0"
-            value={location.pathname}
+            value={activeTab}
             onValueChange={(value) => navigate(String(value))}
           >
             <TabsList
