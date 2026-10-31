@@ -5,7 +5,6 @@ import lombok.Data;
 @Data
 public class MovieCrewRow {
 
-    private Long id;
     private Long movieId;
     private Long personId;
     private Integer duty;

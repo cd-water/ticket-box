@@ -1,11 +1,6 @@
 server:
   port: 8800
 
-app:
-  snowflake:
-    worker-id: ${SNOWFLAKE_WORKER_ID:0}
-    datacenter-id: ${SNOWFLAKE_DATACENTER_ID:0}
-
 spring:
   application:
     name: ticket-box
@@ -13,11 +8,14 @@ spring:
     url: jdbc:mysql://localhost:3306/${MYSQL_DATABASE:ticket_box}
     username: root
     password: ${MYSQL_ROOT_PASSWORD:ticketmysql}
-    hikari:
-      connection-init-sql: SET time_zone = '+08:00'
   data:
     redis:
       host: localhost
       port: 6379
       password: ${REDIS_PASSWORD:ticketredis}
       database: 0
+
+app:
+  snowflake:
+    worker-id: ${SNOWFLAKE_WORKER_ID:0}
+    datacenter-id: ${SNOWFLAKE_DATACENTER_ID:0}

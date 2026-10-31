@@ -42,7 +42,8 @@ public class OrderRepositoryImpl implements OrderRepository {
     public List<OrderSeat> findSeatsByOrderId(Long orderId) {
         return orderSeatMapper.selectList(new LambdaQueryWrapper<OrderSeat>()
                 .eq(OrderSeat::getOrderId, orderId)
-                .orderByAsc(OrderSeat::getId));
+                .orderByAsc(OrderSeat::getRowNum)
+                .orderByAsc(OrderSeat::getColNum));
     }
 
     @Override

@@ -31,7 +31,10 @@ function CrewList({
         <span className="text-sm">暂无</span>
       ) : (
         crews.map((crew) => (
-          <span key={crew.personId} className="flex items-center gap-1.5 text-sm">
+          <span
+            key={`${crew.personId}-${crew.roleName ?? ''}`}
+            className="flex items-center gap-1.5 text-sm"
+          >
             <Avatar size="sm">
               <AvatarImage src={crew.avatar} alt={crew.name} />
               <AvatarFallback>{crew.name.slice(0, 1)}</AvatarFallback>

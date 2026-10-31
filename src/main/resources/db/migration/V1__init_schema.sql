@@ -1,9 +1,10 @@
+# 1. 用户表
 CREATE TABLE `t_user`
 (
     `id`          BIGINT       NOT NULL AUTO_INCREMENT COMMENT '用户ID（主键）',
     `phone`       VARCHAR(20)  NOT NULL COMMENT '手机号',
     `password`    VARCHAR(100) NULL COMMENT '密码（BCrypt）',
-    `nickname`    VARCHAR(64)  NOT NULL DEFAULT '' COMMENT '昵称（静默注册自动生成）',
+    `nickname`    VARCHAR(64)  NOT NULL COMMENT '昵称（静默注册自动生成）',
     `avatar`      VARCHAR(255) NOT NULL DEFAULT '' COMMENT '头像URL',
     `status`      TINYINT      NOT NULL DEFAULT 1 COMMENT '状态 0-禁用 1-启用',
     `create_time` DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
@@ -14,6 +15,7 @@ CREATE TABLE `t_user`
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_0900_ai_ci COMMENT = '用户表';
 
+# 2. 管理员表
 CREATE TABLE `t_admin`
 (
     `id`          BIGINT       NOT NULL AUTO_INCREMENT COMMENT '管理员ID（主键）',
@@ -28,11 +30,12 @@ CREATE TABLE `t_admin`
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_0900_ai_ci COMMENT = '管理员表';
 
+# 3. 电影表
 CREATE TABLE `t_movie`
 (
     `id`           BIGINT        NOT NULL AUTO_INCREMENT COMMENT '电影ID（主键）',
     `title`        VARCHAR(64)   NOT NULL COMMENT '片名',
-    `poster`       VARCHAR(255)  NOT NULL DEFAULT '' COMMENT '海报URL',
+    `poster`       VARCHAR(255)  NOT NULL COMMENT '海报URL',
     `synopsis`     VARCHAR(2000) NOT NULL COMMENT '简介',
     `duration`     INT           NOT NULL DEFAULT 0 COMMENT '片长（分钟）',
     `release_date` DATETIME      NOT NULL COMMENT '上映时间',
@@ -45,6 +48,7 @@ CREATE TABLE `t_movie`
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_0900_ai_ci COMMENT = '电影表';
 
+# 4. 电影类型表
 CREATE TABLE `t_genre`
 (
     `id`          BIGINT      NOT NULL AUTO_INCREMENT COMMENT '电影类型ID（主键）',
@@ -59,6 +63,7 @@ CREATE TABLE `t_genre`
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_0900_ai_ci COMMENT = '电影类型表';
 
+# 5. 电影类型关联表
 CREATE TABLE `t_movie_genre`
 (
     `movie_id` BIGINT NOT NULL COMMENT '关联电影ID(t_movie.id)',
@@ -69,6 +74,7 @@ CREATE TABLE `t_movie_genre`
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_0900_ai_ci COMMENT = '电影类型关联表';
 
+# 6. 人员表
 CREATE TABLE `t_person`
 (
     `id`          BIGINT        NOT NULL AUTO_INCREMENT COMMENT '人员ID（主键）',
@@ -82,21 +88,21 @@ CREATE TABLE `t_person`
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_0900_ai_ci COMMENT = '人员表';
 
+# 7. 电影演职人员关联表
 CREATE TABLE `t_movie_crew`
 (
-    `id`         BIGINT      NOT NULL AUTO_INCREMENT COMMENT '电影演职人员ID（主键）',
     `movie_id`   BIGINT      NOT NULL COMMENT '关联电影ID(t_movie.id)',
     `person_id`  BIGINT      NOT NULL COMMENT '关联人员ID(t_person.id)',
     `duty`       TINYINT     NOT NULL COMMENT '职责 1-导演 2-演员',
     `role_name`  VARCHAR(64) NOT NULL DEFAULT '' COMMENT '饰演角色（导演为空）',
     `sort_order` INT         NOT NULL DEFAULT 0 COMMENT '排序（越小越靠前）',
-    PRIMARY KEY (`id`),
-    UNIQUE KEY `uk_movie_person_duty` (`movie_id`, `person_id`, `duty`),
+    PRIMARY KEY (`movie_id`, `person_id`, `duty`, `role_name`),
     KEY `idx_person` (`person_id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_0900_ai_ci COMMENT = '电影演职人员关联表';
 
+# 8. 影评表
 CREATE TABLE `t_movie_comment`
 (
     `id`          BIGINT        NOT NULL AUTO_INCREMENT COMMENT '影评ID（主键）',
@@ -118,6 +124,7 @@ CREATE TABLE `t_movie_comment`
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_0900_ai_ci COMMENT = '影评表';
 
+# 9. 影评点赞关联表
 CREATE TABLE `t_movie_comment_like`
 (
     `comment_id` BIGINT NOT NULL COMMENT '关联影评ID(t_movie_comment.id)',
@@ -128,12 +135,13 @@ CREATE TABLE `t_movie_comment_like`
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_0900_ai_ci COMMENT = '影评点赞关联表';
 
+# 10. 影院表
 CREATE TABLE `t_cinema`
 (
     `id`          BIGINT       NOT NULL AUTO_INCREMENT COMMENT '影院ID（主键）',
     `name`        VARCHAR(64)  NOT NULL COMMENT '影院名称',
-    `address`     VARCHAR(255) NOT NULL DEFAULT '' COMMENT '影院地址',
-    `phone`       VARCHAR(20)  NOT NULL DEFAULT '' COMMENT '联系电话',
+    `address`     VARCHAR(255) NOT NULL COMMENT '影院地址',
+    `phone`       VARCHAR(20)  NOT NULL COMMENT '联系电话',
     `status`      TINYINT      NOT NULL DEFAULT 1 COMMENT '状态 0-停用 1-启用',
     `create_time` DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     `update_time` DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
@@ -143,6 +151,7 @@ CREATE TABLE `t_cinema`
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_0900_ai_ci COMMENT = '影院表';
 
+# 11. 影厅表
 CREATE TABLE `t_hall`
 (
     `id`          BIGINT      NOT NULL AUTO_INCREMENT COMMENT '影厅ID（主键）',
@@ -157,6 +166,7 @@ CREATE TABLE `t_hall`
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_0900_ai_ci COMMENT = '影厅表';
 
+# 12. 座位表
 CREATE TABLE `t_seat`
 (
     `id`          BIGINT   NOT NULL AUTO_INCREMENT COMMENT '座位ID（主键）',
@@ -171,6 +181,7 @@ CREATE TABLE `t_seat`
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_0900_ai_ci COMMENT = '座位表';
 
+# 13. 排场表
 CREATE TABLE `t_screening`
 (
     `id`          BIGINT         NOT NULL AUTO_INCREMENT COMMENT '排场ID（主键）',
@@ -191,6 +202,7 @@ CREATE TABLE `t_screening`
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_0900_ai_ci COMMENT = '排场表';
 
+# 14. 排场座位表
 CREATE TABLE `t_screening_seat`
 (
     `id`               BIGINT   NOT NULL AUTO_INCREMENT COMMENT '排场座位ID（主键）',
@@ -210,6 +222,7 @@ CREATE TABLE `t_screening_seat`
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_0900_ai_ci COMMENT = '排场座位表';
 
+# 15. 订单表
 CREATE TABLE `t_order`
 (
     `id`           BIGINT         NOT NULL AUTO_INCREMENT COMMENT '订单ID（主键）',
@@ -224,23 +237,21 @@ CREATE TABLE `t_order`
     PRIMARY KEY (`id`),
     UNIQUE KEY `uk_order_no` (`order_no`),
     KEY `idx_user_time` (`user_id`, `create_time`),
-    KEY `idx_screening` (`screening_id`),
     KEY `idx_status_expire` (`status`, `expire_time`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_0900_ai_ci COMMENT = '订单表';
 
+# 16. 订单座位表
 CREATE TABLE `t_order_seat`
 (
-    `id`          BIGINT         NOT NULL AUTO_INCREMENT COMMENT '订单座位ID（主键）',
     `order_id`    BIGINT         NOT NULL COMMENT '关联订单ID(t_order.id)',
     `seat_id`     BIGINT         NOT NULL COMMENT '关联座位ID(t_seat.id)',
     `row_num`     INT            NOT NULL COMMENT '下单时排号快照',
     `col_num`     INT            NOT NULL COMMENT '下单时列号快照',
     `price`       DECIMAL(10, 2) NOT NULL COMMENT '票价（元）',
     `create_time` DATETIME       NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-    PRIMARY KEY (`id`),
-    UNIQUE KEY `uk_order_seat` (`order_id`, `seat_id`),
+    PRIMARY KEY (`order_id`, `seat_id`),
     KEY `idx_seat` (`seat_id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
