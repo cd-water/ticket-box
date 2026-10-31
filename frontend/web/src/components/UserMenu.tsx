@@ -1,6 +1,6 @@
 import { ChevronDown, LogOut, ShoppingBag, UserRound } from 'lucide-react'
 import { useNavigate } from 'react-router'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { Avatar, AvatarImage } from '@/components/ui/avatar'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -11,6 +11,8 @@ import {
 import { useLogout } from '@/hooks/useLogout'
 import { useUserInfo } from '@/hooks/useUserInfo'
 import { useAuthStore } from '@/stores/auth'
+
+const DEFAULT_AVATAR = 'https://github.com/cd-water.png'
 
 export function UserMenu() {
   const navigate = useNavigate()
@@ -30,8 +32,7 @@ export function UserMenu() {
         className="flex items-center gap-2 rounded-full py-1 pr-2 pl-1 outline-none hover:bg-muted focus-visible:ring-3 focus-visible:ring-ring/50"
       >
         <Avatar size="sm">
-          <AvatarImage src={avatar || undefined} alt={displayName} />
-          <AvatarFallback>{displayName.slice(0, 1)}</AvatarFallback>
+          <AvatarImage src={avatar || DEFAULT_AVATAR} alt={displayName} />
         </Avatar>
         <span className="hidden max-w-32 truncate text-sm font-medium sm:inline">{displayName}</span>
         <ChevronDown className="hidden size-4 text-muted-foreground sm:block" />
