@@ -1,14 +1,10 @@
 import http from '@/api/request'
+import type { PageResult } from '@/api/types'
+
+export type { PageResult } from '@/api/types'
 
 export type MovieTab = 'showing' | 'upcoming'
 export type ReviewSort = 'hot' | 'latest'
-
-export interface PageResult<T> {
-  total: number
-  records: T[]
-  page: number
-  size: number
-}
 
 export interface CursorResult<T> {
   records: T[]

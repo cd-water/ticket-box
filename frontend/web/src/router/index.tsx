@@ -6,6 +6,9 @@ import HomePage from '@/pages/HomePage'
 import MoviePage from '@/pages/MoviePage'
 import MovieDetailPage from '@/pages/MovieDetailPage'
 import CinemaPage from '@/pages/CinemaPage'
+import CinemaDetailPage from '@/pages/CinemaDetailPage'
+import SeatSelectionPage from '@/pages/SeatSelectionPage'
+import PendingOrderPage from '@/pages/PendingOrderPage'
 import ShowPage from '@/pages/ShowPage'
 import PlayPage from '@/pages/PlayPage'
 import OrdersPage from '@/pages/OrdersPage'
@@ -24,6 +27,9 @@ export const router = createBrowserRouter([
           { path: 'movie', element: <MoviePage /> },
           { path: 'movie/:id', element: <MovieDetailPage /> },
           { path: 'cinema', element: <CinemaPage /> },
+          { path: 'cinema/:cinemaId', element: <CinemaDetailPage /> },
+          { path: 'screening/:screeningId/seats', element: <SeatSelectionPage /> },
+          { path: 'order/:orderId', element: <PendingOrderPage /> },
           { path: 'show', element: <ShowPage /> },
           { path: 'play', element: <PlayPage /> },
           { path: 'orders', element: <OrdersPage /> },

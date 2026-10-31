@@ -1,7 +1,7 @@
 package com.cdwater.ticketbox.movie.application.service;
 
-import com.cdwater.ticketbox.auth.domain.model.User;
-import com.cdwater.ticketbox.auth.infrastructure.persistence.UserMapper;
+import com.cdwater.ticketbox.auth.application.query.UserBrief;
+import com.cdwater.ticketbox.auth.application.query.UserQueryService;
 import com.cdwater.ticketbox.common.exception.BizException;
 import com.cdwater.ticketbox.common.result.CursorResult;
 import com.cdwater.ticketbox.common.result.ResultCode;
@@ -42,7 +42,7 @@ public class ReviewService {
     private final MovieMapper movieMapper;
     private final MovieCommentMapper commentMapper;
     private final MovieCommentLikeMapper likeMapper;
-    private final UserMapper userMapper;
+    private final UserQueryService userQueryService;
 
     public CursorResult<ReviewVO> listReviews(Long movieId, ReviewListQuery query) {
         requireMovie(movieId);
@@ -83,7 +83,7 @@ public class ReviewService {
         roots.forEach(root -> userIds.add(root.getUserId()));
         previews.forEach(p -> userIds.add(p.getUserId()));
         parents.values().forEach(p -> userIds.add(p.getUserId()));
-        Map<Long, User> users = loadUsers(userIds);
+        Map<Long, UserBrief> users = loadUsers(userIds);
 
         Set<Long> commentIds = new HashSet<>(rootIds);
         previews.forEach(p -> commentIds.add(p.getId()));
@@ -131,7 +131,7 @@ public class ReviewService {
         Set<Long> userIds = new HashSet<>();
         replies.forEach(r -> userIds.add(r.getUserId()));
         parents.values().forEach(p -> userIds.add(p.getUserId()));
-        Map<Long, User> users = loadUsers(userIds);
+        Map<Long, UserBrief> users = loadUsers(userIds);
         Set<Long> commentIds = replies.stream().map(MovieComment::getId).collect(Collectors.toSet());
         Set<Long> likedIds = likedIds(userId, commentIds);
 
@@ -156,7 +156,7 @@ public class ReviewService {
         comment.setStatus(1);
         commentMapper.insert(comment);
         MovieComment saved = commentMapper.selectById(comment.getId());
-        User user = userMapper.selectById(userId);
+        UserBrief user = userQueryService.findById(userId).orElse(null);
         return baseReview(saved, user, false);
     }
 
@@ -190,7 +190,7 @@ public class ReviewService {
         Set<Long> userIds = new HashSet<>();
         userIds.add(userId);
         userIds.add(target.getUserId());
-        Map<Long, User> users = loadUsers(userIds);
+        Map<Long, UserBrief> users = loadUsers(userIds);
         Map<Long, MovieComment> parents = Map.of(target.getId(), target);
         return toReplyVO(saved, users, parents, Set.of());
     }
@@ -227,12 +227,8 @@ public class ReviewService {
         return movie;
     }
 
-    protected Map<Long, User> loadUsers(Collection<Long> ids) {
-        if (ids.isEmpty()) {
-            return Map.of();
-        }
-        return userMapper.selectByIds(ids).stream()
-                .collect(Collectors.toMap(User::getId, u -> u));
+    protected Map<Long, UserBrief> loadUsers(Collection<Long> ids) {
+        return userQueryService.findByIds(ids);
     }
 
     protected Set<Long> likedIds(Long userId, Collection<Long> commentIds) {
@@ -242,14 +238,14 @@ public class ReviewService {
         return new HashSet<>(likeMapper.selectLikedCommentIds(userId, new ArrayList<>(commentIds)));
     }
 
-    protected ReviewUserVO toUserVO(User user) {
+    protected ReviewUserVO toUserVO(UserBrief user) {
         if (user == null) {
             return new ReviewUserVO(0L, "用户", "");
         }
-        return new ReviewUserVO(user.getId(), user.getNickname(), user.getAvatar());
+        return new ReviewUserVO(user.id(), user.nickname(), user.avatar());
     }
 
-    protected ReviewVO baseReview(MovieComment comment, User user, boolean liked) {
+    protected ReviewVO baseReview(MovieComment comment, UserBrief user, boolean liked) {
         ReviewVO vo = new ReviewVO();
         vo.setId(comment.getId());
         vo.setContent(comment.getContent());
@@ -262,7 +258,7 @@ public class ReviewService {
     }
 
     protected ReplyVO toReplyVO(ReplyPreviewRow row,
-                                Map<Long, User> users,
+                                Map<Long, UserBrief> users,
                                 Map<Long, MovieComment> parents,
                                 Set<Long> likedIds) {
         ReplyVO vo = new ReplyVO();
@@ -279,7 +275,7 @@ public class ReviewService {
     }
 
     protected ReplyVO toReplyVO(MovieComment comment,
-                                Map<Long, User> users,
+                                Map<Long, UserBrief> users,
                                 Map<Long, MovieComment> parents,
                                 Set<Long> likedIds) {
         ReplyVO vo = new ReplyVO();
@@ -297,15 +293,15 @@ public class ReviewService {
 
     private void setReplyTo(ReplyVO vo,
                             Long parentId,
-                            Map<Long, User> users,
+                            Map<Long, UserBrief> users,
                             Map<Long, MovieComment> parents) {
         MovieComment parent = parents.get(parentId);
         if (parent == null) {
             return;
         }
-        User parentUser = users.get(parent.getUserId());
+        UserBrief parentUser = users.get(parent.getUserId());
         vo.setReplyTo(new ReplyToVO(parent.getId(),
-                parentUser == null ? "用户" : parentUser.getNickname()));
+                parentUser == null ? "用户" : parentUser.nickname()));
     }
 
     private String encodeNext(String sort, MovieComment last) {

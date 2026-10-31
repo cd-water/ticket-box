@@ -12,3 +12,11 @@ export function formatDateTime(value: string) {
 export function fromNow(value: string) {
   return dayjs(value).fromNow()
 }
+
+export function formatTime(value: string) {
+  return dayjs(value).format('HH:mm')
+}
+
+export function formatShowDate(value: string) {
+  return dayjs(value).format('MM月DD日')
+}

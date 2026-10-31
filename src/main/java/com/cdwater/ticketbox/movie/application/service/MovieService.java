@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.cdwater.ticketbox.common.exception.BizException;
 import com.cdwater.ticketbox.common.result.PageResult;
 import com.cdwater.ticketbox.common.result.ResultCode;
+import com.cdwater.ticketbox.common.util.LikeUtils;
 import com.cdwater.ticketbox.movie.infrastructure.persistence.projection.MovieCrewRow;
 import com.cdwater.ticketbox.movie.api.dto.MovieListQuery;
 import com.cdwater.ticketbox.movie.domain.model.Movie;
@@ -48,7 +49,7 @@ public class MovieService {
         }
         String keyword = query.getKeyword() == null ? "" : query.getKeyword().trim();
         if (!keyword.isEmpty()) {
-            wrapper.like(Movie::getTitle, escapeLike(keyword));
+            wrapper.like(Movie::getTitle, LikeUtils.escape(keyword));
         }
         Page<Movie> page = movieMapper.selectPage(new Page<>(query.getPage(), query.getSize()), wrapper);
         List<MovieListItemVO> records = page.getRecords().stream().map(m -> {
@@ -96,11 +97,5 @@ public class MovieService {
                 .eq(MovieComment::getMovieId, id)
                 .eq(MovieComment::getStatus, 1)));
         return vo;
-    }
-
-    static String escapeLike(String value) {
-        return value.replace("\\", "\\\\")
-                .replace("%", "\\%")
-                .replace("_", "\\_");
     }
 }

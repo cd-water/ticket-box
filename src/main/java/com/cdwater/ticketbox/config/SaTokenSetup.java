@@ -42,6 +42,8 @@ public class SaTokenSetup implements WebMvcConfigurer {
             // 电影域：列表、详情、影评、点赞全部要求用户登录
             SaRouter.match("/api/movies/**", "/api/reviews/**")
                     .check(r -> StpKit.USER.checkLogin());
+            SaRouter.match("/api/cinemas/**", "/api/screenings/**", "/api/orders/**")
+                    .check(r -> StpKit.USER.checkLogin());
             // 管理端：放行登录接口
             SaRouter.match("/api/admin/**")
                     .notMatch("/api/admin/login")

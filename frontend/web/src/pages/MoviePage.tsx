@@ -23,22 +23,9 @@ import {
 } from '@/components/ui/pagination'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useMovieList } from '@/hooks/useMovieQueries'
+import { getPageItems } from '@/lib/pagination'
 
 const PAGE_SIZE = 12
-
-function pageItems(totalPages: number, current: number): Array<number | 'ellipsis'> {
-  if (totalPages <= 7) {
-    return Array.from({ length: totalPages }, (_, index) => index + 1)
-  }
-  const items: Array<number | 'ellipsis'> = [1]
-  if (current > 4) items.push('ellipsis')
-  const start = Math.max(2, current - 1)
-  const end = Math.min(totalPages - 1, current + 1)
-  for (let page = start; page <= end; page += 1) items.push(page)
-  if (current < totalPages - 3) items.push('ellipsis')
-  items.push(totalPages)
-  return items
-}
 
 export default function MoviePage() {
   const [params, setParams] = useSearchParams()
@@ -179,7 +166,7 @@ export default function MoviePage() {
                     }}
                   />
                 </PaginationItem>
-                {pageItems(totalPages, page).map((item, index) =>
+                {getPageItems(totalPages, page).map((item, index) =>
                   item === 'ellipsis' ? (
                     <PaginationItem key={`ellipsis-${index}`}>
                       <PaginationEllipsis />
