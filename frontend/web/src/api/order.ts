@@ -8,7 +8,6 @@ export interface OrderSeat {
 }
 
 export interface OrderDetail {
-  id: number
   orderNo: string
   status: number
   totalAmount: number
@@ -29,5 +28,5 @@ export interface CreateOrderRequest {
 
 export const orderApi = {
   create: (body: CreateOrderRequest) => http.post<OrderDetail>('/orders', body),
-  detail: (id: number) => http.get<OrderDetail>(`/orders/${id}`),
+  detail: (orderNo: string) => http.get<OrderDetail>(`/orders/${orderNo}`),
 }

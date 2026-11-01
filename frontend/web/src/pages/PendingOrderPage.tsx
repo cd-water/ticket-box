@@ -23,8 +23,8 @@ const STATUS_TEXT: Record<number, string> = {
 
 export default function PendingOrderPage() {
   const params = useParams()
-  const orderId = Number(params.orderId)
-  const { data, isPending, isError, refetch } = useOrderDetail(orderId)
+  const orderNo = params.orderId ?? ''
+  const { data, isPending, isError, refetch } = useOrderDetail(orderNo)
   const [remaining, setRemaining] = useState(0)
 
   useEffect(() => {

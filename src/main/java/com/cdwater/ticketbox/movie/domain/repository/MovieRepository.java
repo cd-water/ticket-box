@@ -3,7 +3,7 @@ package com.cdwater.ticketbox.movie.domain.repository;
 import com.cdwater.ticketbox.shared.query.PageResult;
 import com.cdwater.ticketbox.movie.domain.model.Genre;
 import com.cdwater.ticketbox.movie.domain.model.Movie;
-import com.cdwater.ticketbox.movie.domain.model.MovieCrewMember;
+import com.cdwater.ticketbox.movie.domain.model.MoviePerson;
 
 import java.util.Collection;
 import java.util.List;
@@ -20,5 +20,5 @@ public interface MovieRepository {
 
     List<Genre> findGenres(Long movieId);
 
-    List<MovieCrewMember> findCrew(Long movieId);
+    List<MoviePerson> findPersons(Long movieId);
 }

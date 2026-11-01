@@ -11,13 +11,13 @@ public interface OrderRepository {
 
     Order save(Order order);
 
-    Optional<Order> findById(Long id);
+    Optional<Order> findByOrderNo(Long orderNo);
 
     void saveSeats(List<OrderSeat> seats);
 
-    List<OrderSeat> findSeatsByOrderId(Long orderId);
+    List<OrderSeat> findSeatsByOrderNo(Long orderNo);
 
     List<Order> findExpiredPending(LocalDateTime now, int limit);
 
-    boolean markTimeout(Long orderId);
+    boolean markTimeout(Long orderNo);
 }

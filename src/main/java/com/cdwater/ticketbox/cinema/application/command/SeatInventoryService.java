@@ -27,7 +27,7 @@ public class SeatInventoryService {
 
     @Transactional
     public List<ReservedSeat> lockSeats(Long screeningId, List<Long> rawSeatIds,
-                                       Long orderId, LocalDateTime expireTime) {
+                                       Long orderNo, LocalDateTime expireTime) {
         List<Long> seatIds = rawSeatIds.stream().sorted().toList();
         List<SeatSnapshot> rows = seatInventoryRepository.lockSeats(screeningId, seatIds);
         if (rows.size() != seatIds.size()) {
@@ -43,14 +43,14 @@ public class SeatInventoryService {
                 throw new BizException(ResultCode.CONFLICT, "座位已被占用");
             }
         }
-        seatInventoryRepository.updateLocks(screeningId, seatIds, orderId, expireTime);
+        seatInventoryRepository.updateLocks(screeningId, seatIds, orderNo, expireTime);
         return rows.stream()
                 .map(reservedSeatMapper::toSeat)
                 .toList();
     }
 
     @Transactional
-    public void releaseByOrder(Long orderId) {
-        seatInventoryRepository.releaseByOrder(orderId);
+    public void releaseByOrder(Long orderNo) {
+        seatInventoryRepository.releaseByOrder(orderNo);
     }
 }

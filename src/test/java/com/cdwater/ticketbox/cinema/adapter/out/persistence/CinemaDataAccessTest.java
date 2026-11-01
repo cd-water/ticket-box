@@ -38,13 +38,13 @@ class CinemaDataAccessTest {
     void restoreSeedLock() {
         SeedScreeningFixture.refresh(jdbc);
         jdbc.update("""
-                UPDATE t_order SET status = 0, expire_time = DATE_ADD(NOW(), INTERVAL 15 MINUTE)
-                WHERE id = 1
+                UPDATE t_movie_order SET status = 0, expire_time = DATE_ADD(NOW(), INTERVAL 15 MINUTE)
+                WHERE order_no = 1900000000000000001
                 """);
         jdbc.update("""
                 UPDATE t_screening_seat ss
                 JOIN t_seat s ON s.id = ss.seat_id
-                SET ss.status = 1, ss.lock_order_id = 1,
+                SET ss.status = 1, ss.lock_order_no = 1,
                     ss.lock_expire_time = DATE_ADD(NOW(), INTERVAL 15 MINUTE)
                 WHERE ss.screening_id = 1 AND s.row_num = 1 AND s.col_num IN (1, 2)
                 """);
@@ -64,8 +64,8 @@ class CinemaDataAccessTest {
     @Test
     void cinema_page_filters_by_movie_with_future_screenings() {
         PageResult<Cinema> movie1 = cinemaRepository.page("", 1L, 1, 10);
-        assertEquals(2, movie1.getTotal());
-        assertEquals(java.util.Set.of(1L, 8L),
+        assertEquals(5, movie1.getTotal());
+        assertEquals(java.util.Set.of(1L, 3L, 6L, 8L, 11L),
                 movie1.getRecords().stream().map(Cinema::getId).collect(java.util.stream.Collectors.toSet()));
 
         PageResult<Cinema> movie1Named = cinemaRepository.page("星光", 1L, 1, 10);
@@ -75,17 +75,17 @@ class CinemaDataAccessTest {
         assertEquals(0, upcoming.getTotal());
 
         PageResult<Cinema> page2 = cinemaRepository.page("", 1L, 2, 1);
-        assertEquals(2, page2.getTotal());
+        assertEquals(5, page2.getTotal());
         assertEquals(1, page2.getRecords().size());
     }
 
     @Test
     void cinema1_future_movies_and_screenings() {
-        assertEquals(List.of(1L, 2L), screeningRepository.findFutureMovieIds(1L)
+        assertEquals(List.of(1L, 2L, 6L, 7L, 8L, 9L), screeningRepository.findFutureMovieIds(1L)
                 .stream().sorted().toList());
 
         var screenings = screeningRepository.findFutureWithHall(1L, 1L);
-        assertEquals(2, screenings.size());
+        assertEquals(3, screenings.size());
         assertEquals(1L, screenings.get(0).getId());
         assertEquals("1号厅", screenings.get(0).getHallName());
     }

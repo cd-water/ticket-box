@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class MovieCrewMember {
+public class MoviePerson {
 
     public static final int DUTY_DIRECTOR = 1;
     public static final int DUTY_ACTOR = 2;

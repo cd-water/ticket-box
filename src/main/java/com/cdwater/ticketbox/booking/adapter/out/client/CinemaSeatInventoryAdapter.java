@@ -18,14 +18,14 @@ public class CinemaSeatInventoryAdapter implements SeatInventoryPort {
 
     @Override
     public List<ReservedSeat> lockSeats(Long screeningId, List<Long> seatIds,
-                                        Long orderId, LocalDateTime expireTime) {
-        return seatInventoryService.lockSeats(screeningId, seatIds, orderId, expireTime).stream()
+                                        Long orderNo, LocalDateTime expireTime) {
+        return seatInventoryService.lockSeats(screeningId, seatIds, orderNo, expireTime).stream()
                 .map(bookingReservedSeatMapper::toSeat)
                 .toList();
     }
 
     @Override
-    public void releaseByOrder(Long orderId) {
-        seatInventoryService.releaseByOrder(orderId);
+    public void releaseByOrder(Long orderNo) {
+        seatInventoryService.releaseByOrder(orderNo);
     }
 }

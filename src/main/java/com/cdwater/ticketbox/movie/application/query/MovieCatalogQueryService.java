@@ -4,7 +4,7 @@ import com.cdwater.ticketbox.shared.error.BizException;
 import com.cdwater.ticketbox.shared.query.PageResult;
 import com.cdwater.ticketbox.shared.error.ResultCode;
 import com.cdwater.ticketbox.movie.application.query.mapper.MovieViewMapper;
-import com.cdwater.ticketbox.movie.application.query.view.CrewView;
+import com.cdwater.ticketbox.movie.application.query.view.PersonView;
 import com.cdwater.ticketbox.movie.application.query.view.MovieDetailView;
 import com.cdwater.ticketbox.movie.application.query.view.MovieListItemView;
 import com.cdwater.ticketbox.movie.domain.model.Movie;
@@ -51,13 +51,13 @@ public class MovieCatalogQueryService {
                 .map(movieViewMapper::toView)
                 .toList());
 
-        List<CrewView> directors = new ArrayList<>();
-        List<CrewView> actors = new ArrayList<>();
-        movieRepository.findCrew(id).forEach(crew -> {
-            if (crew.isDirector()) {
-                directors.add(movieViewMapper.toView(crew));
-            } else if (crew.isActor()) {
-                actors.add(movieViewMapper.toView(crew));
+        List<PersonView> directors = new ArrayList<>();
+        List<PersonView> actors = new ArrayList<>();
+        movieRepository.findPersons(id).forEach(person -> {
+            if (person.isDirector()) {
+                directors.add(movieViewMapper.toView(person));
+            } else if (person.isActor()) {
+                actors.add(movieViewMapper.toView(person));
             }
         });
         view.setDirectors(directors);

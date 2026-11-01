@@ -52,7 +52,7 @@ export default function SeatSelectionPage() {
     createOrder.mutate(
       { screeningId: data.screeningId, seatIds: [...selected] },
       {
-        onSuccess: (order) => navigate(`/order/${order.id}`),
+        onSuccess: (order) => navigate(`/order/${order.orderNo}`),
         onError: () => setSelected(new Set()),
       },
     )

@@ -1,23 +1,4 @@
--- 初始化测试数据
--- 有密码账号的密码明文均为 Aa123456（BCrypt 加密存储）
--- 图片统一使用 https://github.com/cd-water.png
-
--- 用户：1 有密码；2-10 静默注册形态（无密码）；9 已禁用
-INSERT INTO `t_user` (`id`, `phone`, `password`, `nickname`, `avatar`, `status`)
-VALUES (1, '13800000001', '$2a$10$GIo5IeU8h/hoUoXFt6sFOu91qMy.0QrjdS6zO0jcC9znCQ.5cIvpC', 'user_mjafo8', 'https://github.com/cd-water.png', 1),
-       (2, '13800000002', NULL, 'user_214neo', 'https://github.com/cd-water.png', 1),
-       (3, '13800000003', NULL, 'user_3a7k2m', 'https://github.com/cd-water.png', 1),
-       (4, '13800000004', NULL, 'user_9x2p4q', 'https://github.com/cd-water.png', 1),
-       (5, '13800000005', NULL, 'user_5m8v1c', 'https://github.com/cd-water.png', 1),
-       (6, '13800000006', NULL, 'user_7q3n6z', 'https://github.com/cd-water.png', 1),
-       (7, '13800000007', NULL, 'user_2w9r5t', 'https://github.com/cd-water.png', 1),
-       (8, '13800000008', NULL, 'user_8e4y7u', 'https://github.com/cd-water.png', 1),
-       (9, '13800000009', NULL, 'user_6i1o3p', 'https://github.com/cd-water.png', 0),
-       (10, '13800000010', NULL, 'user_0k5j8h', 'https://github.com/cd-water.png', 1);
-
--- 管理员：账号 admin，密码 Aa123456
-INSERT INTO `t_admin` (`id`, `username`, `password`)
-VALUES (1, 'admin', '$2a$10$GIo5IeU8h/hoUoXFt6sFOu91qMy.0QrjdS6zO0jcC9znCQ.5cIvpC');
+-- 电影测试数据
 
 -- 电影：1-2、6-10、16-17、21-26 热映；3-4、11-14、18-19、27-33 待映；5、15、20 已下架
 INSERT INTO `t_movie` (`id`, `title`, `poster`, `synopsis`, `duration`, `release_date`, `status`)
@@ -121,7 +102,7 @@ VALUES (1, '星际征途', 'https://github.com/cd-water.png',
         '一个放风筝的孩子和一朵迷路的云，在天空展开一段冒险。',
         99, DATE_ADD(NOW(), INTERVAL 50 DAY), 1);
 
--- 电影类型字典
+-- 类型字典
 INSERT INTO `t_genre` (`id`, `name`, `sort_order`)
 VALUES (1, '科幻', 1),
        (2, '冒险', 2),
@@ -197,8 +178,8 @@ VALUES (1, '张远航', 'https://github.com/cd-water.png', '导演，擅长科�
        (19, '韩川', 'https://github.com/cd-water.png', '演员，硬汉形象深入人心。'),
        (20, '罗晴', 'https://github.com/cd-water.png', '导演，纪录片导演。');
 
--- 电影演职人员：1-导演，2-演员
-INSERT INTO `t_movie_crew` (`movie_id`, `person_id`, `duty`, `role_name`, `sort_order`)
+-- 电影人员：1-导演，2-演员
+INSERT INTO `t_movie_person` (`movie_id`, `person_id`, `duty`, `role_name`, `sort_order`)
 VALUES (1, 1, 1, '', 0),
        (1, 2, 2, '陆衡', 1),
        (1, 3, 2, '阿岚', 2),
@@ -418,7 +399,7 @@ CROSS JOIN (SELECT 1 AS n UNION ALL SELECT 2 UNION ALL SELECT 3 UNION ALL SELECT
             UNION ALL SELECT 5 UNION ALL SELECT 6 UNION ALL SELECT 7 UNION ALL SELECT 8
             UNION ALL SELECT 9 UNION ALL SELECT 10 UNION ALL SELECT 11 UNION ALL SELECT 12) c;
 
--- 排场：每个影院 2 个未来场次，仅安排热映电影
+-- 排场：基础场次，每个影院 2 个未来场次
 INSERT INTO `t_screening` (`id`, `cinema_id`, `hall_id`, `movie_id`, `start_time`, `end_time`, `price`, `status`)
 SELECT sch.id, sch.cinema_id, sch.hall_id, sch.movie_id,
        DATE_ADD(NOW(), INTERVAL sch.start_min MINUTE),
@@ -452,38 +433,40 @@ FROM (SELECT 1 AS id, 1 AS cinema_id, 1 AS hall_id, 1 AS movie_id, 120 AS start_
       UNION ALL SELECT 26, 1, 2, 2, 330, 45.90) sch
 JOIN `t_movie` m ON m.id = sch.movie_id;
 
+-- 追加场次：每个影院 2 个影厅 × 3 个时段，扩大排片量
+INSERT INTO `t_screening` (`cinema_id`, `hall_id`, `movie_id`, `start_time`, `end_time`, `price`, `status`)
+SELECT c.n,
+       (c.n - 1) * 2 + h.n,
+       mv.movie_id,
+       DATE_ADD(NOW(), INTERVAL (90 + s.n * 180 + h.n * 30 + c.n * 7) MINUTE),
+       DATE_ADD(DATE_ADD(NOW(), INTERVAL (90 + s.n * 180 + h.n * 30 + c.n * 7) MINUTE), INTERVAL m.duration MINUTE),
+       ROUND(36.90 + MOD(c.n + h.n * 2 + s.n * 3, 12) * 2.0, 2),
+       1
+FROM (SELECT 1 AS n UNION ALL SELECT 2 UNION ALL SELECT 3 UNION ALL SELECT 4
+      UNION ALL SELECT 5 UNION ALL SELECT 6 UNION ALL SELECT 7 UNION ALL SELECT 8
+      UNION ALL SELECT 9 UNION ALL SELECT 10 UNION ALL SELECT 11 UNION ALL SELECT 12) c
+CROSS JOIN (SELECT 1 AS n UNION ALL SELECT 2) h
+CROSS JOIN (SELECT 1 AS n UNION ALL SELECT 2 UNION ALL SELECT 3) s
+JOIN (SELECT 1 AS idx, 1 AS movie_id
+      UNION ALL SELECT 2, 2
+      UNION ALL SELECT 3, 6
+      UNION ALL SELECT 4, 7
+      UNION ALL SELECT 5, 8
+      UNION ALL SELECT 6, 9
+      UNION ALL SELECT 7, 10
+      UNION ALL SELECT 8, 16
+      UNION ALL SELECT 9, 17
+      UNION ALL SELECT 10, 21
+      UNION ALL SELECT 11, 22
+      UNION ALL SELECT 12, 23
+      UNION ALL SELECT 13, 24
+      UNION ALL SELECT 14, 25
+      UNION ALL SELECT 15, 26) mv
+  ON mv.idx = MOD((c.n - 1) * 6 + (h.n - 1) * 3 + (s.n - 1), 15) + 1
+JOIN `t_movie` m ON m.id = mv.movie_id;
+
 -- 每个排场按影厅座位生成座位快照
 INSERT INTO `t_screening_seat` (`screening_id`, `seat_id`)
 SELECT sc.id, s.id
 FROM `t_screening` sc
 JOIN `t_seat` s ON s.hall_id = sc.hall_id;
-
--- 订单：1 个待支付、1 个已支付，均使用 1 号排场
-INSERT INTO `t_order` (`id`, `order_no`, `user_id`, `screening_id`, `total_amount`, `status`, `expire_time`)
-VALUES (1, 1900000000000000001, 1, 1, 99.80, 0, DATE_ADD(NOW(), INTERVAL 15 MINUTE)),
-       (2, 1900000000000000002, 1, 1, 99.80, 1, DATE_ADD(NOW(), INTERVAL 15 MINUTE));
-
-INSERT INTO `t_order_seat` (`order_id`, `seat_id`, `row_num`, `col_num`, `price`)
-SELECT 1, s.id, s.row_num, s.col_num, 49.90
-FROM `t_seat` s
-WHERE s.hall_id = 1 AND s.row_num = 1 AND s.col_num IN (1, 2);
-
-INSERT INTO `t_order_seat` (`order_id`, `seat_id`, `row_num`, `col_num`, `price`)
-SELECT 2, s.id, s.row_num, s.col_num, 49.90
-FROM `t_seat` s
-WHERE s.hall_id = 1 AND s.row_num = 1 AND s.col_num IN (3, 4);
-
--- 待支付订单锁定 1-2 号座，已支付订单占用 3-4 号座
-UPDATE `t_screening_seat` ss
-JOIN `t_seat` s ON s.id = ss.seat_id
-SET ss.status = 1,
-    ss.lock_order_id = 1,
-    ss.lock_expire_time = DATE_ADD(NOW(), INTERVAL 15 MINUTE)
-WHERE ss.screening_id = 1 AND s.row_num = 1 AND s.col_num IN (1, 2);
-
-UPDATE `t_screening_seat` ss
-JOIN `t_seat` s ON s.id = ss.seat_id
-SET ss.status = 2,
-    ss.lock_order_id = 2,
-    ss.lock_expire_time = NULL
-WHERE ss.screening_id = 1 AND s.row_num = 1 AND s.col_num IN (3, 4);

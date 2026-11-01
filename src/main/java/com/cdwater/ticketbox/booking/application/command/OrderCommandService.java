@@ -66,26 +66,31 @@ public class OrderCommandService {
         order.setOrderNo(orderNoGenerator.nextOrderNo());
         order.setUserId(userId);
         order.setScreeningId(info.getScreeningId());
+        order.setMovieTitle(movie.getTitle());
+        order.setCinemaName(info.getCinemaName());
+        order.setHallName(info.getHallName());
+        order.setStartTime(info.getStartTime());
+        order.setEndTime(info.getEndTime());
         order.setTotalAmount(info.getPrice().multiply(BigDecimal.valueOf(seatIds.size())));
         order.setStatus(OrderStatus.PENDING.getCode());
         order.setExpireTime(expireTime);
         orderRepository.save(order);
 
         List<ReservedSeat> snapshots = seatInventoryPort.lockSeats(
-                info.getScreeningId(), seatIds, order.getId(), expireTime);
+                info.getScreeningId(), seatIds, order.getOrderNo(), expireTime);
         List<OrderSeat> orderSeats = snapshots.stream().map(snapshot -> {
             OrderSeat seat = orderSeatDomainMapper.toSeat(snapshot);
-            seat.setOrderId(order.getId());
+            seat.setOrderNo(order.getOrderNo());
             seat.setPrice(info.getPrice());
             return seat;
         }).toList();
         orderRepository.saveSeats(orderSeats);
 
-        return orderQueryService.getOrder(userId, order.getId());
+        return orderQueryService.getOrder(userId, order.getOrderNo());
     }
 
     @Transactional
-    public void expireOrder(Long orderId) {
-        orderExpiryService.expireOrder(orderId);
+    public void expireOrder(Long orderNo) {
+        orderExpiryService.expireOrder(orderNo);
     }
 }

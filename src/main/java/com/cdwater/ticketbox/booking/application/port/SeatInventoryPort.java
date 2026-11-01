@@ -6,7 +6,7 @@ import java.util.List;
 public interface SeatInventoryPort {
 
     List<ReservedSeat> lockSeats(Long screeningId, List<Long> seatIds,
-                                 Long orderId, LocalDateTime expireTime);
+                                 Long orderNo, LocalDateTime expireTime);
 
-    void releaseByOrder(Long orderId);
+    void releaseByOrder(Long orderNo);
 }

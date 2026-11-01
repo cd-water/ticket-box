@@ -25,7 +25,7 @@ class MovieDomainMapperTest {
     MovieGenreMapper genreMapper;
 
     @Autowired
-    MovieCrewMapper crewMapper;
+    MoviePersonMapper personMapper;
 
     @Autowired
     ReviewMapper commentMapper;
@@ -47,13 +47,13 @@ class MovieDomainMapperTest {
     }
 
     @Test
-    void movie1_genres_and_crew() {
+    void movie1_genres_and_persons() {
         List<String> genres = genreMapper.selectGenresByMovieId(1L).stream()
                 .map(Genre::getName).toList();
         assertTrue(genres.contains("科幻"));
         assertTrue(genres.contains("冒险"));
 
-        var rows = crewMapper.selectCrewRowsByMovieId(1L);
+        var rows = personMapper.selectPersonRowsByMovieId(1L);
         assertTrue(rows.stream().anyMatch(r -> r.getDuty() == 1 && "张远航".equals(r.getPersonName())));
         assertTrue(rows.stream().anyMatch(r -> r.getDuty() == 2
                 && "林晓".equals(r.getPersonName()) && "陆衡".equals(r.getRoleName())));

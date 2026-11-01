@@ -9,7 +9,6 @@ import java.util.List;
 @Data
 public class OrderDetailView {
 
-    private Long id;
     private String orderNo;
     private Integer status;
     private BigDecimal totalAmount;

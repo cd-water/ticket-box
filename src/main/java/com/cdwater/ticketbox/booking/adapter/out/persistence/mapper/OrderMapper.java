@@ -9,6 +9,6 @@ import org.apache.ibatis.annotations.Update;
 @Mapper
 public interface OrderMapper extends BaseMapper<Order> {
 
-    @Update("UPDATE t_order SET status = 3 WHERE id = #{id} AND status = 0")
-    int markTimeout(@Param("id") Long id);
+    @Update("UPDATE t_movie_order SET status = 3 WHERE order_no = #{orderNo} AND status = 0")
+    int markTimeout(@Param("orderNo") Long orderNo);
 }

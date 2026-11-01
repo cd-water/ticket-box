@@ -27,8 +27,8 @@ public class OrderRepositoryImpl implements OrderRepository {
     }
 
     @Override
-    public Optional<Order> findById(Long id) {
-        return Optional.ofNullable(orderMapper.selectById(id));
+    public Optional<Order> findByOrderNo(Long orderNo) {
+        return Optional.ofNullable(orderMapper.selectById(orderNo));
     }
 
     @Override
@@ -39,9 +39,9 @@ public class OrderRepositoryImpl implements OrderRepository {
     }
 
     @Override
-    public List<OrderSeat> findSeatsByOrderId(Long orderId) {
+    public List<OrderSeat> findSeatsByOrderNo(Long orderNo) {
         return orderSeatMapper.selectList(new LambdaQueryWrapper<OrderSeat>()
-                .eq(OrderSeat::getOrderId, orderId)
+                .eq(OrderSeat::getOrderNo, orderNo)
                 .orderByAsc(OrderSeat::getRowNum)
                 .orderByAsc(OrderSeat::getColNum));
     }
@@ -52,12 +52,12 @@ public class OrderRepositoryImpl implements OrderRepository {
         return orderMapper.selectList(new LambdaQueryWrapper<Order>()
                 .eq(Order::getStatus, 0)
                 .lt(Order::getExpireTime, now)
-                .orderByAsc(Order::getId)
+                .orderByAsc(Order::getOrderNo)
                 .last("LIMIT " + safeLimit));
     }
 
     @Override
-    public boolean markTimeout(Long orderId) {
-        return orderMapper.markTimeout(orderId) == 1;
+    public boolean markTimeout(Long orderNo) {
+        return orderMapper.markTimeout(orderNo) == 1;
     }
 }

@@ -16,7 +16,7 @@ public class MovieDetailView {
     private LocalDateTime releaseDate;
     private String tab;
     private List<GenreView> genres;
-    private List<CrewView> directors;
-    private List<CrewView> actors;
+    private List<PersonView> directors;
+    private List<PersonView> actors;
     private long reviewCount;
 }

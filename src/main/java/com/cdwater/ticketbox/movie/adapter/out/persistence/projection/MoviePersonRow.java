@@ -3,7 +3,7 @@ package com.cdwater.ticketbox.movie.adapter.out.persistence.projection;
 import lombok.Data;
 
 @Data
-public class MovieCrewRow {
+public class MoviePersonRow {
 
     private Long movieId;
     private Long personId;

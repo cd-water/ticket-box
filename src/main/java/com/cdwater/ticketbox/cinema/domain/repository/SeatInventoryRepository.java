@@ -12,9 +12,9 @@ public interface SeatInventoryRepository {
 
     List<SeatSnapshot> lockSeats(Long screeningId, Collection<Long> seatIds);
 
-    int updateLocks(Long screeningId, Collection<Long> seatIds, Long orderId, LocalDateTime expireTime);
+    int updateLocks(Long screeningId, Collection<Long> seatIds, Long orderNo, LocalDateTime expireTime);
 
-    int releaseByOrder(Long orderId);
+    int releaseByOrder(Long orderNo);
 
     int releaseExpiredByScreening(Long screeningId, LocalDateTime now);
 }

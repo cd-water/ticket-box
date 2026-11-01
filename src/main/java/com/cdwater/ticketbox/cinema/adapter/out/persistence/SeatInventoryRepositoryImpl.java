@@ -28,13 +28,13 @@ public class SeatInventoryRepositoryImpl implements SeatInventoryRepository {
 
     @Override
     public int updateLocks(Long screeningId, Collection<Long> seatIds,
-                           Long orderId, LocalDateTime expireTime) {
-        return seatInventoryMapper.updateLocks(screeningId, seatIds, orderId, expireTime);
+                           Long orderNo, LocalDateTime expireTime) {
+        return seatInventoryMapper.updateLocks(screeningId, seatIds, orderNo, expireTime);
     }
 
     @Override
-    public int releaseByOrder(Long orderId) {
-        return seatInventoryMapper.releaseByOrder(orderId);
+    public int releaseByOrder(Long orderNo) {
+        return seatInventoryMapper.releaseByOrder(orderNo);
     }
 
     @Override

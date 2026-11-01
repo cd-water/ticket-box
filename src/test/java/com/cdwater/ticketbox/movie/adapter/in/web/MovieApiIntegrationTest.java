@@ -84,7 +84,7 @@ class MovieApiIntegrationTest {
     }
 
     @Test
-    void movie_detail_with_genres_and_crew() {
+    void movie_detail_with_genres_and_persons() {
         String token = token();
         JsonNode node = get("/api/movies/1", token);
         assertEquals("A200", node.get("code").asString(), node.toString());

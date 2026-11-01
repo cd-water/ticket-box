@@ -2,7 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { orderApi, type CreateOrderRequest } from '@/api/order'
 
 export const orderKeys = {
-  detail: (id: number) => ['orders', 'detail', id] as const,
+  detail: (orderNo: string) => ['orders', 'detail', orderNo] as const,
 }
 
 export function useCreateOrder() {
@@ -10,7 +10,7 @@ export function useCreateOrder() {
   return useMutation({
     mutationFn: (body: CreateOrderRequest) => orderApi.create(body),
     onSuccess: (order) => {
-      queryClient.setQueryData(orderKeys.detail(order.id), order)
+      queryClient.setQueryData(orderKeys.detail(order.orderNo), order)
       queryClient.invalidateQueries({ queryKey: ['cinemas'] })
       queryClient.invalidateQueries({ queryKey: ['screenings'] })
     },
@@ -20,11 +20,11 @@ export function useCreateOrder() {
   })
 }
 
-export function useOrderDetail(id: number) {
+export function useOrderDetail(orderNo: string) {
   return useQuery({
-    queryKey: orderKeys.detail(id),
-    queryFn: () => orderApi.detail(id),
-    enabled: Number.isFinite(id) && id > 0,
+    queryKey: orderKeys.detail(orderNo),
+    queryFn: () => orderApi.detail(orderNo),
+    enabled: /^\d+$/.test(orderNo),
     refetchInterval: (query) => (query.state.data?.status === 0 ? 30_000 : false),
   })
 }

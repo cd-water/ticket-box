@@ -25,7 +25,7 @@ public interface SeatInventoryMapper {
     @Select("""
             <script>
             SELECT s.id AS seat_id, s.row_num, s.col_num,
-                   ss.status, ss.lock_order_id, ss.lock_expire_time
+                   ss.status, ss.lock_order_no, ss.lock_expire_time
             FROM t_screening_seat ss
             JOIN t_seat s ON s.id = ss.seat_id
             WHERE ss.screening_id = #{screeningId} AND ss.seat_id IN
@@ -40,26 +40,26 @@ public interface SeatInventoryMapper {
     @Update("""
             <script>
             UPDATE t_screening_seat
-            SET status = 1, lock_order_id = #{orderId}, lock_expire_time = #{expireTime}
+            SET status = 1, lock_order_no = #{orderNo}, lock_expire_time = #{expireTime}
             WHERE screening_id = #{screeningId} AND seat_id IN
             <foreach collection="seatIds" item="id" open="(" separator="," close=")">#{id}</foreach>
             </script>
             """)
     int updateLocks(@Param("screeningId") Long screeningId,
                     @Param("seatIds") Collection<Long> seatIds,
-                    @Param("orderId") Long orderId,
+                    @Param("orderNo") Long orderNo,
                     @Param("expireTime") LocalDateTime expireTime);
 
     @Update("""
             UPDATE t_screening_seat
-            SET status = 0, lock_order_id = NULL, lock_expire_time = NULL
-            WHERE lock_order_id = #{orderId} AND status = 1
+            SET status = 0, lock_order_no = NULL, lock_expire_time = NULL
+            WHERE lock_order_no = #{orderNo} AND status = 1
             """)
-    int releaseByOrder(@Param("orderId") Long orderId);
+    int releaseByOrder(@Param("orderNo") Long orderNo);
 
     @Update("""
             UPDATE t_screening_seat
-            SET status = 0, lock_order_id = NULL, lock_expire_time = NULL
+            SET status = 0, lock_order_no = NULL, lock_expire_time = NULL
             WHERE screening_id = #{screeningId} AND status = 1
               AND lock_expire_time < #{now}
             """)

@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class CrewView {
+public class PersonView {
 
     private Long personId;
     private String name;

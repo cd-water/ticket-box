@@ -11,6 +11,6 @@ public class SeatSnapshot {
     private Integer rowNum;
     private Integer colNum;
     private Integer status;
-    private Long lockOrderId;
+    private Long lockOrderNo;
     private LocalDateTime lockExpireTime;
 }

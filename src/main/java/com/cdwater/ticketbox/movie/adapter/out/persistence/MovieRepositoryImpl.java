@@ -4,12 +4,12 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.cdwater.ticketbox.shared.query.PageResult;
 import com.cdwater.ticketbox.shared.persistence.LikeUtils;
-import com.cdwater.ticketbox.movie.adapter.out.persistence.mapper.MovieCrewMapper;
+import com.cdwater.ticketbox.movie.adapter.out.persistence.mapper.MoviePersonMapper;
 import com.cdwater.ticketbox.movie.adapter.out.persistence.mapper.MovieGenreMapper;
 import com.cdwater.ticketbox.movie.adapter.out.persistence.mapper.MovieMapper;
 import com.cdwater.ticketbox.movie.domain.model.Genre;
 import com.cdwater.ticketbox.movie.domain.model.Movie;
-import com.cdwater.ticketbox.movie.domain.model.MovieCrewMember;
+import com.cdwater.ticketbox.movie.domain.model.MoviePerson;
 import com.cdwater.ticketbox.movie.domain.repository.MovieRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
@@ -27,7 +27,7 @@ public class MovieRepositoryImpl implements MovieRepository {
 
     private final MovieMapper movieMapper;
     private final MovieGenreMapper movieGenreMapper;
-    private final MovieCrewMapper movieCrewMapper;
+    private final MoviePersonMapper moviePersonMapper;
     private final MovieProjectionMapper movieProjectionMapper;
 
     @Override
@@ -73,8 +73,8 @@ public class MovieRepositoryImpl implements MovieRepository {
     }
 
     @Override
-    public List<MovieCrewMember> findCrew(Long movieId) {
-        return movieCrewMapper.selectCrewRowsByMovieId(movieId).stream()
+    public List<MoviePerson> findPersons(Long movieId) {
+        return moviePersonMapper.selectPersonRowsByMovieId(movieId).stream()
                 .map(movieProjectionMapper::toDomain)
                 .toList();
     }

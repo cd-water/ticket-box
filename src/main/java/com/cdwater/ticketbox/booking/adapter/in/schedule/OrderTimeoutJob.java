@@ -24,9 +24,9 @@ public class OrderTimeoutJob {
         List<Order> orders = orderRepository.findExpiredPending(LocalDateTime.now(), 100);
         for (Order order : orders) {
             try {
-                orderCommandService.expireOrder(order.getId());
+                orderCommandService.expireOrder(order.getOrderNo());
             } catch (Exception e) {
-                log.warn("expire order failed, orderId={}", order.getId(), e);
+                log.warn("expire order failed, orderNo={}", order.getOrderNo(), e);
             }
         }
     }

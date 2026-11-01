@@ -37,13 +37,13 @@ class SeatMapApiIntegrationTest {
 
     private void restoreSeedLock() {
         jdbc.update("""
-                UPDATE t_order SET status = 0, expire_time = DATE_ADD(NOW(), INTERVAL 15 MINUTE)
-                WHERE id = 1
+                UPDATE t_movie_order SET status = 0, expire_time = DATE_ADD(NOW(), INTERVAL 15 MINUTE)
+                WHERE order_no = 1900000000000000001
                 """);
         jdbc.update("""
                 UPDATE t_screening_seat ss
                 JOIN t_seat s ON s.id = ss.seat_id
-                SET ss.status = 1, ss.lock_order_id = 1,
+                SET ss.status = 1, ss.lock_order_no = 1,
                     ss.lock_expire_time = DATE_ADD(NOW(), INTERVAL 15 MINUTE)
                 WHERE ss.screening_id = 1 AND s.row_num = 1 AND s.col_num IN (1, 2)
                 """);

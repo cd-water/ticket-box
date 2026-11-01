@@ -29,9 +29,9 @@ public class OrderController {
                 SaTokenSetup.USER.getLoginIdAsLong(), command));
     }
 
-    @GetMapping("/{id}")
-    public Result<OrderDetailView> detail(@PathVariable Long id) {
+    @GetMapping("/{orderNo}")
+    public Result<OrderDetailView> detail(@PathVariable Long orderNo) {
         return Result.success(orderQueryService.getOrder(
-                SaTokenSetup.USER.getLoginIdAsLong(), id));
+                SaTokenSetup.USER.getLoginIdAsLong(), orderNo));
     }
 }

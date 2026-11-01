@@ -39,13 +39,13 @@ class CinemaApiIntegrationTest {
 
     private void restoreSeedLock() {
         jdbc.update("""
-                UPDATE t_order SET status = 0, expire_time = DATE_ADD(NOW(), INTERVAL 15 MINUTE)
-                WHERE id = 1
+                UPDATE t_movie_order SET status = 0, expire_time = DATE_ADD(NOW(), INTERVAL 15 MINUTE)
+                WHERE order_no = 1900000000000000001
                 """);
         jdbc.update("""
                 UPDATE t_screening_seat ss
                 JOIN t_seat s ON s.id = ss.seat_id
-                SET ss.status = 1, ss.lock_order_id = 1,
+                SET ss.status = 1, ss.lock_order_no = 1,
                     ss.lock_expire_time = DATE_ADD(NOW(), INTERVAL 15 MINUTE)
                 WHERE ss.screening_id = 1 AND s.row_num = 1 AND s.col_num IN (1, 2)
                 """);
@@ -85,7 +85,7 @@ class CinemaApiIntegrationTest {
 
         JsonNode movie1 = get("/api/cinemas?page=1&size=10&movieId=1", token);
         assertEquals("A200", movie1.get("code").asString(), movie1.toString());
-        assertEquals(2, movie1.get("data").get("total").asInt());
+        assertEquals(5, movie1.get("data").get("total").asInt());
         String names = movie1.get("data").get("records").toString();
         assertTrue(names.contains("星光"));
         assertTrue(names.contains("金逸"));
@@ -108,7 +108,7 @@ class CinemaApiIntegrationTest {
         String token = token();
         JsonNode node = get("/api/cinemas/1", token);
         assertEquals("A200", node.get("code").asString(), node.toString());
-        assertEquals(2, node.get("data").get("movies").size());
+        assertEquals(6, node.get("data").get("movies").size());
         assertTrue(node.get("data").get("movies").toString().contains("星际征途"));
         assertTrue(node.get("data").get("movies").toString().contains("山海奇缘"));
     }
@@ -119,7 +119,7 @@ class CinemaApiIntegrationTest {
         JsonNode node = get("/api/cinemas/1/movies/1/screenings", token);
         assertEquals("A200", node.get("code").asString(), node.toString());
         JsonNode records = node.get("data");
-        assertEquals(2, records.size());
+        assertEquals(3, records.size());
         assertEquals(1L, records.get(0).get("id").asLong());
         assertEquals("1号厅", records.get(0).get("hallName").asString());
         assertEquals(116, records.get(0).get("availableSeats").asInt());
@@ -144,7 +144,7 @@ class CinemaApiIntegrationTest {
         try {
             JsonNode node = get("/api/cinemas/1", token);
             assertEquals("A200", node.get("code").asString(), node.toString());
-            assertEquals(2, node.get("data").get("movies").size());
+            assertEquals(6, node.get("data").get("movies").size());
             String movies = node.get("data").get("movies").toString();
             assertFalse(movies.contains("旧日时光"));
             assertFalse(movies.contains("云端之城"));

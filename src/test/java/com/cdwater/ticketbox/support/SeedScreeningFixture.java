@@ -12,7 +12,6 @@ public final class SeedScreeningFixture {
                 UPDATE t_screening
                 SET start_time = DATE_ADD(NOW(), INTERVAL (id * 30) MINUTE),
                     end_time = DATE_ADD(DATE_ADD(NOW(), INTERVAL (id * 30) MINUTE), INTERVAL 150 MINUTE)
-                WHERE id BETWEEN 1 AND 26
                 """);
     }
 }

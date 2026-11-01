@@ -50,14 +50,14 @@ class OrderApiIntegrationTest {
 
     @AfterEach
     void cleanUp() {
-        for (Long orderId : createdOrderIds) {
+        for (Long orderNo : createdOrderIds) {
             jdbc.update("""
                     UPDATE t_screening_seat
-                    SET status = 0, lock_order_id = NULL, lock_expire_time = NULL
-                    WHERE lock_order_id = ?
-                    """, orderId);
-            jdbc.update("DELETE FROM t_order_seat WHERE order_id = ?", orderId);
-            jdbc.update("DELETE FROM t_order WHERE id = ?", orderId);
+                    SET status = 0, lock_order_no = NULL, lock_expire_time = NULL
+                    WHERE lock_order_no = ?
+                    """, orderNo);
+            jdbc.update("DELETE FROM t_movie_order_seat WHERE order_no = ?", orderNo);
+            jdbc.update("DELETE FROM t_movie_order WHERE order_no = ?", orderNo);
         }
         createdOrderIds.clear();
         restoreSeedLock();
@@ -65,13 +65,13 @@ class OrderApiIntegrationTest {
 
     private void restoreSeedLock() {
         jdbc.update("""
-                UPDATE t_order SET status = 0, expire_time = DATE_ADD(NOW(), INTERVAL 15 MINUTE)
-                WHERE id = 1
+                UPDATE t_movie_order SET status = 0, expire_time = DATE_ADD(NOW(), INTERVAL 15 MINUTE)
+                WHERE order_no = 1900000000000000001
                 """);
         jdbc.update("""
                 UPDATE t_screening_seat ss
                 JOIN t_seat s ON s.id = ss.seat_id
-                SET ss.status = 1, ss.lock_order_id = 1,
+                SET ss.status = 1, ss.lock_order_no = 1900000000000000001,
                     ss.lock_expire_time = DATE_ADD(NOW(), INTERVAL 15 MINUTE)
                 WHERE ss.screening_id = 1 AND s.row_num = 1 AND s.col_num IN (1, 2)
                 """);
@@ -118,17 +118,16 @@ class OrderApiIntegrationTest {
                 "seatIds", seatIds));
         assertEquals("A200", node.get("code").asString(), node.toString());
         JsonNode data = node.get("data");
-        long orderId = data.get("id").asLong();
-        createdOrderIds.add(orderId);
+        long orderNo = Long.parseLong(data.get("orderNo").asString());
+        createdOrderIds.add(orderNo);
         assertTrue(data.get("orderNo").isString());
         assertEquals(0, data.get("status").asInt());
         assertEquals(91.80, data.get("totalAmount").asDouble(), 0.001);
         assertEquals(2, data.get("seats").size());
 
-        JsonNode detail = get("/api/orders/" + orderId, token);
+        JsonNode detail = get("/api/orders/" + orderNo, token);
         assertEquals("A200", detail.get("code").asString(), detail.toString());
-        assertEquals(orderId, detail.get("data").get("id").asLong());
-        assertTrue(detail.get("data").get("orderNo").isString());
+        assertEquals(String.valueOf(orderNo), detail.get("data").get("orderNo").asString());
     }
 
     @Test
@@ -174,12 +173,12 @@ class OrderApiIntegrationTest {
         } finally {
             pool.shutdownNow();
         }
-        Long orderId = jdbc.queryForObject("""
-                SELECT lock_order_id FROM t_screening_seat
+        Long orderNo = jdbc.queryForObject("""
+                SELECT lock_order_no FROM t_screening_seat
                 WHERE screening_id = 3 AND seat_id = ?
                 """, Long.class, seatIds.get(0));
-        assertNotNull(orderId);
-        createdOrderIds.add(orderId);
+        assertNotNull(orderNo);
+        createdOrderIds.add(orderNo);
     }
 
     @Test
@@ -190,11 +189,11 @@ class OrderApiIntegrationTest {
         JsonNode first = post("/api/orders", token, Map.of(
                 "screeningId", 5, "seatIds", seatIds));
         assertEquals("A200", first.get("code").asString(), first.toString());
-        long firstOrderId = first.get("data").get("id").asLong();
-        createdOrderIds.add(firstOrderId);
+        long firstOrderNo = Long.parseLong(first.get("data").get("orderNo").asString());
+        createdOrderIds.add(firstOrderNo);
 
-        jdbc.update("UPDATE t_order SET expire_time = DATE_SUB(NOW(), INTERVAL 1 MINUTE) WHERE id = ?",
-                firstOrderId);
+        jdbc.update("UPDATE t_movie_order SET expire_time = DATE_SUB(NOW(), INTERVAL 1 MINUTE) WHERE order_no = ?",
+                firstOrderNo);
         jdbc.update("""
                 UPDATE t_screening_seat
                 SET lock_expire_time = DATE_SUB(NOW(), INTERVAL 1 MINUTE)
@@ -204,20 +203,20 @@ class OrderApiIntegrationTest {
         JsonNode second = post("/api/orders", token, Map.of(
                 "screeningId", 5, "seatIds", seatIds));
         assertEquals("A200", second.get("code").asString(), second.toString());
-        long secondOrderId = second.get("data").get("id").asLong();
-        createdOrderIds.add(secondOrderId);
+        long secondOrderNo = Long.parseLong(second.get("data").get("orderNo").asString());
+        createdOrderIds.add(secondOrderNo);
 
-        orderCommandService.expireOrder(firstOrderId);
+        orderCommandService.expireOrder(firstOrderNo);
 
-        Long lockOrderId = jdbc.queryForObject("""
-                SELECT lock_order_id FROM t_screening_seat
+        Long lockOrderNo = jdbc.queryForObject("""
+                SELECT lock_order_no FROM t_screening_seat
                 WHERE screening_id = 5 AND seat_id = ?
                 """, Long.class, seatIds.get(0));
         Integer seatStatus = jdbc.queryForObject("""
                 SELECT status FROM t_screening_seat
                 WHERE screening_id = 5 AND seat_id = ?
                 """, Integer.class, seatIds.get(0));
-        assertEquals(secondOrderId, lockOrderId);
+        assertEquals(secondOrderNo, lockOrderNo);
         assertEquals(1, seatStatus);
     }
 
@@ -228,16 +227,16 @@ class OrderApiIntegrationTest {
         JsonNode created = post("/api/orders", token, Map.of(
                 "screeningId", 4, "seatIds", seatIds));
         assertEquals("A200", created.get("code").asString(), created.toString());
-        long orderId = created.get("data").get("id").asLong();
-        createdOrderIds.add(orderId);
+        long orderNo = Long.parseLong(created.get("data").get("orderNo").asString());
+        createdOrderIds.add(orderNo);
 
-        jdbc.update("UPDATE t_order SET expire_time = DATE_SUB(NOW(), INTERVAL 1 MINUTE) WHERE id = ?", orderId);
+        jdbc.update("UPDATE t_movie_order SET expire_time = DATE_SUB(NOW(), INTERVAL 1 MINUTE) WHERE order_no = ?", orderNo);
         jdbc.update("""
                 UPDATE t_screening_seat SET lock_expire_time = DATE_SUB(NOW(), INTERVAL 1 MINUTE)
                 WHERE screening_id = 4 AND seat_id = ?
                 """, seatIds.get(0));
 
-        JsonNode detail = get("/api/orders/" + orderId, token);
+        JsonNode detail = get("/api/orders/" + orderNo, token);
         assertEquals("A200", detail.get("code").asString(), detail.toString());
         assertEquals(3, detail.get("data").get("status").asInt());
         Integer seatStatus = jdbc.queryForObject("""

@@ -14,9 +14,9 @@ public class OrderExpiryService {
     private final SeatInventoryPort seatInventoryPort;
 
     @Transactional
-    public void expireOrder(Long orderId) {
-        if (orderRepository.markTimeout(orderId)) {
-            seatInventoryPort.releaseByOrder(orderId);
+    public void expireOrder(Long orderNo) {
+        if (orderRepository.markTimeout(orderNo)) {
+            seatInventoryPort.releaseByOrder(orderNo);
         }
     }
 }
