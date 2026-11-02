@@ -39,6 +39,9 @@ public class InventoryService {
     @Transactional
     public List<SeatSnapshot> reserve(Long screeningId, List<Long> rawSeatIds,
                                       Long orderNo, LocalDateTime expireTime) {
+        if (rawSeatIds == null || rawSeatIds.isEmpty()) {
+            throw new BizException(ResultCode.BAD_REQUEST, "请选择有效座位");
+        }
         List<Long> seatIds = rawSeatIds.stream().sorted().toList();
         List<SeatSnapshot> rows = movieSeats.lockSeats(screeningId, seatIds);
         if (rows.size() != seatIds.size()) {
@@ -83,6 +86,10 @@ public class InventoryService {
 
     @Transactional
     public List<ShowSeat> sellShowSeats(Long showId, String zone, int quantity, Long orderNo) {
+        List<ShowSeat> alreadySold = showSeats.findSoldByOrder(orderNo);
+        if (!alreadySold.isEmpty()) {
+            return alreadySold;
+        }
         List<ShowSeat> seats = showSeats.lockAvailableSeats(showId, zone);
         if (seats.size() < quantity) {
             throw new BizException(ResultCode.CONFLICT, "该区域余票不足");
@@ -99,6 +106,9 @@ public class InventoryService {
 
     @Transactional
     public boolean deductPlayStock(Long itemId, int quantity) {
+        if (quantity <= 0) {
+            throw new BizException(ResultCode.BAD_REQUEST, "数量必须大于 0");
+        }
         return playStock.deduct(itemId, quantity);
     }
 

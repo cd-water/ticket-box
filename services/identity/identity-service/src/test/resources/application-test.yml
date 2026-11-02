@@ -1,0 +1,9 @@
+dubbo:
+  protocol:
+    port: -1
+  registry:
+    address: nacos://localhost:8848
+    username: nacos
+    password: nacos
+  consumer:
+    check: false

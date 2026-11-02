@@ -1,0 +1,43 @@
+package com.cdwater.ticketbox.order.play.adapter.in.schedule;
+
+import com.cdwater.ticketbox.order.play.application.command.PlayOrderExpiryService;
+import com.cdwater.ticketbox.order.play.domain.model.PlayOrder;
+import com.cdwater.ticketbox.order.play.domain.repository.PlayOrderRepository;
+import com.cdwater.ticketbox.payment.api.PaymentApi;
+import com.cdwater.ticketbox.payment.api.dto.PaymentDTO;
+import lombok.RequiredArgsConstructor;
+import org.apache.dubbo.config.annotation.DubboReference;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
+
+import java.time.LocalDateTime;
+import java.util.List;
+
+@Slf4j
+@Component
+@RequiredArgsConstructor
+public class PlayOrderTimeoutJob {
+
+    private final PlayOrderRepository orderRepository;
+    private final PlayOrderExpiryService expiryService;
+
+    @DubboReference(check = false, timeout = 3000)
+    private PaymentApi paymentApi;
+
+    @Scheduled(fixedDelay = 60_000)
+    public void expireOrders() {
+        List<PlayOrder> orders = orderRepository.findExpiredPending(LocalDateTime.now(), 100);
+        for (PlayOrder order : orders) {
+            try {
+                PaymentDTO payment = paymentApi.queryByOrderNo(order.getOrderNo());
+                if (payment != null && "SUCCESS".equals(payment.getStatus())) {
+                    continue;
+                }
+                expiryService.expire(order.getOrderNo());
+            } catch (Exception e) {
+                log.warn("expire play order failed, orderNo={}", order.getOrderNo(), e);
+            }
+        }
+    }
+}

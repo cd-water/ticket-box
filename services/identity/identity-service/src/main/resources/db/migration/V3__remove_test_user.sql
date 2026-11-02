@@ -1,0 +1,1 @@
+DELETE FROM t_user WHERE phone = '13900001111';

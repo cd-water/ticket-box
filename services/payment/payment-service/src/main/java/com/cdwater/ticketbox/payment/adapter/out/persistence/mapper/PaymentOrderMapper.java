@@ -14,4 +14,11 @@ public interface PaymentOrderMapper extends BaseMapper<PaymentOrderPO> {
             WHERE payment_no = #{paymentNo} AND status <> 'CLOSED'
             """)
     int markClosed(@Param("paymentNo") String paymentNo);
+
+    @Update("""
+            UPDATE t_payment_order SET status = 'SUCCESS', pay_time = #{payTime}
+            WHERE payment_no = #{paymentNo} AND status = 'CLOSED'
+            """)
+    int reopen(@Param("paymentNo") String paymentNo,
+               @Param("payTime") java.time.LocalDateTime payTime);
 }

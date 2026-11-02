@@ -3,6 +3,7 @@ package com.cdwater.ticketbox.admin.adapter.in.web;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.http.MediaType;
 import org.springframework.web.client.RestClient;
@@ -18,6 +19,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
  * 集成测试：管理端登录、登出与双账号体系隔离。
  * 前置：docker compose up -d；seed 管理员 admin/Aa123456。
  */
+@ActiveProfiles("test")
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class AdminAuthIntegrationTest {
 

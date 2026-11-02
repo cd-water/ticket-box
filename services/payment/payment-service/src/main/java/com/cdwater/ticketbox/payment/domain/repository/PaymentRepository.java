@@ -16,4 +16,6 @@ public interface PaymentRepository {
     void saveTransaction(String paymentNo, String type, BigDecimal amount, String channelTxnNo);
 
     int markClosed(String paymentNo);
+
+    int reopen(String paymentNo);
 }

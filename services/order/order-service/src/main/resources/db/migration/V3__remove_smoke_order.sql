@@ -1,0 +1,2 @@
+DELETE FROM t_movie_order_seat WHERE order_no = 2117222825025601537;
+DELETE FROM t_movie_order WHERE order_no = 2117222825025601537;

@@ -1,11 +1,12 @@
 package com.cdwater.ticketbox.cinema.adapter.in.web;
 
-import com.cdwater.ticketbox.cinema.application.command.MovieOrderCommandService;
+import com.cdwater.ticketbox.order.api.MovieOrderApi;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.http.MediaType;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -26,6 +27,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+@ActiveProfiles("test")
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class MovieOrderApiIntegrationTest {
 
@@ -36,7 +38,7 @@ class MovieOrderApiIntegrationTest {
     JdbcTemplate jdbc;
 
     @Autowired
-    MovieOrderCommandService orderCommandService;
+    MovieOrderApi movieOrderApi;
 
     RestClient client;
     final ObjectMapper om = new ObjectMapper();
@@ -57,8 +59,8 @@ class MovieOrderApiIntegrationTest {
                     SET status = 0, lock_order_no = NULL, lock_expire_time = NULL
                     WHERE lock_order_no = ?
                     """, orderNo);
-            jdbc.update("DELETE FROM t_movie_order_seat WHERE order_no = ?", orderNo);
-            jdbc.update("DELETE FROM t_movie_order WHERE order_no = ?", orderNo);
+            jdbc.update("DELETE FROM ticket_box_order.t_movie_order_seat WHERE order_no = ?", orderNo);
+            jdbc.update("DELETE FROM ticket_box_order.t_movie_order WHERE order_no = ?", orderNo);
         }
         createdOrderIds.clear();
         restoreSeedLock();
@@ -66,7 +68,7 @@ class MovieOrderApiIntegrationTest {
 
     private void restoreSeedLock() {
         jdbc.update("""
-                UPDATE t_movie_order SET status = 0, expire_time = DATE_ADD(NOW(), INTERVAL 15 MINUTE)
+                UPDATE ticket_box_order.t_movie_order SET status = 0, expire_time = DATE_ADD(NOW(), INTERVAL 15 MINUTE)
                 WHERE order_no = 1900000000000000001
                 """);
         jdbc.update("""
@@ -193,7 +195,7 @@ class MovieOrderApiIntegrationTest {
         long firstOrderNo = Long.parseLong(first.get("data").get("orderNo").asString());
         createdOrderIds.add(firstOrderNo);
 
-        jdbc.update("UPDATE t_movie_order SET expire_time = DATE_SUB(NOW(), INTERVAL 1 MINUTE) WHERE order_no = ?",
+        jdbc.update("UPDATE ticket_box_order.t_movie_order SET expire_time = DATE_SUB(NOW(), INTERVAL 1 MINUTE) WHERE order_no = ?",
                 firstOrderNo);
         jdbc.update("""
                 UPDATE ticket_box_inventory.t_screening_seat
@@ -207,7 +209,7 @@ class MovieOrderApiIntegrationTest {
         long secondOrderNo = Long.parseLong(second.get("data").get("orderNo").asString());
         createdOrderIds.add(secondOrderNo);
 
-        orderCommandService.expireOrder(firstOrderNo);
+        movieOrderApi.expire(firstOrderNo);
 
         Long lockOrderNo = jdbc.queryForObject("""
                 SELECT lock_order_no FROM ticket_box_inventory.t_screening_seat
@@ -231,7 +233,7 @@ class MovieOrderApiIntegrationTest {
         long orderNo = Long.parseLong(created.get("data").get("orderNo").asString());
         createdOrderIds.add(orderNo);
 
-        jdbc.update("UPDATE t_movie_order SET expire_time = DATE_SUB(NOW(), INTERVAL 1 MINUTE) WHERE order_no = ?", orderNo);
+        jdbc.update("UPDATE ticket_box_order.t_movie_order SET expire_time = DATE_SUB(NOW(), INTERVAL 1 MINUTE) WHERE order_no = ?", orderNo);
         jdbc.update("""
                 UPDATE ticket_box_inventory.t_screening_seat SET lock_expire_time = DATE_SUB(NOW(), INTERVAL 1 MINUTE)
                 WHERE screening_id = 4 AND seat_id = ?
@@ -251,7 +253,7 @@ class MovieOrderApiIntegrationTest {
         String token = token();
         for (int status = 0; status <= 2; status++) {
             long expected = jdbc.queryForObject(
-                    "SELECT COUNT(*) FROM t_movie_order WHERE user_id = 1 AND status = ?",
+                    "SELECT COUNT(*) FROM ticket_box_order.t_movie_order WHERE user_id = 1 AND status = ?",
                     Long.class, status);
             JsonNode list = get("/api/movie-orders?status=" + status + "&page=1&size=10", token);
             assertEquals("A200", list.get("code").asString(), list.toString());
@@ -259,7 +261,7 @@ class MovieOrderApiIntegrationTest {
             for (JsonNode record : list.get("data").get("records")) {
                 assertEquals(status, record.get("status").asInt());
                 long owner = jdbc.queryForObject(
-                        "SELECT user_id FROM t_movie_order WHERE order_no = ?",
+                        "SELECT user_id FROM ticket_box_order.t_movie_order WHERE order_no = ?",
                         Long.class, Long.parseLong(record.get("orderNo").asString()));
                 assertEquals(1L, owner);
             }
@@ -334,12 +336,12 @@ class MovieOrderApiIntegrationTest {
         String token = token();
         List<Long> seatIds = seatIds(2L, 6, 1, 2);
         Long orderNo = createMovieOrder(token, 2, seatIds);
-        jdbc.update("UPDATE t_movie_order SET expire_time = DATE_SUB(NOW(), INTERVAL 1 MINUTE) WHERE order_no = ?", orderNo);
+        jdbc.update("UPDATE ticket_box_order.t_movie_order SET expire_time = DATE_SUB(NOW(), INTERVAL 1 MINUTE) WHERE order_no = ?", orderNo);
 
         JsonNode paid = post("/api/movie-orders/" + orderNo + "/pay", token, Map.of());
         assertEquals("C409", paid.get("code").asString(), paid.toString());
         assertEquals(2, jdbc.queryForObject(
-                "SELECT status FROM t_movie_order WHERE order_no = ?", Integer.class, orderNo));
+                "SELECT status FROM ticket_box_order.t_movie_order WHERE order_no = ?", Integer.class, orderNo));
         for (Long seatId : seatIds) {
             assertEquals(0, jdbc.queryForObject(
                     "SELECT status FROM ticket_box_inventory.t_screening_seat WHERE screening_id = 2 AND seat_id = ?",
@@ -380,7 +382,7 @@ class MovieOrderApiIntegrationTest {
             pool.shutdownNow();
         }
         assertEquals(1, jdbc.queryForObject(
-                "SELECT status FROM t_movie_order WHERE order_no = ?", Integer.class, orderNo));
+                "SELECT status FROM ticket_box_order.t_movie_order WHERE order_no = ?", Integer.class, orderNo));
         assertEquals(2L, jdbc.queryForObject(
                 "SELECT COUNT(*) FROM ticket_box_inventory.t_screening_seat WHERE lock_order_no = ? AND status = 2",
                 Long.class, orderNo));
@@ -400,7 +402,7 @@ class MovieOrderApiIntegrationTest {
         JsonNode paid = post("/api/movie-orders/" + orderNo + "/pay", token, Map.of());
         assertEquals("C409", paid.get("code").asString(), paid.toString());
         assertEquals(0, jdbc.queryForObject(
-                "SELECT status FROM t_movie_order WHERE order_no = ?", Integer.class, orderNo));
+                "SELECT status FROM ticket_box_order.t_movie_order WHERE order_no = ?", Integer.class, orderNo));
         for (Long seatId : seatIds) {
             assertEquals(0, jdbc.queryForObject(
                     "SELECT status FROM ticket_box_inventory.t_screening_seat WHERE screening_id = 2 AND seat_id = ?",
@@ -430,7 +432,7 @@ class MovieOrderApiIntegrationTest {
         }
 
         int orderStatus = jdbc.queryForObject(
-                "SELECT status FROM t_movie_order WHERE order_no = ?", Integer.class, orderNo);
+                "SELECT status FROM ticket_box_order.t_movie_order WHERE order_no = ?", Integer.class, orderNo);
         int seatStatus = jdbc.queryForObject(
                 "SELECT status FROM ticket_box_inventory.t_screening_seat WHERE screening_id = 2 AND seat_id = ?",
                 Integer.class, seatIds.get(0));

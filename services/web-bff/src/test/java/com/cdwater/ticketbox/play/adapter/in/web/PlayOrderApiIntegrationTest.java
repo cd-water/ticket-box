@@ -1,11 +1,12 @@
 package com.cdwater.ticketbox.play.adapter.in.web;
 
-import com.cdwater.ticketbox.play.adapter.in.schedule.PlayOrderTimeoutJob;
+import com.cdwater.ticketbox.order.api.PlayOrderApi;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.http.MediaType;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -23,6 +24,7 @@ import java.util.concurrent.Future;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@ActiveProfiles("test")
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class PlayOrderApiIntegrationTest {
 
@@ -33,7 +35,7 @@ class PlayOrderApiIntegrationTest {
     JdbcTemplate jdbc;
 
     @Autowired
-    PlayOrderTimeoutJob timeoutJob;
+    PlayOrderApi playOrderApi;
 
     RestClient client;
     final ObjectMapper om = new ObjectMapper();
@@ -49,7 +51,7 @@ class PlayOrderApiIntegrationTest {
     @AfterEach
     void cleanUp() {
         for (Long orderNo : created) {
-            jdbc.update("DELETE FROM t_play_order WHERE order_no = ?", orderNo);
+            jdbc.update("DELETE FROM ticket_box_order.t_play_order WHERE order_no = ?", orderNo);
         }
         created.clear();
         stockBefore.forEach((itemId, stock) ->
@@ -169,7 +171,7 @@ class PlayOrderApiIntegrationTest {
         create(token, 1, 1);
         for (int status = 0; status <= 2; status++) {
             long expected = jdbc.queryForObject(
-                    "SELECT COUNT(*) FROM t_play_order WHERE user_id = 1 AND status = ?",
+                    "SELECT COUNT(*) FROM ticket_box_order.t_play_order WHERE user_id = 1 AND status = ?",
                     Long.class, status);
             JsonNode list = get("/api/play-orders?status=" + status + "&page=1&size=10", token);
             assertEquals("A200", list.get("code").asString(), list.toString());
@@ -180,9 +182,9 @@ class PlayOrderApiIntegrationTest {
     @Test
     void cannot_read_pay_or_cancel_others_order() {
         long foreignOrderNo = 1900000000000000911L;
-        jdbc.update("DELETE FROM t_play_order WHERE order_no = ?", foreignOrderNo);
+        jdbc.update("DELETE FROM ticket_box_order.t_play_order WHERE order_no = ?", foreignOrderNo);
         jdbc.update("""
-                INSERT INTO t_play_order (order_no, user_id, item_id, item_title, item_address,
+                INSERT INTO ticket_box_order.t_play_order (order_no, user_id, item_id, item_title, item_address,
                                           unit_price, quantity, total_amount, status, expire_time)
                 VALUES (?, 2, 1, '城市密室逃脱', '上海市静安区南京西路100号',
                         189.00, 1, 189.00, 0, DATE_ADD(NOW(), INTERVAL 30 MINUTE))
@@ -223,12 +225,12 @@ class PlayOrderApiIntegrationTest {
         String token = token();
         Long orderNo = create(token, itemId, 2);
         assertEquals(3, stock(itemId));
-        jdbc.update("UPDATE t_play_order SET expire_time = DATE_SUB(NOW(), INTERVAL 1 MINUTE) WHERE order_no = ?", orderNo);
+        jdbc.update("UPDATE ticket_box_order.t_play_order SET expire_time = DATE_SUB(NOW(), INTERVAL 1 MINUTE) WHERE order_no = ?", orderNo);
 
-        timeoutJob.expireOrders();
+        playOrderApi.expire(orderNo);
 
         assertEquals(2, jdbc.queryForObject(
-                "SELECT status FROM t_play_order WHERE order_no = ?", Integer.class, orderNo));
+                "SELECT status FROM ticket_box_order.t_play_order WHERE order_no = ?", Integer.class, orderNo));
         assertEquals(5, stock(itemId));
     }
 
@@ -239,13 +241,13 @@ class PlayOrderApiIntegrationTest {
         String token = token();
         Long orderNo = create(token, itemId, 1);
         assertEquals(4, stock(itemId));
-        jdbc.update("UPDATE t_play_order SET expire_time = DATE_SUB(NOW(), INTERVAL 1 MINUTE) WHERE order_no = ?", orderNo);
+        jdbc.update("UPDATE ticket_box_order.t_play_order SET expire_time = DATE_SUB(NOW(), INTERVAL 1 MINUTE) WHERE order_no = ?", orderNo);
 
         ExecutorService pool = Executors.newFixedThreadPool(2);
         try {
             Future<String> cancel = pool.submit(() -> post(
                     "/api/play-orders/" + orderNo + "/cancel", token, Map.of()).get("code").asString());
-            Future<?> job = pool.submit(timeoutJob::expireOrders);
+            Future<?> job = pool.submit(() -> playOrderApi.expire(orderNo));
             job.get();
             String cancelCode = cancel.get();
             assertTrue("A200".equals(cancelCode) || "C409".equals(cancelCode), cancelCode);
@@ -254,7 +256,7 @@ class PlayOrderApiIntegrationTest {
         }
 
         assertEquals(2, jdbc.queryForObject(
-                "SELECT status FROM t_play_order WHERE order_no = ?", Integer.class, orderNo));
+                "SELECT status FROM ticket_box_order.t_play_order WHERE order_no = ?", Integer.class, orderNo));
         assertEquals(5, stock(itemId));
     }
 
@@ -264,7 +266,7 @@ class PlayOrderApiIntegrationTest {
         int before = stock(3);
         stockBefore.put(3L, before);
         Long orderNo = create(token, 3, 1);
-        jdbc.update("UPDATE t_play_order SET expire_time = DATE_SUB(NOW(), INTERVAL 1 MINUTE) WHERE order_no = ?", orderNo);
+        jdbc.update("UPDATE ticket_box_order.t_play_order SET expire_time = DATE_SUB(NOW(), INTERVAL 1 MINUTE) WHERE order_no = ?", orderNo);
 
         JsonNode detail = get("/api/play-orders/" + orderNo, token);
         assertEquals("A200", detail.get("code").asString(), detail.toString());

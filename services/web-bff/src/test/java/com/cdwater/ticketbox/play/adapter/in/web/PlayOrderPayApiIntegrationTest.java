@@ -5,6 +5,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.http.MediaType;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -22,6 +23,7 @@ import java.util.concurrent.Future;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@ActiveProfiles("test")
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class PlayOrderPayApiIntegrationTest {
 
@@ -44,7 +46,7 @@ class PlayOrderPayApiIntegrationTest {
     @AfterEach
     void cleanUp() {
         for (Long orderNo : created) {
-            jdbc.update("DELETE FROM t_play_order WHERE order_no = ?", orderNo);
+            jdbc.update("DELETE FROM ticket_box_order.t_play_order WHERE order_no = ?", orderNo);
         }
         created.clear();
         stockBefore.forEach((itemId, stock) ->
@@ -110,12 +112,12 @@ class PlayOrderPayApiIntegrationTest {
         int before = stock(1);
         stockBefore.put(1L, before);
         Long orderNo = create(token, 1, 1);
-        jdbc.update("UPDATE t_play_order SET expire_time = DATE_SUB(NOW(), INTERVAL 1 MINUTE) WHERE order_no = ?", orderNo);
+        jdbc.update("UPDATE ticket_box_order.t_play_order SET expire_time = DATE_SUB(NOW(), INTERVAL 1 MINUTE) WHERE order_no = ?", orderNo);
 
         JsonNode paid = post("/api/play-orders/" + orderNo + "/pay", token, Map.of());
         assertEquals("C409", paid.get("code").asString(), paid.toString());
         assertEquals(2, jdbc.queryForObject(
-                "SELECT status FROM t_play_order WHERE order_no = ?", Integer.class, orderNo));
+                "SELECT status FROM ticket_box_order.t_play_order WHERE order_no = ?", Integer.class, orderNo));
         assertEquals(before, stock(1));
     }
 

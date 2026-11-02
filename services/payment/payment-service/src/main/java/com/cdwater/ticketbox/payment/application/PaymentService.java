@@ -24,27 +24,42 @@ public class PaymentService {
 
     @Transactional
     public PaymentOrder create(Long orderNo, BigDecimal amount, String channelName) {
-        return repository.findByOrderNo(orderNo).orElseGet(() -> {
-            String paymentNo = "P" + orderNo;
-            LocalDateTime now = LocalDateTime.now();
-            PaymentOrder order = new PaymentOrder();
-            order.setPaymentNo(paymentNo);
-            order.setOrderNo(orderNo);
-            order.setAmount(amount);
-            order.setChannel(channelName);
-            order.setStatus(SUCCESS);
-            order.setIdempotencyKey("ORDER-" + orderNo);
-            order.setCreateTime(now);
-            order.setPayTime(now);
-            repository.save(order);
-            ChannelResult result = channel.create(paymentNo, amount);
-            repository.saveTransaction(paymentNo, "PAY", amount, result.channelTxnNo());
+        Optional<PaymentOrder> existing = repository.findByOrderNo(orderNo);
+        if (existing.isPresent()) {
+            PaymentOrder order = existing.get();
+            if (!SUCCESS.equals(order.getStatus())) {
+                repository.reopen(order.getPaymentNo());
+                ChannelResult result = channel.create(order.getPaymentNo(), amount);
+                repository.saveTransaction(order.getPaymentNo(), "PAY", amount, result.channelTxnNo());
+                order.setStatus(SUCCESS);
+                order.setPayTime(LocalDateTime.now());
+            }
             return order;
-        });
+        }
+
+        String paymentNo = "P" + orderNo;
+        LocalDateTime now = LocalDateTime.now();
+        PaymentOrder order = new PaymentOrder();
+        order.setPaymentNo(paymentNo);
+        order.setOrderNo(orderNo);
+        order.setAmount(amount);
+        order.setChannel(channelName);
+        order.setStatus(SUCCESS);
+        order.setIdempotencyKey("ORDER-" + orderNo);
+        order.setCreateTime(now);
+        order.setPayTime(now);
+        repository.save(order);
+        ChannelResult result = channel.create(paymentNo, amount);
+        repository.saveTransaction(paymentNo, "PAY", amount, result.channelTxnNo());
+        return order;
     }
 
     public Optional<PaymentOrder> find(String paymentNo) {
         return repository.findByPaymentNo(paymentNo);
+    }
+
+    public Optional<PaymentOrder> findByOrderNo(Long orderNo) {
+        return repository.findByOrderNo(orderNo);
     }
 
     @Transactional

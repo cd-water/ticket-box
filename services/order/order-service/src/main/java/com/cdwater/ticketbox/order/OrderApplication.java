@@ -8,7 +8,11 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 
 @EnableDubbo
 @EnableScheduling
-@MapperScan("com.cdwater.ticketbox.order.adapter.out.persistence.mapper")
+@MapperScan({
+        "com.cdwater.ticketbox.order.movie.adapter.out.persistence.mapper",
+        "com.cdwater.ticketbox.order.show.adapter.out.persistence.mapper",
+        "com.cdwater.ticketbox.order.play.adapter.out.persistence.mapper"
+})
 @SpringBootApplication(scanBasePackages = "com.cdwater.ticketbox")
 public class OrderApplication {
 

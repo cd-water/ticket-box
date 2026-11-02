@@ -33,6 +33,11 @@ public class ShowSeatInventoryRepositoryImpl implements ShowSeatInventoryReposit
     }
 
     @Override
+    public List<ShowSeat> findSoldByOrder(Long orderNo) {
+        return showSeatConverter.toDomain(showSeatMapper.selectSoldByOrder(orderNo));
+    }
+
+    @Override
     public int markSold(Collection<Long> seatIds, Long orderNo) {
         return showSeatMapper.markSold(seatIds, orderNo);
     }

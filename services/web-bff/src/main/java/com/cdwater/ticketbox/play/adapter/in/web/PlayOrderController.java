@@ -1,16 +1,16 @@
 package com.cdwater.ticketbox.play.adapter.in.web;
 
-import com.cdwater.ticketbox.play.application.command.CreatePlayOrderCommand;
-import com.cdwater.ticketbox.play.application.command.PlayOrderCommandService;
-import com.cdwater.ticketbox.play.application.query.PlayOrderListQuery;
-import com.cdwater.ticketbox.play.application.query.PlayOrderQueryService;
-import com.cdwater.ticketbox.play.application.query.view.PlayOrderDetailView;
-import com.cdwater.ticketbox.play.application.query.view.PlayOrderListItemView;
 import com.cdwater.ticketbox.common.result.PageResult;
-import com.cdwater.ticketbox.common.security.CurrentUser;
 import com.cdwater.ticketbox.common.result.Result;
+import com.cdwater.ticketbox.common.security.CurrentUser;
+import com.cdwater.ticketbox.order.api.PlayOrderApi;
+import com.cdwater.ticketbox.order.api.dto.CreatePlayOrderCommandDTO;
+import com.cdwater.ticketbox.order.api.dto.PlayOrderDetailDTO;
+import com.cdwater.ticketbox.order.api.dto.PlayOrderListItemDTO;
+import com.cdwater.ticketbox.order.api.dto.PlayOrderListQueryDTO;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.apache.dubbo.config.annotation.DubboReference;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -23,34 +23,34 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class PlayOrderController {
 
-    private final PlayOrderCommandService orderCommandService;
-    private final PlayOrderQueryService orderQueryService;
+    @DubboReference(check = false, timeout = 5000)
+    private PlayOrderApi playOrderApi;
+
     private final CurrentUser currentUser;
 
     @PostMapping
-    public Result<PlayOrderDetailView> create(@Valid @RequestBody CreatePlayOrderCommand command) {
-        return Result.success(orderCommandService.createOrder(currentUser.id(), command));
+    public Result<PlayOrderDetailDTO> create(@Valid @RequestBody CreatePlayOrderCommandDTO command) {
+        return Result.success(playOrderApi.create(currentUser.id(), command));
     }
 
     @GetMapping("/{orderNo}")
-    public Result<PlayOrderDetailView> detail(@PathVariable Long orderNo) {
-        return Result.success(orderQueryService.getOrder(currentUser.id(), orderNo));
+    public Result<PlayOrderDetailDTO> detail(@PathVariable Long orderNo) {
+        return Result.success(playOrderApi.detail(currentUser.id(), orderNo));
     }
 
     @GetMapping
-    public Result<PageResult<PlayOrderListItemView>> list(@Valid PlayOrderListQuery query) {
-        return Result.success(orderQueryService.list(
-                currentUser.id(),
-                query.getStatus(), query.getPage(), query.getSize()));
+    public Result<PageResult<PlayOrderListItemDTO>> list(@Valid PlayOrderListQueryDTO query) {
+        return Result.success(playOrderApi.list(
+                currentUser.id(), query.getStatus(), query.getPage(), query.getSize()));
     }
 
     @PostMapping("/{orderNo}/pay")
-    public Result<PlayOrderDetailView> pay(@PathVariable Long orderNo) {
-        return Result.success(orderCommandService.pay(currentUser.id(), orderNo));
+    public Result<PlayOrderDetailDTO> pay(@PathVariable Long orderNo) {
+        return Result.success(playOrderApi.pay(currentUser.id(), orderNo));
     }
 
     @PostMapping("/{orderNo}/cancel")
-    public Result<PlayOrderDetailView> cancel(@PathVariable Long orderNo) {
-        return Result.success(orderCommandService.cancel(currentUser.id(), orderNo));
+    public Result<PlayOrderDetailDTO> cancel(@PathVariable Long orderNo) {
+        return Result.success(playOrderApi.cancel(currentUser.id(), orderNo));
     }
 }

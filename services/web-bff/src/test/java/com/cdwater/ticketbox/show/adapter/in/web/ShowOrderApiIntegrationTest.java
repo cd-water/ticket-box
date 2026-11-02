@@ -1,11 +1,12 @@
 package com.cdwater.ticketbox.show.adapter.in.web;
 
-import com.cdwater.ticketbox.show.adapter.in.schedule.ShowOrderTimeoutJob;
+import com.cdwater.ticketbox.order.api.ShowOrderApi;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.http.MediaType;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -19,6 +20,7 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@ActiveProfiles("test")
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class ShowOrderApiIntegrationTest {
 
@@ -29,7 +31,7 @@ class ShowOrderApiIntegrationTest {
     JdbcTemplate jdbc;
 
     @Autowired
-    ShowOrderTimeoutJob timeoutJob;
+    ShowOrderApi showOrderApi;
 
     RestClient client;
     final ObjectMapper om = new ObjectMapper();
@@ -44,8 +46,8 @@ class ShowOrderApiIntegrationTest {
     @AfterEach
     void cleanUp() {
         for (Long orderNo : created) {
-            jdbc.update("DELETE FROM t_show_order_seat WHERE order_no = ?", orderNo);
-            jdbc.update("DELETE FROM t_show_order WHERE order_no = ?", orderNo);
+            jdbc.update("DELETE FROM ticket_box_order.t_show_order_seat WHERE order_no = ?", orderNo);
+            jdbc.update("DELETE FROM ticket_box_order.t_show_order WHERE order_no = ?", orderNo);
         }
         created.clear();
     }
@@ -122,7 +124,7 @@ class ShowOrderApiIntegrationTest {
         createOrder(token);
         for (int status = 0; status <= 2; status++) {
             long expected = jdbc.queryForObject(
-                    "SELECT COUNT(*) FROM t_show_order WHERE user_id = 1 AND status = ?",
+                    "SELECT COUNT(*) FROM ticket_box_order.t_show_order WHERE user_id = 1 AND status = ?",
                     Long.class, status);
             JsonNode list = get("/api/show-orders?status=" + status + "&page=1&size=10", token);
             assertEquals("A200", list.get("code").asString(), list.toString());
@@ -135,7 +137,7 @@ class ShowOrderApiIntegrationTest {
         String token = token();
         JsonNode createdNode = createOrder(token);
         Long orderNo = Long.parseLong(createdNode.get("data").get("orderNo").asString());
-        jdbc.update("UPDATE t_show_order SET expire_time = DATE_SUB(NOW(), INTERVAL 1 MINUTE) WHERE order_no = ?", orderNo);
+        jdbc.update("UPDATE ticket_box_order.t_show_order SET expire_time = DATE_SUB(NOW(), INTERVAL 1 MINUTE) WHERE order_no = ?", orderNo);
 
         JsonNode detail = get("/api/show-orders/" + orderNo, token);
         assertEquals("A200", detail.get("code").asString(), detail.toString());
@@ -159,11 +161,11 @@ class ShowOrderApiIntegrationTest {
         String token = token();
         JsonNode createdNode = createOrder(token);
         Long orderNo = Long.parseLong(createdNode.get("data").get("orderNo").asString());
-        jdbc.update("UPDATE t_show_order SET expire_time = DATE_SUB(NOW(), INTERVAL 1 MINUTE) WHERE order_no = ?", orderNo);
+        jdbc.update("UPDATE ticket_box_order.t_show_order SET expire_time = DATE_SUB(NOW(), INTERVAL 1 MINUTE) WHERE order_no = ?", orderNo);
 
-        timeoutJob.expireOrders();
+        showOrderApi.expire(orderNo);
 
         assertEquals(2, jdbc.queryForObject(
-                "SELECT status FROM t_show_order WHERE order_no = ?", Integer.class, orderNo));
+                "SELECT status FROM ticket_box_order.t_show_order WHERE order_no = ?", Integer.class, orderNo));
     }
 }

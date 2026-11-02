@@ -30,6 +30,14 @@ public interface ShowSeatMapper {
             """)
     List<ShowSeatPO> lockAvailableSeats(@Param("showId") Long showId, @Param("zone") String zone);
 
+    @Select("""
+            SELECT id, show_id, zone, seat_no, status
+            FROM t_show_seat
+            WHERE lock_order_no = #{orderNo} AND status = 2
+            ORDER BY seat_no
+            """)
+    List<ShowSeatPO> selectSoldByOrder(@Param("orderNo") Long orderNo);
+
     @Update("""
             <script>
             UPDATE t_show_seat

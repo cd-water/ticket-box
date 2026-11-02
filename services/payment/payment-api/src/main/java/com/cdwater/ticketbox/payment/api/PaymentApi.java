@@ -11,5 +11,7 @@ public interface PaymentApi {
 
     PaymentDTO query(String paymentNo) throws BizException;
 
+    PaymentDTO queryByOrderNo(long orderNo) throws BizException;
+
     void close(String paymentNo) throws BizException;
 }

@@ -66,6 +66,11 @@ public class PaymentRepositoryImpl implements PaymentRepository {
         return orderMapper.markClosed(paymentNo);
     }
 
+    @Override
+    public int reopen(String paymentNo) {
+        return orderMapper.reopen(paymentNo, LocalDateTime.now());
+    }
+
     private PaymentOrder toDomain(PaymentOrderPO po) {
         PaymentOrder order = new PaymentOrder();
         order.setId(po.getId());

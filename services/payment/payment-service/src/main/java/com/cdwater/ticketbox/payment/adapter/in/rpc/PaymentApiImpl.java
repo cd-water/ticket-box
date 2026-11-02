@@ -26,6 +26,11 @@ public class PaymentApiImpl implements PaymentApi {
     }
 
     @Override
+    public PaymentDTO queryByOrderNo(long orderNo) {
+        return paymentService.findByOrderNo(orderNo).map(this::toDTO).orElse(null);
+    }
+
+    @Override
     public void close(String paymentNo) {
         paymentService.close(paymentNo);
     }

@@ -4,12 +4,14 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.math.BigDecimal;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+@ActiveProfiles("test")
 @SpringBootTest
 class PaymentServiceTest {
 
@@ -35,6 +37,21 @@ class PaymentServiceTest {
         assertEquals(first.getPaymentNo(), second.getPaymentNo());
         assertEquals("SUCCESS", first.getStatus());
         assertEquals("MOCK", first.getChannel());
+    }
+
+    @Test
+    void closed_payment_is_reopened_on_retry() {
+        var created = service.create(ORDER_NO, new BigDecimal("49.90"), "MOCK");
+        service.close(created.getPaymentNo());
+
+        var retried = service.create(ORDER_NO, new BigDecimal("49.90"), "MOCK");
+
+        assertEquals(created.getPaymentNo(), retried.getPaymentNo());
+        assertEquals("SUCCESS", retried.getStatus());
+        Integer txnCount = jdbc.queryForObject(
+                "SELECT COUNT(*) FROM t_payment_transaction WHERE payment_no = ?",
+                Integer.class, created.getPaymentNo());
+        assertEquals(2, txnCount);
     }
 
     @Test

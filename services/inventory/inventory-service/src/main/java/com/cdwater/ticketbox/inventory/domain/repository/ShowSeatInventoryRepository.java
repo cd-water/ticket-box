@@ -12,6 +12,8 @@ public interface ShowSeatInventoryRepository {
 
     List<ShowSeat> lockAvailableSeats(Long showId, String zone);
 
+    List<ShowSeat> findSoldByOrder(Long orderNo);
+
     int markSold(Collection<Long> seatIds, Long orderNo);
 
     int rollbackSale(Long orderNo);
