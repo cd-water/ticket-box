@@ -1,10 +1,13 @@
 package com.cdwater.ticketbox.movie.adapter.out.persistence;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.cdwater.ticketbox.movie.adapter.out.persistence.converter.ReviewConverter;
+import com.cdwater.ticketbox.movie.adapter.out.persistence.converter.ReviewProjectionConverter;
 import com.cdwater.ticketbox.movie.adapter.out.persistence.mapper.ReviewLikeMapper;
 import com.cdwater.ticketbox.movie.adapter.out.persistence.mapper.ReviewMapper;
-import com.cdwater.ticketbox.movie.domain.model.Review;
+import com.cdwater.ticketbox.movie.adapter.out.persistence.po.ReviewPO;
 import com.cdwater.ticketbox.movie.domain.model.ReplyPreview;
+import com.cdwater.ticketbox.movie.domain.model.Review;
 import com.cdwater.ticketbox.movie.domain.repository.ReviewRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
@@ -21,40 +24,42 @@ import java.util.Set;
 @RequiredArgsConstructor
 public class ReviewRepositoryImpl implements ReviewRepository {
 
-    private final ReviewMapper commentMapper;
+    private final ReviewMapper reviewMapper;
     private final ReviewLikeMapper likeMapper;
-    private final ReviewProjectionMapper reviewProjectionMapper;
+    private final ReviewProjectionConverter reviewProjectionConverter;
+    private final ReviewConverter reviewConverter;
 
     @Override
     public List<Review> findRootHot(Long movieId, Integer likeCount, Long cursorId, int limit) {
-        return commentMapper.selectRootHot(movieId, likeCount, cursorId, limit);
+        return reviewConverter.toDomain(reviewMapper.selectRootHot(movieId, likeCount, cursorId, limit));
     }
 
     @Override
     public List<Review> findRootLatest(Long movieId, LocalDateTime cursorTime, Long cursorId, int limit) {
-        return commentMapper.selectRootLatest(movieId, cursorTime, cursorId, limit);
+        return reviewConverter.toDomain(reviewMapper.selectRootLatest(movieId, cursorTime, cursorId, limit));
     }
 
     @Override
     public List<Review> findReplies(Long rootId, LocalDateTime cursorTime, Long cursorId, int limit) {
-        return commentMapper.selectReplies(rootId, cursorTime, cursorId, limit);
+        return reviewConverter.toDomain(reviewMapper.selectReplies(rootId, cursorTime, cursorId, limit));
     }
 
     @Override
     public List<ReplyPreview> findReplyPreviews(List<Long> rootIds) {
-        return commentMapper.selectReplyPreviews(rootIds).stream()
-                .map(reviewProjectionMapper::toDomain)
+        return reviewMapper.selectReplyPreviews(rootIds).stream()
+                .map(reviewProjectionConverter::toDomain)
                 .toList();
     }
 
     @Override
     public Optional<Review> findById(Long id) {
-        return Optional.ofNullable(commentMapper.selectById(id));
+        return Optional.ofNullable(reviewMapper.selectById(id))
+                .map(reviewConverter::toDomain);
     }
 
     @Override
     public Review findByIdForUpdate(Long id) {
-        return commentMapper.selectByIdForUpdate(id);
+        return reviewConverter.toDomain(reviewMapper.selectByIdForUpdate(id));
     }
 
     @Override
@@ -62,27 +67,29 @@ public class ReviewRepositoryImpl implements ReviewRepository {
         if (ids == null || ids.isEmpty()) {
             return List.of();
         }
-        return commentMapper.selectByIds(ids);
+        return reviewConverter.toDomain(reviewMapper.selectByIds(ids));
     }
 
     @Override
     public void insert(Review comment) {
-        commentMapper.insert(comment);
+        ReviewPO po = reviewConverter.toPO(comment);
+        reviewMapper.insert(po);
+        comment.setId(po.getId());
     }
 
     @Override
     public void incrementReplyCount(Long id) {
-        commentMapper.incrementReplyCount(id);
+        reviewMapper.incrementReplyCount(id);
     }
 
     @Override
     public void incrementLikeCount(Long id) {
-        commentMapper.incrementLikeCount(id);
+        reviewMapper.incrementLikeCount(id);
     }
 
     @Override
     public void decrementLikeCount(Long id) {
-        commentMapper.decrementLikeCount(id);
+        reviewMapper.decrementLikeCount(id);
     }
 
     @Override
@@ -105,8 +112,8 @@ public class ReviewRepositoryImpl implements ReviewRepository {
 
     @Override
     public long countByMovieId(Long movieId) {
-        return commentMapper.selectCount(new LambdaQueryWrapper<Review>()
-                .eq(Review::getMovieId, movieId)
-                .eq(Review::getStatus, Review.STATUS_NORMAL));
+        return reviewMapper.selectCount(new LambdaQueryWrapper<ReviewPO>()
+                .eq(ReviewPO::getMovieId, movieId)
+                .eq(ReviewPO::getStatus, Review.STATUS_NORMAL));
     }
 }

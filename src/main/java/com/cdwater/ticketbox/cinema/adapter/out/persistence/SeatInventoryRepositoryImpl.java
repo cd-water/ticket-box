@@ -38,6 +38,11 @@ public class SeatInventoryRepositoryImpl implements SeatInventoryRepository {
     }
 
     @Override
+    public int markSoldByOrder(Long orderNo) {
+        return seatInventoryMapper.markSoldByOrder(orderNo);
+    }
+
+    @Override
     public int releaseExpiredByScreening(Long screeningId, LocalDateTime now) {
         return seatInventoryMapper.releaseExpiredByScreening(screeningId, now);
     }

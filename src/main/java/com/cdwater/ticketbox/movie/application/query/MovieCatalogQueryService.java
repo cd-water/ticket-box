@@ -3,7 +3,7 @@ package com.cdwater.ticketbox.movie.application.query;
 import com.cdwater.ticketbox.shared.error.BizException;
 import com.cdwater.ticketbox.shared.query.PageResult;
 import com.cdwater.ticketbox.shared.error.ResultCode;
-import com.cdwater.ticketbox.movie.application.query.mapper.MovieViewMapper;
+import com.cdwater.ticketbox.movie.application.query.converter.MovieViewConverter;
 import com.cdwater.ticketbox.movie.application.query.view.PersonView;
 import com.cdwater.ticketbox.movie.application.query.view.MovieDetailView;
 import com.cdwater.ticketbox.movie.application.query.view.MovieListItemView;
@@ -23,7 +23,7 @@ public class MovieCatalogQueryService {
 
     private final MovieRepository movieRepository;
     private final ReviewRepository reviewRepository;
-    private final MovieViewMapper movieViewMapper;
+    private final MovieViewConverter movieViewMapper;
 
     public PageResult<MovieListItemView> list(MovieListQuery query) {
         PageResult<Movie> page = movieRepository.page(
@@ -39,13 +39,7 @@ public class MovieCatalogQueryService {
                 .filter(Movie::isOnShelf)
                 .orElseThrow(() -> new BizException(ResultCode.NOT_FOUND, "电影不存在或已下架"));
 
-        MovieDetailView view = new MovieDetailView();
-        view.setId(movie.getId());
-        view.setTitle(movie.getTitle());
-        view.setPoster(movie.getPoster());
-        view.setSynopsis(movie.getSynopsis());
-        view.setDuration(movie.getDuration());
-        view.setReleaseDate(movie.getReleaseDate());
+        MovieDetailView view = movieViewMapper.toDetailView(movie);
         view.setTab(movie.isUpcoming(LocalDateTime.now()) ? "upcoming" : "showing");
         view.setGenres(movieRepository.findGenres(id).stream()
                 .map(movieViewMapper::toView)

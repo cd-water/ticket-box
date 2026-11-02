@@ -1,7 +1,5 @@
 package com.cdwater.ticketbox.cinema.application.command;
 
-import com.cdwater.ticketbox.cinema.application.command.mapper.ReservedSeatMapper;
-import com.cdwater.ticketbox.cinema.application.command.ReservedSeat;
 import com.cdwater.ticketbox.cinema.domain.model.SeatSnapshot;
 import com.cdwater.ticketbox.cinema.domain.repository.SeatInventoryRepository;
 import com.cdwater.ticketbox.shared.error.BizException;
@@ -18,7 +16,6 @@ import java.util.List;
 public class SeatInventoryService {
 
     private final SeatInventoryRepository seatInventoryRepository;
-    private final ReservedSeatMapper reservedSeatMapper;
 
     @Transactional
     public void releaseExpiredByScreening(Long screeningId, LocalDateTime now) {
@@ -26,7 +23,7 @@ public class SeatInventoryService {
     }
 
     @Transactional
-    public List<ReservedSeat> lockSeats(Long screeningId, List<Long> rawSeatIds,
+    public List<SeatSnapshot> lockSeats(Long screeningId, List<Long> rawSeatIds,
                                        Long orderNo, LocalDateTime expireTime) {
         List<Long> seatIds = rawSeatIds.stream().sorted().toList();
         List<SeatSnapshot> rows = seatInventoryRepository.lockSeats(screeningId, seatIds);
@@ -44,13 +41,16 @@ public class SeatInventoryService {
             }
         }
         seatInventoryRepository.updateLocks(screeningId, seatIds, orderNo, expireTime);
-        return rows.stream()
-                .map(reservedSeatMapper::toSeat)
-                .toList();
+        return rows;
     }
 
     @Transactional
     public void releaseByOrder(Long orderNo) {
         seatInventoryRepository.releaseByOrder(orderNo);
+    }
+
+    @Transactional
+    public int markSoldByOrder(Long orderNo) {
+        return seatInventoryRepository.markSoldByOrder(orderNo);
     }
 }

@@ -1,5 +1,6 @@
 package com.cdwater.ticketbox.cinema.adapter.out.client;
 
+import com.cdwater.ticketbox.cinema.adapter.out.client.converter.CinemaMovieInfoConverter;
 import com.cdwater.ticketbox.cinema.application.port.MovieInfo;
 import com.cdwater.ticketbox.cinema.application.port.MovieInfoPort;
 import com.cdwater.ticketbox.movie.application.query.MovieBriefQueryService;
@@ -17,7 +18,7 @@ import java.util.stream.Collectors;
 public class CinemaMovieInfoAdapter implements MovieInfoPort {
 
     private final MovieBriefQueryService movieBriefQueryService;
-    private final CinemaMovieInfoMapper cinemaMovieInfoMapper;
+    private final CinemaMovieInfoConverter cinemaMovieInfoMapper;
 
     @Override
     public Optional<MovieInfo> findById(Long id) {

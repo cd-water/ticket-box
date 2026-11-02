@@ -58,6 +58,12 @@ public interface SeatInventoryMapper {
     int releaseByOrder(@Param("orderNo") Long orderNo);
 
     @Update("""
+            UPDATE t_screening_seat SET status = 2, lock_expire_time = NULL
+            WHERE lock_order_no = #{orderNo} AND status = 1
+            """)
+    int markSoldByOrder(@Param("orderNo") Long orderNo);
+
+    @Update("""
             UPDATE t_screening_seat
             SET status = 0, lock_order_no = NULL, lock_expire_time = NULL
             WHERE screening_id = #{screeningId} AND status = 1

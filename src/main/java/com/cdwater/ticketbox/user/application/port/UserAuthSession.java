@@ -10,6 +10,8 @@ public interface UserAuthSession {
 
     void logout();
 
+    void logoutAll(Long userId);
+
     @Data
     @NoArgsConstructor
     @AllArgsConstructor

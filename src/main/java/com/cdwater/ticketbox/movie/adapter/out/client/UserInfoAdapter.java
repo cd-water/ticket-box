@@ -1,5 +1,6 @@
 package com.cdwater.ticketbox.movie.adapter.out.client;
 
+import com.cdwater.ticketbox.movie.adapter.out.client.converter.MovieUserInfoConverter;
 import com.cdwater.ticketbox.movie.application.port.UserInfo;
 import com.cdwater.ticketbox.movie.application.port.UserInfoPort;
 import com.cdwater.ticketbox.user.application.query.UserBrief;
@@ -17,17 +18,17 @@ import java.util.stream.Collectors;
 public class UserInfoAdapter implements UserInfoPort {
 
     private final UserQueryService userQueryService;
-    private final MovieUserInfoMapper movieUserInfoMapper;
+    private final MovieUserInfoConverter movieUserInfoConverter;
 
     @Override
     public Map<Long, UserInfo> findByIds(Collection<Long> ids) {
         return userQueryService.findByIds(ids).entrySet().stream()
                 .collect(Collectors.toMap(Map.Entry::getKey,
-                        entry -> movieUserInfoMapper.toInfo(entry.getValue())));
+                        entry -> movieUserInfoConverter.toInfo(entry.getValue())));
     }
 
     @Override
     public Optional<UserInfo> findById(Long id) {
-        return userQueryService.findById(id).map(movieUserInfoMapper::toInfo);
+        return userQueryService.findById(id).map(movieUserInfoConverter::toInfo);
     }
 }

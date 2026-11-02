@@ -12,6 +12,7 @@ import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.multipart.MultipartException;
 import org.springframework.web.multipart.support.MissingServletRequestPartException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
@@ -44,6 +45,12 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(NoResourceFoundException.class)
     public Result<Void> handleNoResource(NoResourceFoundException e) {
         return Result.fail(ResultCode.NOT_FOUND);
+    }
+
+    // 上传文件过大
+    @ExceptionHandler(MaxUploadSizeExceededException.class)
+    public Result<Void> handleUploadSize(MaxUploadSizeExceededException e) {
+        return Result.fail(ResultCode.BAD_REQUEST.getCode(), "上传文件过大，头像不能超过 2MB");
     }
 
     // 400

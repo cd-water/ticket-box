@@ -3,8 +3,8 @@ package com.cdwater.ticketbox.movie.adapter.out.persistence.mapper;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.cdwater.ticketbox.movie.adapter.out.persistence.projection.ReplyPreviewRow;
 import com.cdwater.ticketbox.movie.domain.model.Genre;
-import com.cdwater.ticketbox.movie.domain.model.Movie;
-import com.cdwater.ticketbox.movie.domain.model.Review;
+import com.cdwater.ticketbox.movie.adapter.out.persistence.po.MoviePO;
+import com.cdwater.ticketbox.movie.adapter.out.persistence.po.ReviewPO;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -36,12 +36,12 @@ class MovieDomainMapperTest {
     @Test
     void seed_movie_filters() {
         LocalDateTime now = LocalDateTime.now();
-        Long hot = movieMapper.selectCount(new LambdaQueryWrapper<Movie>()
-                .eq(Movie::getStatus, 1)
-                .le(Movie::getReleaseDate, now));
-        Long upcoming = movieMapper.selectCount(new LambdaQueryWrapper<Movie>()
-                .eq(Movie::getStatus, 1)
-                .gt(Movie::getReleaseDate, now));
+        Long hot = movieMapper.selectCount(new LambdaQueryWrapper<MoviePO>()
+                .eq(MoviePO::getStatus, 1)
+                .le(MoviePO::getReleaseDate, now));
+        Long upcoming = movieMapper.selectCount(new LambdaQueryWrapper<MoviePO>()
+                .eq(MoviePO::getStatus, 1)
+                .gt(MoviePO::getReleaseDate, now));
         assertEquals(15L, hot);
         assertEquals(15L, upcoming);
     }
@@ -61,7 +61,7 @@ class MovieDomainMapperTest {
 
     @Test
     void movie1_hot_reviews_and_previews() {
-        List<Review> roots = commentMapper.selectRootHot(1L, null, null, 10);
+        List<ReviewPO> roots = commentMapper.selectRootHot(1L, null, null, 10);
         assertEquals(1L, roots.get(0).getId());
         assertEquals(8, roots.get(0).getLikeCount());
 

@@ -1,9 +1,9 @@
 package com.cdwater.ticketbox.cinema.adapter.out.persistence.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.cdwater.ticketbox.cinema.domain.model.Hall;
+import com.cdwater.ticketbox.cinema.adapter.out.persistence.po.HallPO;
 import org.apache.ibatis.annotations.Mapper;
 
 @Mapper
-public interface HallMapper extends BaseMapper<Hall> {
+public interface HallMapper extends BaseMapper<HallPO> {
 }

@@ -1,6 +1,6 @@
 package com.cdwater.ticketbox.cinema.application.query;
 
-import com.cdwater.ticketbox.cinema.application.query.mapper.ScreeningViewMapper;
+import com.cdwater.ticketbox.cinema.application.query.converter.ScreeningViewConverter;
 import com.cdwater.ticketbox.cinema.application.query.view.ScreeningView;
 import com.cdwater.ticketbox.cinema.application.query.view.SeatMapView;
 import com.cdwater.ticketbox.cinema.application.query.view.SeatView;
@@ -36,21 +36,21 @@ public class ScreeningQueryService {
     private final SeatInventoryRepository seatInventoryRepository;
     private final SeatInventoryService seatInventoryService;
     private final MovieInfoPort movieInfoPort;
-    private final ScreeningViewMapper screeningViewMapper;
+    private final ScreeningViewConverter screeningViewConverter;
 
     public List<ScreeningView> list(Long cinemaId, Long movieId) {
         List<ScreeningDetails> rows = screeningRepository.findFutureWithHall(cinemaId, movieId);
         List<Long> ids = rows.stream().map(ScreeningDetails::getId).toList();
         Map<Long, Long> counts = screeningRepository.countAvailableSeats(ids);
         return rows.stream()
-                .map(r -> screeningViewMapper.toView(r, counts.getOrDefault(r.getId(), 0L)))
+                .map(r -> screeningViewConverter.toView(r, counts.getOrDefault(r.getId(), 0L)))
                 .toList();
     }
 
     public SeatMapView seatMap(Long screeningId) {
         seatInventoryService.releaseExpiredByScreening(screeningId, LocalDateTime.now());
         Screening screening = screeningRepository.findById(screeningId)
-                .filter(s -> s.getStatus() != null && s.getStatus() == 1)
+                .filter(Screening::isOnSale)
                 .orElseThrow(() -> new BizException(ResultCode.NOT_FOUND, "排场不存在或已取消"));
         Cinema cinema = cinemaRepository.findById(screening.getCinemaId())
                 .orElseThrow(() -> new BizException(ResultCode.NOT_FOUND, "影院不存在"));
@@ -61,17 +61,10 @@ public class ScreeningQueryService {
 
         List<SeatSnapshot> snapshots = seatInventoryRepository.findSeatMap(screeningId);
         List<SeatView> seats = snapshots.stream()
-                .map(screeningViewMapper::toView)
+                .map(screeningViewConverter::toView)
                 .toList();
 
-        SeatMapView view = new SeatMapView();
-        view.setScreeningId(screeningId);
-        view.setCinemaName(cinema.getName());
-        view.setMovieTitle(movie.getTitle());
-        view.setHallName(hall.getName());
-        view.setStartTime(screening.getStartTime());
-        view.setEndTime(screening.getEndTime());
-        view.setPrice(screening.getPrice());
+        SeatMapView view = screeningViewConverter.toView(screening, cinema, hall, movie);
         view.setRowCount(snapshots.stream().mapToInt(SeatSnapshot::getRowNum).max().orElse(0));
         view.setColCount(snapshots.stream().mapToInt(SeatSnapshot::getColNum).max().orElse(0));
         view.setSeats(seats);

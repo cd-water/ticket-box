@@ -2,7 +2,7 @@ package com.cdwater.ticketbox.cinema.application.query;
 
 import com.cdwater.ticketbox.cinema.application.port.MovieInfo;
 import com.cdwater.ticketbox.cinema.application.port.MovieInfoPort;
-import com.cdwater.ticketbox.cinema.application.query.mapper.CinemaViewMapper;
+import com.cdwater.ticketbox.cinema.application.query.converter.CinemaViewConverter;
 import com.cdwater.ticketbox.cinema.application.query.view.CinemaDetailView;
 import com.cdwater.ticketbox.cinema.application.query.view.CinemaListItemView;
 import com.cdwater.ticketbox.cinema.application.query.view.CinemaMovieView;
@@ -26,7 +26,7 @@ public class CinemaQueryService {
     private final CinemaRepository cinemaRepository;
     private final ScreeningRepository screeningRepository;
     private final MovieInfoPort movieInfoPort;
-    private final CinemaViewMapper cinemaViewMapper;
+    private final CinemaViewConverter cinemaViewMapper;
 
     public PageResult<CinemaListItemView> list(CinemaListQuery query) {
         PageResult<Cinema> page = cinemaRepository.page(
@@ -39,7 +39,7 @@ public class CinemaQueryService {
 
     public CinemaDetailView detail(Long cinemaId) {
         Cinema cinema = cinemaRepository.findById(cinemaId)
-                .filter(c -> c.getStatus() != null && c.getStatus() == 1)
+                .filter(Cinema::isOperating)
                 .orElseThrow(() -> new BizException(ResultCode.NOT_FOUND, "影院不存在或已停用"));
 
         List<Long> movieIds = screeningRepository.findFutureMovieIds(cinemaId);
@@ -50,11 +50,7 @@ public class CinemaQueryService {
                 .sorted(Comparator.comparing(CinemaMovieView::getReleaseDate).reversed())
                 .toList();
 
-        CinemaDetailView view = new CinemaDetailView();
-        view.setId(cinema.getId());
-        view.setName(cinema.getName());
-        view.setAddress(cinema.getAddress());
-        view.setPhone(cinema.getPhone());
+        CinemaDetailView view = cinemaViewMapper.toDetailView(cinema);
         view.setMovies(movieViews);
         return view;
     }

@@ -1,7 +1,7 @@
 package com.cdwater.ticketbox.cinema.adapter.out.persistence.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.cdwater.ticketbox.cinema.domain.model.Screening;
+import com.cdwater.ticketbox.cinema.adapter.out.persistence.po.ScreeningPO;
 import com.cdwater.ticketbox.cinema.adapter.out.persistence.projection.ScreeningRow;
 import com.cdwater.ticketbox.cinema.adapter.out.persistence.projection.SeatInventoryCountRow;
 import org.apache.ibatis.annotations.Mapper;
@@ -12,7 +12,7 @@ import java.util.Collection;
 import java.util.List;
 
 @Mapper
-public interface ScreeningMapper extends BaseMapper<Screening> {
+public interface ScreeningMapper extends BaseMapper<ScreeningPO> {
 
     @Select("""
             SELECT DISTINCT movie_id

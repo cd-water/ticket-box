@@ -1,7 +1,7 @@
 package com.cdwater.ticketbox.movie.application.query.support;
 
 import com.cdwater.ticketbox.movie.application.port.UserInfo;
-import com.cdwater.ticketbox.movie.application.query.mapper.ReviewViewMapper;
+import com.cdwater.ticketbox.movie.application.query.converter.ReviewViewConverter;
 import com.cdwater.ticketbox.movie.application.query.view.ReplyToView;
 import com.cdwater.ticketbox.movie.application.query.view.ReplyView;
 import com.cdwater.ticketbox.movie.application.query.view.ReviewUserView;
@@ -18,7 +18,7 @@ import java.util.Set;
 @RequiredArgsConstructor
 public class ReviewViewAssembler {
 
-    private final ReviewViewMapper reviewViewMapper;
+    private final ReviewViewConverter reviewViewMapper;
 
     public ReviewUserView toUserView(UserInfo user) {
         ReviewUserView view = reviewViewMapper.toUserView(user);

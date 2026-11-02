@@ -1,6 +1,10 @@
 package com.cdwater.ticketbox.user.adapter.out.persistence;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
+import com.cdwater.ticketbox.user.adapter.out.persistence.converter.UserConverter;
+import com.cdwater.ticketbox.user.adapter.out.persistence.mapper.UserMapper;
+import com.cdwater.ticketbox.user.adapter.out.persistence.po.UserPO;
 import com.cdwater.ticketbox.user.domain.model.User;
 import com.cdwater.ticketbox.user.domain.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -17,16 +21,19 @@ import java.util.function.Supplier;
 public class UserRepositoryImpl implements UserRepository {
 
     private final UserMapper userMapper;
+    private final UserConverter userConverter;
 
     @Override
     public Optional<User> findByPhone(String phone) {
         return Optional.ofNullable(userMapper.selectOne(
-                new LambdaQueryWrapper<User>().eq(User::getPhone, phone)));
+                        new LambdaQueryWrapper<UserPO>().eq(UserPO::getPhone, phone)))
+                .map(userConverter::toDomain);
     }
 
     @Override
     public Optional<User> findById(Long id) {
-        return Optional.ofNullable(userMapper.selectById(id));
+        return Optional.ofNullable(userMapper.selectById(id))
+                .map(userConverter::toDomain);
     }
 
     @Override
@@ -34,13 +41,36 @@ public class UserRepositoryImpl implements UserRepository {
         if (ids == null || ids.isEmpty()) {
             return List.of();
         }
-        return userMapper.selectByIds(ids);
+        return userConverter.toDomain(userMapper.selectByIds(ids));
     }
 
     @Override
     public User save(User user) {
-        userMapper.insert(user);
+        UserPO po = userConverter.toPO(user);
+        userMapper.insert(po);
+        user.setId(po.getId());
         return user;
+    }
+
+    @Override
+    public boolean updateNickname(Long id, String nickname) {
+        return userMapper.update(null, new LambdaUpdateWrapper<UserPO>()
+                .eq(UserPO::getId, id)
+                .set(UserPO::getNickname, nickname)) == 1;
+    }
+
+    @Override
+    public boolean updateAvatar(Long id, String avatar) {
+        return userMapper.update(null, new LambdaUpdateWrapper<UserPO>()
+                .eq(UserPO::getId, id)
+                .set(UserPO::getAvatar, avatar)) == 1;
+    }
+
+    @Override
+    public boolean updatePassword(Long id, String passwordHash) {
+        return userMapper.update(null, new LambdaUpdateWrapper<UserPO>()
+                .eq(UserPO::getId, id)
+                .set(UserPO::getPassword, passwordHash)) == 1;
     }
 
     @Override

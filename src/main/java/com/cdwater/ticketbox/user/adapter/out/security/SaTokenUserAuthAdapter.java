@@ -20,4 +20,9 @@ public class SaTokenUserAuthAdapter implements UserAuthSession {
     public void logout() {
         SaTokenSetup.USER.logout();
     }
+
+    @Override
+    public void logoutAll(Long userId) {
+        SaTokenSetup.USER.logout(userId);
+    }
 }

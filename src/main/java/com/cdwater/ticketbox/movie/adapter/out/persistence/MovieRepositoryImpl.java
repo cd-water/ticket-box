@@ -2,15 +2,18 @@ package com.cdwater.ticketbox.movie.adapter.out.persistence;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.cdwater.ticketbox.shared.query.PageResult;
-import com.cdwater.ticketbox.shared.persistence.LikeUtils;
-import com.cdwater.ticketbox.movie.adapter.out.persistence.mapper.MoviePersonMapper;
+import com.cdwater.ticketbox.movie.adapter.out.persistence.converter.MovieConverter;
+import com.cdwater.ticketbox.movie.adapter.out.persistence.converter.MovieProjectionConverter;
 import com.cdwater.ticketbox.movie.adapter.out.persistence.mapper.MovieGenreMapper;
 import com.cdwater.ticketbox.movie.adapter.out.persistence.mapper.MovieMapper;
+import com.cdwater.ticketbox.movie.adapter.out.persistence.mapper.MoviePersonMapper;
+import com.cdwater.ticketbox.movie.adapter.out.persistence.po.MoviePO;
 import com.cdwater.ticketbox.movie.domain.model.Genre;
 import com.cdwater.ticketbox.movie.domain.model.Movie;
 import com.cdwater.ticketbox.movie.domain.model.MoviePerson;
 import com.cdwater.ticketbox.movie.domain.repository.MovieRepository;
+import com.cdwater.ticketbox.shared.persistence.LikeUtils;
+import com.cdwater.ticketbox.shared.query.PageResult;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
@@ -28,34 +31,36 @@ public class MovieRepositoryImpl implements MovieRepository {
     private final MovieMapper movieMapper;
     private final MovieGenreMapper movieGenreMapper;
     private final MoviePersonMapper moviePersonMapper;
-    private final MovieProjectionMapper movieProjectionMapper;
+    private final MovieProjectionConverter movieProjectionConverter;
+    private final MovieConverter movieConverter;
 
     @Override
     public PageResult<Movie> page(String tab, String keyword, long page, long size) {
         LocalDateTime now = LocalDateTime.now();
-        LambdaQueryWrapper<Movie> wrapper = new LambdaQueryWrapper<Movie>()
-                .eq(Movie::getStatus, Movie.STATUS_ON_SHELF);
+        LambdaQueryWrapper<MoviePO> wrapper = new LambdaQueryWrapper<MoviePO>()
+                .eq(MoviePO::getStatus, Movie.STATUS_ON_SHELF);
         if ("upcoming".equals(tab)) {
-            wrapper.gt(Movie::getReleaseDate, now)
-                    .orderByAsc(Movie::getReleaseDate)
-                    .orderByDesc(Movie::getId);
+            wrapper.gt(MoviePO::getReleaseDate, now)
+                    .orderByAsc(MoviePO::getReleaseDate)
+                    .orderByDesc(MoviePO::getId);
         } else {
-            wrapper.le(Movie::getReleaseDate, now)
-                    .orderByDesc(Movie::getReleaseDate)
-                    .orderByDesc(Movie::getId);
+            wrapper.le(MoviePO::getReleaseDate, now)
+                    .orderByDesc(MoviePO::getReleaseDate)
+                    .orderByDesc(MoviePO::getId);
         }
         String trimmed = keyword == null ? "" : keyword.trim();
         if (!trimmed.isEmpty()) {
-            wrapper.like(Movie::getTitle, LikeUtils.escape(trimmed));
+            wrapper.like(MoviePO::getTitle, LikeUtils.escape(trimmed));
         }
-        Page<Movie> result = movieMapper.selectPage(new Page<>(page, size), wrapper);
-        return PageResult.of(result.getTotal(), result.getRecords(),
+        Page<MoviePO> result = movieMapper.selectPage(new Page<>(page, size), wrapper);
+        return PageResult.of(result.getTotal(), movieConverter.toDomain(result.getRecords()),
                 result.getCurrent(), result.getSize());
     }
 
     @Override
     public Optional<Movie> findById(Long id) {
-        return Optional.ofNullable(movieMapper.selectById(id));
+        return Optional.ofNullable(movieMapper.selectById(id))
+                .map(movieConverter::toDomain);
     }
 
     @Override
@@ -63,7 +68,7 @@ public class MovieRepositoryImpl implements MovieRepository {
         if (ids == null || ids.isEmpty()) {
             return Map.of();
         }
-        return movieMapper.selectByIds(ids).stream()
+        return movieConverter.toDomain(movieMapper.selectByIds(ids)).stream()
                 .collect(Collectors.toMap(Movie::getId, movie -> movie));
     }
 
@@ -75,7 +80,7 @@ public class MovieRepositoryImpl implements MovieRepository {
     @Override
     public List<MoviePerson> findPersons(Long movieId) {
         return moviePersonMapper.selectPersonRowsByMovieId(movieId).stream()
-                .map(movieProjectionMapper::toDomain)
+                .map(movieProjectionConverter::toDomain)
                 .toList();
     }
 }

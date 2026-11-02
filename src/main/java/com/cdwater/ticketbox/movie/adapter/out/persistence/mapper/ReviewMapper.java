@@ -2,7 +2,7 @@ package com.cdwater.ticketbox.movie.adapter.out.persistence.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.cdwater.ticketbox.movie.adapter.out.persistence.projection.ReplyPreviewRow;
-import com.cdwater.ticketbox.movie.domain.model.Review;
+import com.cdwater.ticketbox.movie.adapter.out.persistence.po.ReviewPO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Mapper
-public interface ReviewMapper extends BaseMapper<Review> {
+public interface ReviewMapper extends BaseMapper<ReviewPO> {
 
     @Select("""
             <script>
@@ -26,7 +26,7 @@ public interface ReviewMapper extends BaseMapper<Review> {
             LIMIT #{limit}
             </script>
             """)
-    List<Review> selectRootHot(@Param("movieId") Long movieId,
+    List<ReviewPO> selectRootHot(@Param("movieId") Long movieId,
                                      @Param("cursorLikeCount") Integer cursorLikeCount,
                                      @Param("cursorId") Long cursorId,
                                      @Param("limit") int limit);
@@ -43,7 +43,7 @@ public interface ReviewMapper extends BaseMapper<Review> {
             LIMIT #{limit}
             </script>
             """)
-    List<Review> selectRootLatest(@Param("movieId") Long movieId,
+    List<ReviewPO> selectRootLatest(@Param("movieId") Long movieId,
                                         @Param("cursorTime") LocalDateTime cursorTime,
                                         @Param("cursorId") Long cursorId,
                                         @Param("limit") int limit);
@@ -60,7 +60,7 @@ public interface ReviewMapper extends BaseMapper<Review> {
             LIMIT #{limit}
             </script>
             """)
-    List<Review> selectReplies(@Param("rootId") Long rootId,
+    List<ReviewPO> selectReplies(@Param("rootId") Long rootId,
                                      @Param("cursorTime") LocalDateTime cursorTime,
                                      @Param("cursorId") Long cursorId,
                                      @Param("limit") int limit);
@@ -81,7 +81,7 @@ public interface ReviewMapper extends BaseMapper<Review> {
     List<ReplyPreviewRow> selectReplyPreviews(@Param("rootIds") List<Long> rootIds);
 
     @Select("SELECT * FROM t_movie_comment WHERE id = #{id} FOR UPDATE")
-    Review selectByIdForUpdate(@Param("id") Long id);
+    ReviewPO selectByIdForUpdate(@Param("id") Long id);
 
     @Update("UPDATE t_movie_comment SET reply_count = reply_count + 1 WHERE id = #{id}")
     int incrementReplyCount(@Param("id") Long id);

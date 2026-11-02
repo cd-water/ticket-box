@@ -1,5 +1,7 @@
 package com.cdwater.ticketbox.cinema.adapter.out.persistence;
 
+import com.cdwater.ticketbox.cinema.adapter.out.persistence.converter.HallConverter;
+import com.cdwater.ticketbox.cinema.adapter.out.persistence.po.HallPO;
 import com.cdwater.ticketbox.cinema.domain.model.Hall;
 import com.cdwater.ticketbox.cinema.domain.repository.HallRepository;
 import com.cdwater.ticketbox.cinema.adapter.out.persistence.mapper.HallMapper;
@@ -13,9 +15,10 @@ import java.util.Optional;
 public class HallRepositoryImpl implements HallRepository {
 
     private final HallMapper hallMapper;
+    private final HallConverter hallConverter;
 
     @Override
     public Optional<Hall> findById(Long id) {
-        return Optional.ofNullable(hallMapper.selectById(id));
+        return Optional.ofNullable(hallMapper.selectById(id)).map(hallConverter::toDomain);
     }
 }

@@ -1,6 +1,6 @@
 package com.cdwater.ticketbox.movie.application.query;
 
-import com.cdwater.ticketbox.movie.application.query.mapper.MovieViewMapper;
+import com.cdwater.ticketbox.movie.application.query.converter.MovieViewConverter;
 import com.cdwater.ticketbox.movie.application.query.model.MovieBrief;
 import com.cdwater.ticketbox.movie.domain.model.Movie;
 import com.cdwater.ticketbox.movie.domain.repository.MovieRepository;
@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 public class MovieBriefQueryService {
 
     private final MovieRepository movieRepository;
-    private final MovieViewMapper movieViewMapper;
+    private final MovieViewConverter movieViewMapper;
 
     public Map<Long, MovieBrief> findByIds(Collection<Long> ids) {
         return movieRepository.findByIds(ids).values().stream()

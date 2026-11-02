@@ -1,8 +1,10 @@
 package com.cdwater.ticketbox.cinema.adapter.out.persistence;
 
 import com.cdwater.ticketbox.cinema.adapter.out.persistence.mapper.ScreeningMapper;
-import com.cdwater.ticketbox.cinema.adapter.out.persistence.mapper.ScreeningProjectionMapper;
+import com.cdwater.ticketbox.cinema.adapter.out.persistence.converter.ScreeningProjectionConverter;
 import com.cdwater.ticketbox.cinema.adapter.out.persistence.projection.SeatInventoryCountRow;
+import com.cdwater.ticketbox.cinema.adapter.out.persistence.converter.ScreeningConverter;
+import com.cdwater.ticketbox.cinema.adapter.out.persistence.po.ScreeningPO;
 import com.cdwater.ticketbox.cinema.domain.model.Screening;
 import com.cdwater.ticketbox.cinema.domain.model.ScreeningDetails;
 import com.cdwater.ticketbox.cinema.domain.repository.ScreeningRepository;
@@ -20,7 +22,8 @@ import java.util.stream.Collectors;
 public class ScreeningRepositoryImpl implements ScreeningRepository {
 
     private final ScreeningMapper screeningMapper;
-    private final ScreeningProjectionMapper screeningProjectionMapper;
+    private final ScreeningProjectionConverter screeningProjectionConverter;
+    private final ScreeningConverter screeningConverter;
 
     @Override
     public List<Long> findFutureMovieIds(Long cinemaId) {
@@ -30,13 +33,13 @@ public class ScreeningRepositoryImpl implements ScreeningRepository {
     @Override
     public List<ScreeningDetails> findFutureWithHall(Long cinemaId, Long movieId) {
         return screeningMapper.selectFutureWithHall(cinemaId, movieId).stream()
-                .map(screeningProjectionMapper::toDomain)
+                .map(screeningProjectionConverter::toDomain)
                 .toList();
     }
 
     @Override
     public Optional<Screening> findById(Long id) {
-        return Optional.ofNullable(screeningMapper.selectById(id));
+        return Optional.ofNullable(screeningMapper.selectById(id)).map(screeningConverter::toDomain);
     }
 
     @Override

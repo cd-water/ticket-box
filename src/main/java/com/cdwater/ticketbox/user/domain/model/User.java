@@ -1,19 +1,16 @@
 package com.cdwater.ticketbox.user.domain.model;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
+import com.cdwater.ticketbox.shared.error.BizException;
+import com.cdwater.ticketbox.shared.error.ResultCode;
 import lombok.Data;
 
 import java.time.LocalDateTime;
 
 @Data
-@TableName("t_user")
 public class User {
 
     public static final int STATUS_ENABLED = 1;
 
-    @TableId(type = IdType.AUTO)
     private Long id;
 
     private String phone;
@@ -47,5 +44,14 @@ public class User {
 
     public boolean hasPassword() {
         return password != null && !password.isBlank();
+    }
+
+    /** 修改昵称；长度 2-20 字符。 */
+    public void changeNickname(String nickname) {
+        String stripped = nickname == null ? "" : nickname.strip();
+        if (stripped.length() < 2 || stripped.length() > 20) {
+            throw new BizException(ResultCode.BAD_REQUEST, "昵称长度需为 2-20 个字符");
+        }
+        this.nickname = stripped;
     }
 }

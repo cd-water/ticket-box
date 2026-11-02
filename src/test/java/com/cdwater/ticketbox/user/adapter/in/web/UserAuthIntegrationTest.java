@@ -1,7 +1,8 @@
 package com.cdwater.ticketbox.user.adapter.in.web;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.cdwater.ticketbox.user.adapter.out.persistence.UserMapper;
+import com.cdwater.ticketbox.user.adapter.out.persistence.mapper.UserMapper;
+import com.cdwater.ticketbox.user.adapter.out.persistence.po.UserPO;
 import com.cdwater.ticketbox.user.domain.model.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -149,8 +150,8 @@ class UserAuthIntegrationTest {
 
     @Test
     void login_by_pwd_disabled_user_forbidden() {
-        User u = userMapper.selectOne(
-                new LambdaQueryWrapper<User>().eq(User::getPhone, USER1_PHONE));
+        UserPO u = userMapper.selectOne(
+                new LambdaQueryWrapper<UserPO>().eq(UserPO::getPhone, USER1_PHONE));
         u.setStatus(0);
         userMapper.updateById(u);
         try {
@@ -158,8 +159,8 @@ class UserAuthIntegrationTest {
                     Map.of("phone", USER1_PHONE, "password", PASSWORD));
             assertEquals("C403", node.get("code").asString());
         } finally {
-            User u2 = userMapper.selectOne(
-                    new LambdaQueryWrapper<User>().eq(User::getPhone, USER1_PHONE));
+            UserPO u2 = userMapper.selectOne(
+                    new LambdaQueryWrapper<UserPO>().eq(UserPO::getPhone, USER1_PHONE));
             u2.setStatus(1);
             userMapper.updateById(u2);
         }

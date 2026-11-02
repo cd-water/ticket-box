@@ -27,7 +27,7 @@ CREATE TABLE `t_play_order`
     `unit_price`   DECIMAL(10, 2) NOT NULL COMMENT '单价快照',
     `quantity`     INT            NOT NULL COMMENT '数量',
     `total_amount` DECIMAL(10, 2) NOT NULL COMMENT '订单总金额（元）',
-    `status`       TINYINT        NOT NULL DEFAULT 0 COMMENT '状态 0-待支付 1-已支付 2-已取消 3-已超时',
+    `status`       TINYINT        NOT NULL DEFAULT 0 COMMENT '状态 0-待支付 1-已支付 2-已取消（含超时）',
     `expire_time`  DATETIME       NOT NULL COMMENT '支付截止时间',
     `pay_time`     DATETIME       NULL COMMENT '支付时间',
     `create_time`  DATETIME       NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',

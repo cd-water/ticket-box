@@ -2,7 +2,8 @@ package com.cdwater.ticketbox.user.adapter.in.web;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.cdwater.ticketbox.user.domain.model.User;
-import com.cdwater.ticketbox.user.adapter.out.persistence.UserMapper;
+import com.cdwater.ticketbox.user.adapter.out.persistence.mapper.UserMapper;
+import com.cdwater.ticketbox.user.adapter.out.persistence.po.UserPO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,7 +53,7 @@ class CaptchaLoginIntegrationTest {
     void setUp() {
         client = RestClient.builder().baseUrl("http://localhost:" + port).build();
         redis.delete("captcha:user:" + NEW_PHONE);
-        userMapper.delete(new LambdaQueryWrapper<User>().eq(User::getPhone, NEW_PHONE));
+        userMapper.delete(new LambdaQueryWrapper<UserPO>().eq(UserPO::getPhone, NEW_PHONE));
     }
 
     private JsonNode post(String url, Map<String, String> body) {
@@ -103,8 +104,8 @@ class CaptchaLoginIntegrationTest {
         assertEquals("Authorization", node.get("data").get("tokenName").asString());
         assertFalse(node.get("data").get("tokenValue").asString().isEmpty());
 
-        User user = userMapper.selectOne(
-                new LambdaQueryWrapper<User>().eq(User::getPhone, NEW_PHONE));
+        UserPO user = userMapper.selectOne(
+                new LambdaQueryWrapper<UserPO>().eq(UserPO::getPhone, NEW_PHONE));
         assertNotNull(user);
         assertNull(user.getPassword());
         assertEquals(1, user.getStatus());
@@ -127,7 +128,7 @@ class CaptchaLoginIntegrationTest {
     @Test
     void login_by_code_captcha_atomic_consume() throws Exception {
         // 预置已注册用户，排除并发静默注册的干扰
-        User existing = new User();
+        UserPO existing = new UserPO();
         existing.setPhone(NEW_PHONE);
         existing.setNickname("user_aaa000");
         existing.setAvatar("");

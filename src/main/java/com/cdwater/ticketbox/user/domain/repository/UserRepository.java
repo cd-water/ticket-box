@@ -17,5 +17,11 @@ public interface UserRepository {
 
     User save(User user);
 
+    boolean updateNickname(Long id, String nickname);
+
+    boolean updateAvatar(Long id, String avatar);
+
+    boolean updatePassword(Long id, String passwordHash);
+
     User findOrCreateByPhone(String phone, Supplier<User> newUser);
 }

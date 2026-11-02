@@ -16,5 +16,7 @@ public interface SeatInventoryRepository {
 
     int releaseByOrder(Long orderNo);
 
+    int markSoldByOrder(Long orderNo);
+
     int releaseExpiredByScreening(Long screeningId, LocalDateTime now);
 }

@@ -1,7 +1,8 @@
 package com.cdwater.ticketbox.admin.adapter.out.persistence;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.cdwater.ticketbox.admin.domain.model.Admin;
+import com.cdwater.ticketbox.admin.adapter.out.persistence.mapper.AdminMapper;
+import com.cdwater.ticketbox.admin.adapter.out.persistence.po.AdminPO;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -18,8 +19,8 @@ class AdminMapperTest {
 
     @Test
     void select_seed_admin_by_username() {
-        Admin admin = adminMapper.selectOne(
-                new LambdaQueryWrapper<Admin>().eq(Admin::getUsername, "admin"));
+        AdminPO admin = adminMapper.selectOne(
+                new LambdaQueryWrapper<AdminPO>().eq(AdminPO::getUsername, "admin"));
         assertNotNull(admin);
         assertTrue(admin.getPassword().startsWith("$2a$"));
         assertEquals(1, admin.getStatus());
