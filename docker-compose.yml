@@ -13,7 +13,6 @@ services:
       - "3306:3306"
     volumes:
       - mysql-data:/var/lib/mysql
-      - ./scripts/init-schemas.sql:/docker-entrypoint-initdb.d/01-schemas.sql:ro
     networks:
       - ticket-box-network
     restart: unless-stopped
@@ -39,7 +38,12 @@ services:
       NACOS_AUTH_TOKEN: ${NACOS_AUTH_TOKEN}
       NACOS_AUTH_IDENTITY_KEY: ${NACOS_AUTH_IDENTITY_KEY}
       NACOS_AUTH_IDENTITY_VALUE: ${NACOS_AUTH_IDENTITY_VALUE}
+      # 老 JDK 在 cgroup v2 下 ManagementFactory 初始化 NPE，需禁用容器感知（WSL2 必须）
       JAVA_OPT: -XX:-UseContainerSupport
+      JVM_XMS: 512m
+      JVM_XMX: 512m
+    volumes:
+      - nacos-data:/home/nacos/data
     ports:
       - "8848:8848"
       - "9848:9848"
@@ -71,4 +75,5 @@ networks:
 volumes:
   mysql-data:
   redis-data:
+  nacos-data:
   minio-data:

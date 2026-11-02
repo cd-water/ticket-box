@@ -17,18 +17,18 @@ public class Result<T> {
     }
 
     public static <T> Result<T> success(T data) {
-        Result<T> r = new Result<>();
-        r.code = ResultCode.SUCCESS.getCode();
-        r.message = ResultCode.SUCCESS.getMessage();
-        r.data = data;
-        return r;
+        Result<T> result = new Result<>();
+        result.code = ResultCode.SUCCESS.getCode();
+        result.message = ResultCode.SUCCESS.getMessage();
+        result.data = data;
+        return result;
     }
 
     public static <T> Result<T> fail(String code, String message) {
-        Result<T> r = new Result<>();
-        r.code = code;
-        r.message = message;
-        return r;
+        Result<T> result = new Result<>();
+        result.code = code;
+        result.message = message;
+        return result;
     }
 
     public static <T> Result<T> fail(ResultCode resultCode) {

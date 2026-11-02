@@ -25,15 +25,7 @@
             <groupId>com.cdwater</groupId>
             <artifactId>content-api</artifactId>
         </dependency>
-        <dependency>
-            <groupId>com.cdwater</groupId>
-            <artifactId>inventory-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.cdwater</groupId>
-            <artifactId>payment-api</artifactId>
-        </dependency>
-        <dependency>
+<dependency>
             <groupId>com.cdwater</groupId>
             <artifactId>order-api</artifactId>
         </dependency>
@@ -64,12 +56,7 @@
             <artifactId>lombok</artifactId>
             <scope>provided</scope>
         </dependency>
-        <dependency>
-            <groupId>org.mapstruct</groupId>
-            <artifactId>mapstruct</artifactId>
-        </dependency>
-
-        <dependency>
+<dependency>
             <groupId>cn.dev33</groupId>
             <artifactId>sa-token-spring-boot4-starter</artifactId>
         </dependency>
@@ -77,21 +64,11 @@
             <groupId>cn.dev33</groupId>
             <artifactId>sa-token-redis-template</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.springframework.security</groupId>
-            <artifactId>spring-security-crypto</artifactId>
-        </dependency>
-
-        <dependency>
+<dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-redis</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-pool2</artifactId>
-        </dependency>
-
-        <dependency>
+<dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-jdbc</artifactId>
             <scope>test</scope>

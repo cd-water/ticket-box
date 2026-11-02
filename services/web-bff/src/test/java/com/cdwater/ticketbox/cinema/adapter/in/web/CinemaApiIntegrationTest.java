@@ -41,7 +41,7 @@ class CinemaApiIntegrationTest {
 
     private void restoreSeedLock() {
         jdbc.update("""
-                UPDATE ticket_box_order.t_movie_order SET status = 0, expire_time = DATE_ADD(NOW(), INTERVAL 15 MINUTE)
+                UPDATE ticket_box_order.t_booking_order SET status = 0, expire_time = DATE_ADD(NOW(), INTERVAL 15 MINUTE)
                 WHERE order_no = 1900000000000000001
                 """);
         jdbc.update("""

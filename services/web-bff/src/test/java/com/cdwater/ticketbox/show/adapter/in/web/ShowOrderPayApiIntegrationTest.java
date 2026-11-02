@@ -46,8 +46,8 @@ class ShowOrderPayApiIntegrationTest {
     void cleanUp() {
         for (Long orderNo : created) {
             jdbc.update("UPDATE ticket_box_inventory.t_show_seat SET status = 0, lock_order_no = NULL WHERE lock_order_no = ?", orderNo);
-            jdbc.update("DELETE FROM ticket_box_order.t_show_order_seat WHERE order_no = ?", orderNo);
-            jdbc.update("DELETE FROM ticket_box_order.t_show_order WHERE order_no = ?", orderNo);
+            jdbc.update("DELETE FROM ticket_box_order.t_booking_seat WHERE order_no = ?", orderNo);
+            jdbc.update("DELETE FROM ticket_box_order.t_booking_order WHERE order_no = ?", orderNo);
         }
         created.clear();
     }
@@ -106,7 +106,7 @@ class ShowOrderPayApiIntegrationTest {
             JsonNode paid = post("/api/show-orders/" + orderNo + "/pay", token, Map.of());
             assertEquals("C409", paid.get("code").asString(), paid.toString());
             assertEquals(0, jdbc.queryForObject(
-                    "SELECT status FROM ticket_box_order.t_show_order WHERE order_no = ?", Integer.class, orderNo));
+                    "SELECT status FROM ticket_box_order.t_booking_order WHERE order_no = ?", Integer.class, orderNo));
         } finally {
             jdbc.update("""
                     UPDATE ticket_box_inventory.t_show_seat SET status = 0
@@ -152,11 +152,11 @@ class ShowOrderPayApiIntegrationTest {
     void pay_expired_order_cancels_it() {
         String token = token();
         Long orderNo = create(token, 1, 1, 1);
-        jdbc.update("UPDATE ticket_box_order.t_show_order SET expire_time = DATE_SUB(NOW(), INTERVAL 1 MINUTE) WHERE order_no = ?", orderNo);
+        jdbc.update("UPDATE ticket_box_order.t_booking_order SET expire_time = DATE_SUB(NOW(), INTERVAL 1 MINUTE) WHERE order_no = ?", orderNo);
 
         JsonNode paid = post("/api/show-orders/" + orderNo + "/pay", token, Map.of());
         assertEquals("C409", paid.get("code").asString());
         assertEquals(2, jdbc.queryForObject(
-                "SELECT status FROM ticket_box_order.t_show_order WHERE order_no = ?", Integer.class, orderNo));
+                "SELECT status FROM ticket_box_order.t_booking_order WHERE order_no = ?", Integer.class, orderNo));
     }
 }

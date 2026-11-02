@@ -14,7 +14,6 @@ public enum ResultCode {
     FORBIDDEN("C403", "Forbidden"),
     NOT_FOUND("C404", "Not Found"),
     CONFLICT("C409", "Conflict"),
-    TOO_MANY_REQUESTS("C429", "Too Many Requests"),
 
     // 服务端错误
     INTERNAL_SERVER_ERROR("S500", "Internal Server Error");
