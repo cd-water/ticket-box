@@ -9,7 +9,9 @@ import com.cdwater.ticketbox.show.application.query.view.TicketTypeView;
 import com.cdwater.ticketbox.show.domain.model.Show;
 import com.cdwater.ticketbox.show.application.query.converter.ShowViewConverter;
 import com.cdwater.ticketbox.show.domain.repository.ShowRepository;
+import com.cdwater.ticketbox.inventory.api.ShowSeatInventoryApi;
 import lombok.RequiredArgsConstructor;
+import org.apache.dubbo.config.annotation.DubboReference;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -23,6 +25,9 @@ public class ShowQueryService {
 
     private final ShowRepository showRepository;
     private final ShowViewConverter showViewConverter;
+
+    @DubboReference(check = false, timeout = 3000)
+    private ShowSeatInventoryApi showSeatInventoryApi;
 
     public PageResult<ShowListItemView> list(ShowListQuery query) {
         PageResult<Show> page = showRepository.page(query.getKeyword(), query.getPage(), query.getSize());
@@ -40,7 +45,7 @@ public class ShowQueryService {
         Show show = showRepository.findById(id)
                 .filter(s -> s.isUpcoming(LocalDateTime.now()))
                 .orElseThrow(() -> new BizException(ResultCode.NOT_FOUND, "演出不存在或已开演"));
-        Map<String, Long> availability = showRepository.countAvailableSeatsByZone(id);
+        Map<String, Long> availability = showSeatInventoryApi.countAvailable(id);
 
         ShowDetailView view = showViewConverter.toDetailView(show);
         view.setTicketTypes(showRepository.findTicketTypes(id).stream().map(type -> {

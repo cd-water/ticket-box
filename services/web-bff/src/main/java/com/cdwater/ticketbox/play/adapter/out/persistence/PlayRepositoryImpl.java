@@ -39,14 +39,4 @@ public class PlayRepositoryImpl implements PlayRepository {
     public Optional<PlayItem> findById(Long id) {
         return Optional.ofNullable(playItemMapper.selectById(id)).map(playItemConverter::toDomain);
     }
-
-    @Override
-    public boolean deductStock(Long itemId, int quantity) {
-        return playItemMapper.deductStock(itemId, quantity) == 1;
-    }
-
-    @Override
-    public int restoreStock(Long itemId, int quantity) {
-        return playItemMapper.restoreStock(itemId, quantity);
-    }
 }

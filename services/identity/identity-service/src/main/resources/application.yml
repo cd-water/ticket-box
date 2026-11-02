@@ -5,7 +5,7 @@ spring:
   application:
     name: identity
   datasource:
-    url: jdbc:mysql://localhost:3306/${MYSQL_DATABASE:ticket_box}
+    url: jdbc:mysql://localhost:3306/${MYSQL_DATABASE_IDENTITY:ticket_box_identity}
     username: root
     password: ${MYSQL_ROOT_PASSWORD:ticketmysql}
   data:
@@ -15,7 +15,7 @@ spring:
       password: ${REDIS_PASSWORD:ticketredis}
       database: 0
   flyway:
-    enabled: false
+    enabled: true
 
 app:
   minio:

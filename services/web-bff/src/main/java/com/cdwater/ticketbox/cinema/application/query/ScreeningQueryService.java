@@ -7,19 +7,19 @@ import com.cdwater.ticketbox.cinema.application.query.view.SeatView;
 import com.cdwater.ticketbox.cinema.application.query.ScreeningBookingInfo;
 import com.cdwater.ticketbox.cinema.domain.model.Cinema;
 import com.cdwater.ticketbox.cinema.domain.model.Hall;
-import com.cdwater.ticketbox.cinema.application.command.SeatInventoryService;
 import com.cdwater.ticketbox.cinema.domain.model.Screening;
 import com.cdwater.ticketbox.cinema.domain.model.ScreeningDetails;
-import com.cdwater.ticketbox.cinema.domain.model.SeatSnapshot;
 import com.cdwater.ticketbox.cinema.domain.repository.CinemaRepository;
 import com.cdwater.ticketbox.cinema.domain.repository.HallRepository;
 import com.cdwater.ticketbox.cinema.domain.repository.ScreeningRepository;
-import com.cdwater.ticketbox.cinema.domain.repository.SeatInventoryRepository;
 import com.cdwater.ticketbox.common.exception.BizException;
 import com.cdwater.ticketbox.common.result.ResultCode;
 import com.cdwater.ticketbox.cinema.application.port.MovieInfo;
 import com.cdwater.ticketbox.cinema.application.port.MovieInfoPort;
+import com.cdwater.ticketbox.inventory.api.MovieSeatInventoryApi;
+import com.cdwater.ticketbox.inventory.api.dto.MovieSeatDTO;
 import lombok.RequiredArgsConstructor;
+import org.apache.dubbo.config.annotation.DubboReference;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -33,22 +33,22 @@ public class ScreeningQueryService {
     private final ScreeningRepository screeningRepository;
     private final CinemaRepository cinemaRepository;
     private final HallRepository hallRepository;
-    private final SeatInventoryRepository seatInventoryRepository;
-    private final SeatInventoryService seatInventoryService;
     private final MovieInfoPort movieInfoPort;
     private final ScreeningViewConverter screeningViewConverter;
+
+    @DubboReference(check = false, timeout = 3000)
+    private MovieSeatInventoryApi movieSeatInventoryApi;
 
     public List<ScreeningView> list(Long cinemaId, Long movieId) {
         List<ScreeningDetails> rows = screeningRepository.findFutureWithHall(cinemaId, movieId);
         List<Long> ids = rows.stream().map(ScreeningDetails::getId).toList();
-        Map<Long, Long> counts = screeningRepository.countAvailableSeats(ids);
+        Map<Long, Long> counts = movieSeatInventoryApi.countAvailable(ids);
         return rows.stream()
                 .map(r -> screeningViewConverter.toView(r, counts.getOrDefault(r.getId(), 0L)))
                 .toList();
     }
 
     public SeatMapView seatMap(Long screeningId) {
-        seatInventoryService.releaseExpiredByScreening(screeningId, LocalDateTime.now());
         Screening screening = screeningRepository.findById(screeningId)
                 .filter(Screening::isOnSale)
                 .orElseThrow(() -> new BizException(ResultCode.NOT_FOUND, "排场不存在或已取消"));
@@ -59,14 +59,14 @@ public class ScreeningQueryService {
         MovieInfo movie = movieInfoPort.findById(screening.getMovieId())
                 .orElseThrow(() -> new BizException(ResultCode.NOT_FOUND, "电影不存在"));
 
-        List<SeatSnapshot> snapshots = seatInventoryRepository.findSeatMap(screeningId);
+        List<MovieSeatDTO> snapshots = movieSeatInventoryApi.seatMap(screeningId);
         List<SeatView> seats = snapshots.stream()
                 .map(screeningViewConverter::toView)
                 .toList();
 
         SeatMapView view = screeningViewConverter.toView(screening, cinema, hall, movie);
-        view.setRowCount(snapshots.stream().mapToInt(SeatSnapshot::getRowNum).max().orElse(0));
-        view.setColCount(snapshots.stream().mapToInt(SeatSnapshot::getColNum).max().orElse(0));
+        view.setRowCount(snapshots.stream().mapToInt(MovieSeatDTO::getRowNum).max().orElse(0));
+        view.setColCount(snapshots.stream().mapToInt(MovieSeatDTO::getColNum).max().orElse(0));
         view.setSeats(seats);
         return view;
     }

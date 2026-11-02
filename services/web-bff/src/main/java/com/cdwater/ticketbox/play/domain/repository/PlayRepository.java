@@ -10,8 +10,4 @@ public interface PlayRepository {
     PageResult<PlayItem> page(String keyword, long page, long size);
 
     Optional<PlayItem> findById(Long id);
-
-    boolean deductStock(Long itemId, int quantity);
-
-    int restoreStock(Long itemId, int quantity);
 }

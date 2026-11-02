@@ -85,4 +85,9 @@ public class MovieOrderRepositoryImpl implements MovieOrderRepository {
     public boolean markPaid(Long orderNo, LocalDateTime payTime) {
         return movieOrderMapper.markPaid(orderNo, payTime) == 1;
     }
+
+    @Override
+    public boolean markPending(Long orderNo) {
+        return movieOrderMapper.markPending(orderNo) == 1;
+    }
 }

@@ -5,7 +5,6 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.cdwater.ticketbox.persistence.LikeUtils;
 import com.cdwater.ticketbox.common.result.PageResult;
 import com.cdwater.ticketbox.show.adapter.out.persistence.mapper.ShowMapper;
-import com.cdwater.ticketbox.show.adapter.out.persistence.mapper.ShowSeatMapper;
 import com.cdwater.ticketbox.show.adapter.out.persistence.mapper.ShowTicketTypeMapper;
 import com.cdwater.ticketbox.show.domain.model.Show;
 import com.cdwater.ticketbox.show.domain.model.ShowTicketType;
@@ -33,7 +32,6 @@ public class ShowRepositoryImpl implements ShowRepository {
     private final ShowConverter showConverter;
     private final ShowTicketTypeConverter ticketTypeConverter;
     private final ShowTicketTypeMapper ticketTypeMapper;
-    private final ShowSeatMapper showSeatMapper;
 
     @Override
     public PageResult<Show> page(String keyword, long page, long size) {
@@ -86,13 +84,5 @@ public class ShowRepositoryImpl implements ShowRepository {
             prices.merge(type.getShowId(), type.getPrice(), BigDecimal::min);
         }
         return prices;
-    }
-
-    @Override
-    public Map<String, Long> countAvailableSeatsByZone(Long showId) {
-        Map<String, Long> result = new HashMap<>();
-        showSeatMapper.countAvailableByZone(showId)
-                .forEach(row -> result.put(row.getZone(), row.getAvailable()));
-        return result;
     }
 }

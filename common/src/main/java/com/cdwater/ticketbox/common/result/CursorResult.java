@@ -3,11 +3,14 @@ package com.cdwater.ticketbox.common.result;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
+import java.io.Serializable;
 import java.util.List;
 
 @Data
 @AllArgsConstructor
-public class CursorResult<T> {
+public class CursorResult<T> implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     private List<T> records;
     private String nextCursor;

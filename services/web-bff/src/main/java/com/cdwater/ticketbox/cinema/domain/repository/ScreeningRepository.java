@@ -15,6 +15,4 @@ public interface ScreeningRepository {
     List<ScreeningDetails> findFutureWithHall(Long cinemaId, Long movieId);
 
     Optional<Screening> findById(Long id);
-
-    Map<Long, Long> countAvailableSeats(Collection<Long> screeningIds);
 }

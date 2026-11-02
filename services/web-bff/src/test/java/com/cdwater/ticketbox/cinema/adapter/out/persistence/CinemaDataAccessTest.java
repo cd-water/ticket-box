@@ -1,10 +1,8 @@
 package com.cdwater.ticketbox.cinema.adapter.out.persistence;
 
 import com.cdwater.ticketbox.cinema.domain.model.Cinema;
-import com.cdwater.ticketbox.cinema.domain.model.SeatSnapshot;
 import com.cdwater.ticketbox.cinema.domain.repository.CinemaRepository;
 import com.cdwater.ticketbox.cinema.domain.repository.ScreeningRepository;
-import com.cdwater.ticketbox.cinema.domain.repository.SeatInventoryRepository;
 import com.cdwater.ticketbox.common.result.PageResult;
 import com.cdwater.ticketbox.support.SeedScreeningFixture;
 import org.junit.jupiter.api.BeforeEach;
@@ -29,9 +27,6 @@ class CinemaDataAccessTest {
     ScreeningRepository screeningRepository;
 
     @Autowired
-    SeatInventoryRepository seatInventoryRepository;
-
-    @Autowired
     JdbcTemplate jdbc;
 
     @BeforeEach
@@ -42,8 +37,8 @@ class CinemaDataAccessTest {
                 WHERE order_no = 1900000000000000001
                 """);
         jdbc.update("""
-                UPDATE t_screening_seat ss
-                JOIN t_seat s ON s.id = ss.seat_id
+                UPDATE ticket_box_inventory.t_screening_seat ss
+                JOIN ticket_box_inventory.t_seat s ON s.id = ss.seat_id
                 SET ss.status = 1, ss.lock_order_no = 1,
                     ss.lock_expire_time = DATE_ADD(NOW(), INTERVAL 15 MINUTE)
                 WHERE ss.screening_id = 1 AND s.row_num = 1 AND s.col_num IN (1, 2)
@@ -90,21 +85,4 @@ class CinemaDataAccessTest {
         assertEquals("1号厅", screenings.get(0).getHallName());
     }
 
-    @Test
-    void available_seat_counts() {
-        Map<Long, Long> counts = screeningRepository.countAvailableSeats(List.of(1L, 25L));
-        assertEquals(116L, counts.get(1L));
-        assertEquals(120L, counts.get(25L));
-    }
-
-    @Test
-    void seat_map_statuses() {
-        List<SeatSnapshot> seats = seatInventoryRepository.findSeatMap(1L);
-        assertEquals(120, seats.size());
-        assertEquals(116, seats.stream().filter(s -> s.getStatus() == 0).count());
-        assertEquals(2, seats.stream().filter(s -> s.getStatus() == 1).count());
-        assertEquals(2, seats.stream().filter(s -> s.getStatus() == 2).count());
-        assertTrue(seats.stream().anyMatch(s -> s.getRowNum() == 1 && s.getColNum() == 1
-                && s.getStatus() == 1));
-    }
 }

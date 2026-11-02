@@ -1,5 +1,6 @@
 package com.cdwater.ticketbox.cinema.domain.model;
 
+import com.cdwater.ticketbox.inventory.api.dto.MovieSeatSnapshotDTO;
 import lombok.Data;
 
 import java.math.BigDecimal;
@@ -61,13 +62,13 @@ public class MovieOrder {
         return order;
     }
 
-    /** 由锁定的座位快照构建订单座位（同模块领域对象直转）。 */
-    public static List<MovieOrderSeat> seatsOf(Long orderNo, List<SeatSnapshot> snapshots,
+    /** 由锁定的座位快照构建订单座位。 */
+    public static List<MovieOrderSeat> seatsOf(Long orderNo, List<MovieSeatSnapshotDTO> snapshots,
                                                BigDecimal unitPrice) {
         return snapshots.stream().map(snapshot -> {
             MovieOrderSeat seat = new MovieOrderSeat();
             seat.setOrderNo(orderNo);
-            seat.setSeatId(snapshot.getSeatId());
+            seat.setSeatId(snapshot.getId());
             seat.setRowNum(snapshot.getRowNum());
             seat.setColNum(snapshot.getColNum());
             seat.setPrice(unitPrice);

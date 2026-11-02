@@ -53,6 +53,26 @@
                 <version>${project.version}</version>
             </dependency>
             <dependency>
+                <groupId>com.cdwater</groupId>
+                <artifactId>content-api</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.cdwater</groupId>
+                <artifactId>inventory-api</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.cdwater</groupId>
+                <artifactId>order-api</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.cdwater</groupId>
+                <artifactId>payment-api</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>org.mapstruct</groupId>
                 <artifactId>mapstruct</artifactId>
                 <version>${mapstruct.version}</version>

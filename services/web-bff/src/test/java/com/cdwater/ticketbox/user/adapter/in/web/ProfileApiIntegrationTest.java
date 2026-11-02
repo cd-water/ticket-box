@@ -97,7 +97,7 @@ class ProfileApiIntegrationTest {
 
     private String nickname() {
         return jdbc.queryForObject(
-                "SELECT nickname FROM t_user WHERE id = 1", String.class);
+                "SELECT nickname FROM ticket_box_identity.t_user WHERE id = 1", String.class);
     }
 
     private void assumeMinio() {
@@ -148,7 +148,7 @@ class ProfileApiIntegrationTest {
             assertEquals("C400", post("/api/user/profile/nickname", token(),
                     Map.of("nickname", "123456789012345678901")).get("code").asString());
         } finally {
-            jdbc.update("UPDATE t_user SET nickname = ? WHERE id = 1", original);
+            jdbc.update("UPDATE ticket_box_identity.t_user SET nickname = ? WHERE id = 1", original);
         }
     }
 
@@ -165,20 +165,20 @@ class ProfileApiIntegrationTest {
             assertEquals("C401", get("/api/user/profile", t2).get("code").asString());
             assertNotNull(login("13800000001", "NewPass123"));
         } finally {
-            jdbc.update("UPDATE t_user SET password = ? WHERE id = 1", PASSWORD_HASH);
+            jdbc.update("UPDATE ticket_box_identity.t_user SET password = ? WHERE id = 1", PASSWORD_HASH);
         }
     }
 
     @Test
     void upload_avatar_replaces_old_object() {
         assumeMinio();
-        jdbc.update("DELETE FROM t_user WHERE phone = ?", TEST_PHONE);
+        jdbc.update("DELETE FROM ticket_box_identity.t_user WHERE phone = ?", TEST_PHONE);
         jdbc.update("""
-                INSERT INTO t_user (phone, password, nickname, avatar, status)
+                INSERT INTO ticket_box_identity.t_user (phone, password, nickname, avatar, status)
                 VALUES (?, ?, '测试用户', '', 1)
                 """, TEST_PHONE, PASSWORD_HASH);
         Long userId = jdbc.queryForObject(
-                "SELECT id FROM t_user WHERE phone = ?", Long.class, TEST_PHONE);
+                "SELECT id FROM ticket_box_identity.t_user WHERE phone = ?", Long.class, TEST_PHONE);
         String token = login(TEST_PHONE, "Aa123456");
         try {
             byte[] png = Base64.getDecoder().decode(PNG_BASE64);
@@ -196,7 +196,7 @@ class ProfileApiIntegrationTest {
             assertEquals(url2, get("/api/user/profile", token)
                     .get("data").get("avatar").asString());
         } finally {
-            jdbc.update("DELETE FROM t_user WHERE phone = ?", TEST_PHONE);
+            jdbc.update("DELETE FROM ticket_box_identity.t_user WHERE phone = ?", TEST_PHONE);
         }
     }
 

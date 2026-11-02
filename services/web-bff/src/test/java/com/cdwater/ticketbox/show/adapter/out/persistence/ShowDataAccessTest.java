@@ -3,7 +3,6 @@ package com.cdwater.ticketbox.show.adapter.out.persistence;
 import com.cdwater.ticketbox.show.domain.model.Show;
 import com.cdwater.ticketbox.show.domain.model.ShowTicketType;
 import com.cdwater.ticketbox.show.domain.repository.ShowRepository;
-import com.cdwater.ticketbox.show.domain.repository.ShowSeatInventoryRepository;
 import com.cdwater.ticketbox.common.result.PageResult;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -21,9 +20,6 @@ class ShowDataAccessTest {
 
     @Autowired
     ShowRepository showRepository;
-
-    @Autowired
-    ShowSeatInventoryRepository seatInventoryRepository;
 
     @Autowired
     JdbcTemplate jdbc;
@@ -49,20 +45,7 @@ class ShowDataAccessTest {
         List<ShowTicketType> types = showRepository.findTicketTypes(1L);
         assertEquals(3, types.size());
 
-        var availability = showRepository.countAvailableSeatsByZone(1L);
-        assertEquals(18L, availability.get("A区"));
-        assertEquals(30L, availability.get("B区"));
-        assertEquals(30L, availability.get("C区"));
-
         assertEquals(new BigDecimal("280.00"), showRepository.findMinPrices(List.of(1L)).get(1L));
-    }
-
-    @Test
-    void lock_available_seats_in_seat_no_order() {
-        var seats = seatInventoryRepository.lockAvailableSeats(1L, "A区");
-        assertEquals(18, seats.size());
-        assertEquals(3, seats.get(0).getSeatNo());
-        assertEquals(4, seats.get(1).getSeatNo());
     }
 
     @Test

@@ -3,12 +3,10 @@ package com.cdwater.ticketbox.cinema.adapter.out.persistence.mapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.cdwater.ticketbox.cinema.adapter.out.persistence.po.ScreeningPO;
 import com.cdwater.ticketbox.cinema.adapter.out.persistence.projection.ScreeningRow;
-import com.cdwater.ticketbox.cinema.adapter.out.persistence.projection.SeatInventoryCountRow;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 
-import java.util.Collection;
 import java.util.List;
 
 @Mapper
@@ -32,15 +30,4 @@ public interface ScreeningMapper extends BaseMapper<ScreeningPO> {
             """)
     List<ScreeningRow> selectFutureWithHall(@Param("cinemaId") Long cinemaId,
                                             @Param("movieId") Long movieId);
-
-    @Select("""
-            <script>
-            SELECT screening_id, COUNT(*) AS available_count
-            FROM t_screening_seat
-            WHERE status = 0 AND screening_id IN
-            <foreach collection="screeningIds" item="id" open="(" separator="," close=")">#{id}</foreach>
-            GROUP BY screening_id
-            </script>
-            """)
-    List<SeatInventoryCountRow> selectAvailableCounts(@Param("screeningIds") Collection<Long> screeningIds);
 }

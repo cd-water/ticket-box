@@ -43,7 +43,7 @@ class ShowOrderPayApiIntegrationTest {
     @AfterEach
     void cleanUp() {
         for (Long orderNo : created) {
-            jdbc.update("UPDATE t_show_seat SET status = 0, lock_order_no = NULL WHERE lock_order_no = ?", orderNo);
+            jdbc.update("UPDATE ticket_box_inventory.t_show_seat SET status = 0, lock_order_no = NULL WHERE lock_order_no = ?", orderNo);
             jdbc.update("DELETE FROM t_show_order_seat WHERE order_no = ?", orderNo);
             jdbc.update("DELETE FROM t_show_order WHERE order_no = ?", orderNo);
         }
@@ -88,7 +88,7 @@ class ShowOrderPayApiIntegrationTest {
         assertEquals(3, paid.get("data").get("seats").get(0).get("seatNo").asInt());
         assertEquals(4, paid.get("data").get("seats").get(1).get("seatNo").asInt());
         assertEquals(16L, jdbc.queryForObject(
-                "SELECT COUNT(*) FROM t_show_seat WHERE show_id = 1 AND zone = 'A区' AND status = 0",
+                "SELECT COUNT(*) FROM ticket_box_inventory.t_show_seat WHERE show_id = 1 AND zone = 'A区' AND status = 0",
                 Long.class));
     }
 
@@ -97,7 +97,7 @@ class ShowOrderPayApiIntegrationTest {
         String token = token();
         Long orderNo = create(token, 2, 4, 2);
         jdbc.update("""
-                UPDATE t_show_seat SET status = 2
+                UPDATE ticket_box_inventory.t_show_seat SET status = 2
                 WHERE show_id = 2 AND zone = 'A区' AND seat_no > 1 AND status = 0
                 """);
         try {
@@ -107,7 +107,7 @@ class ShowOrderPayApiIntegrationTest {
                     "SELECT status FROM t_show_order WHERE order_no = ?", Integer.class, orderNo));
         } finally {
             jdbc.update("""
-                    UPDATE t_show_seat SET status = 0
+                    UPDATE ticket_box_inventory.t_show_seat SET status = 0
                     WHERE show_id = 2 AND zone = 'A区' AND status = 2 AND lock_order_no IS NULL
                     """);
         }

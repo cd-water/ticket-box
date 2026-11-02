@@ -53,20 +53,23 @@ class PlayOrderApiIntegrationTest {
         }
         created.clear();
         stockBefore.forEach((itemId, stock) ->
-                jdbc.update("UPDATE t_play_item SET stock = ? WHERE id = ?", stock, itemId));
+                jdbc.update("UPDATE ticket_box_inventory.t_play_stock SET stock = ? WHERE item_id = ?", stock, itemId));
         stockBefore.clear();
         for (Long itemId : itemsToDelete) {
             jdbc.update("DELETE FROM t_play_item WHERE id = ?", itemId);
+            jdbc.update("DELETE FROM ticket_box_inventory.t_play_stock WHERE item_id = ?", itemId);
         }
         itemsToDelete.clear();
     }
 
     private void insertItem(long id) {
         jdbc.update("DELETE FROM t_play_item WHERE id = ?", id);
+        jdbc.update("DELETE FROM ticket_box_inventory.t_play_stock WHERE item_id = ?", id);
         jdbc.update("""
-                INSERT INTO t_play_item (id, title, cover, address, description, price, stock, status)
-                VALUES (?, '测试项目', '', '测试地址', '测试项目', 10.00, 5, 1)
+                INSERT INTO t_play_item (id, title, cover, address, description, price, status)
+                VALUES (?, '测试项目', '', '测试地址', '测试项目', 10.00, 1)
                 """, id);
+        jdbc.update("INSERT INTO ticket_box_inventory.t_play_stock (item_id, stock) VALUES (?, 5)", id);
         itemsToDelete.add(id);
     }
 
@@ -95,7 +98,7 @@ class PlayOrderApiIntegrationTest {
     }
 
     private int stock(long itemId) {
-        return jdbc.queryForObject("SELECT stock FROM t_play_item WHERE id = ?", Integer.class, itemId);
+        return jdbc.queryForObject("SELECT stock FROM ticket_box_inventory.t_play_stock WHERE item_id = ?", Integer.class, itemId);
     }
 
     private Long create(String token, long itemId, int quantity) {
@@ -136,7 +139,7 @@ class PlayOrderApiIntegrationTest {
     void insufficient_stock_returns_conflict() {
         int before = stock(3);
         stockBefore.put(3L, before);
-        jdbc.update("UPDATE t_play_item SET stock = 1 WHERE id = 3");
+        jdbc.update("UPDATE ticket_box_inventory.t_play_stock SET stock = 1 WHERE item_id = 3");
         JsonNode node = post("/api/play-orders", token(), Map.of("itemId", 3, "quantity", 2));
         assertEquals("C409", node.get("code").asString(), node.toString());
         assertEquals(1, stock(3));

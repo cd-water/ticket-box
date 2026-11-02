@@ -53,7 +53,7 @@ class MovieOrderApiIntegrationTest {
     void cleanUp() {
         for (Long orderNo : createdOrderIds) {
             jdbc.update("""
-                    UPDATE t_screening_seat
+                    UPDATE ticket_box_inventory.t_screening_seat
                     SET status = 0, lock_order_no = NULL, lock_expire_time = NULL
                     WHERE lock_order_no = ?
                     """, orderNo);
@@ -70,8 +70,8 @@ class MovieOrderApiIntegrationTest {
                 WHERE order_no = 1900000000000000001
                 """);
         jdbc.update("""
-                UPDATE t_screening_seat ss
-                JOIN t_seat s ON s.id = ss.seat_id
+                UPDATE ticket_box_inventory.t_screening_seat ss
+                JOIN ticket_box_inventory.t_seat s ON s.id = ss.seat_id
                 SET ss.status = 1, ss.lock_order_no = 1900000000000000001,
                     ss.lock_expire_time = DATE_ADD(NOW(), INTERVAL 15 MINUTE)
                 WHERE ss.screening_id = 1 AND s.row_num = 1 AND s.col_num IN (1, 2)
@@ -104,7 +104,7 @@ class MovieOrderApiIntegrationTest {
 
     private List<Long> seatIds(long hallId, int row, int colStart, int colEnd) {
         return jdbc.queryForList("""
-                SELECT id FROM t_seat
+                SELECT id FROM ticket_box_inventory.t_seat
                 WHERE hall_id = ? AND row_num = ? AND col_num BETWEEN ? AND ?
                 ORDER BY col_num
                 """, Long.class, hallId, row, colStart, colEnd);
@@ -175,7 +175,7 @@ class MovieOrderApiIntegrationTest {
             pool.shutdownNow();
         }
         Long orderNo = jdbc.queryForObject("""
-                SELECT lock_order_no FROM t_screening_seat
+                SELECT lock_order_no FROM ticket_box_inventory.t_screening_seat
                 WHERE screening_id = 3 AND seat_id = ?
                 """, Long.class, seatIds.get(0));
         assertNotNull(orderNo);
@@ -196,7 +196,7 @@ class MovieOrderApiIntegrationTest {
         jdbc.update("UPDATE t_movie_order SET expire_time = DATE_SUB(NOW(), INTERVAL 1 MINUTE) WHERE order_no = ?",
                 firstOrderNo);
         jdbc.update("""
-                UPDATE t_screening_seat
+                UPDATE ticket_box_inventory.t_screening_seat
                 SET lock_expire_time = DATE_SUB(NOW(), INTERVAL 1 MINUTE)
                 WHERE screening_id = 5 AND seat_id = ?
                 """, seatIds.get(0));
@@ -210,11 +210,11 @@ class MovieOrderApiIntegrationTest {
         orderCommandService.expireOrder(firstOrderNo);
 
         Long lockOrderNo = jdbc.queryForObject("""
-                SELECT lock_order_no FROM t_screening_seat
+                SELECT lock_order_no FROM ticket_box_inventory.t_screening_seat
                 WHERE screening_id = 5 AND seat_id = ?
                 """, Long.class, seatIds.get(0));
         Integer seatStatus = jdbc.queryForObject("""
-                SELECT status FROM t_screening_seat
+                SELECT status FROM ticket_box_inventory.t_screening_seat
                 WHERE screening_id = 5 AND seat_id = ?
                 """, Integer.class, seatIds.get(0));
         assertEquals(secondOrderNo, lockOrderNo);
@@ -233,7 +233,7 @@ class MovieOrderApiIntegrationTest {
 
         jdbc.update("UPDATE t_movie_order SET expire_time = DATE_SUB(NOW(), INTERVAL 1 MINUTE) WHERE order_no = ?", orderNo);
         jdbc.update("""
-                UPDATE t_screening_seat SET lock_expire_time = DATE_SUB(NOW(), INTERVAL 1 MINUTE)
+                UPDATE ticket_box_inventory.t_screening_seat SET lock_expire_time = DATE_SUB(NOW(), INTERVAL 1 MINUTE)
                 WHERE screening_id = 4 AND seat_id = ?
                 """, seatIds.get(0));
 
@@ -241,7 +241,7 @@ class MovieOrderApiIntegrationTest {
         assertEquals("A200", detail.get("code").asString(), detail.toString());
         assertEquals(2, detail.get("data").get("status").asInt());
         Integer seatStatus = jdbc.queryForObject("""
-                SELECT status FROM t_screening_seat WHERE screening_id = 4 AND seat_id = ?
+                SELECT status FROM ticket_box_inventory.t_screening_seat WHERE screening_id = 4 AND seat_id = ?
                 """, Integer.class, seatIds.get(0));
         assertEquals(0, seatStatus);
     }
@@ -295,7 +295,7 @@ class MovieOrderApiIntegrationTest {
         assertEquals(2, paid.get("data").get("seats").size());
         for (Long seatId : seatIds) {
             assertEquals(2, jdbc.queryForObject(
-                    "SELECT status FROM t_screening_seat WHERE screening_id = 2 AND seat_id = ?",
+                    "SELECT status FROM ticket_box_inventory.t_screening_seat WHERE screening_id = 2 AND seat_id = ?",
                     Integer.class, seatId));
         }
     }
@@ -311,10 +311,10 @@ class MovieOrderApiIntegrationTest {
         assertEquals(2, cancelled.get("data").get("status").asInt());
         for (Long seatId : seatIds) {
             assertEquals(0, jdbc.queryForObject(
-                    "SELECT status FROM t_screening_seat WHERE screening_id = 2 AND seat_id = ?",
+                    "SELECT status FROM ticket_box_inventory.t_screening_seat WHERE screening_id = 2 AND seat_id = ?",
                     Integer.class, seatId));
             assertNull(jdbc.queryForObject(
-                    "SELECT lock_order_no FROM t_screening_seat WHERE screening_id = 2 AND seat_id = ?",
+                    "SELECT lock_order_no FROM ticket_box_inventory.t_screening_seat WHERE screening_id = 2 AND seat_id = ?",
                     Long.class, seatId));
         }
     }
@@ -342,7 +342,7 @@ class MovieOrderApiIntegrationTest {
                 "SELECT status FROM t_movie_order WHERE order_no = ?", Integer.class, orderNo));
         for (Long seatId : seatIds) {
             assertEquals(0, jdbc.queryForObject(
-                    "SELECT status FROM t_screening_seat WHERE screening_id = 2 AND seat_id = ?",
+                    "SELECT status FROM ticket_box_inventory.t_screening_seat WHERE screening_id = 2 AND seat_id = ?",
                     Integer.class, seatId));
         }
     }
@@ -382,7 +382,7 @@ class MovieOrderApiIntegrationTest {
         assertEquals(1, jdbc.queryForObject(
                 "SELECT status FROM t_movie_order WHERE order_no = ?", Integer.class, orderNo));
         assertEquals(2L, jdbc.queryForObject(
-                "SELECT COUNT(*) FROM t_screening_seat WHERE lock_order_no = ? AND status = 2",
+                "SELECT COUNT(*) FROM ticket_box_inventory.t_screening_seat WHERE lock_order_no = ? AND status = 2",
                 Long.class, orderNo));
     }
 
@@ -392,7 +392,7 @@ class MovieOrderApiIntegrationTest {
         List<Long> seatIds = seatIds(2L, 8, 1, 2);
         Long orderNo = createMovieOrder(token, 2, seatIds);
         jdbc.update("""
-                UPDATE t_screening_seat
+                UPDATE ticket_box_inventory.t_screening_seat
                 SET status = 0, lock_order_no = NULL, lock_expire_time = NULL
                 WHERE lock_order_no = ?
                 """, orderNo);
@@ -403,7 +403,7 @@ class MovieOrderApiIntegrationTest {
                 "SELECT status FROM t_movie_order WHERE order_no = ?", Integer.class, orderNo));
         for (Long seatId : seatIds) {
             assertEquals(0, jdbc.queryForObject(
-                    "SELECT status FROM t_screening_seat WHERE screening_id = 2 AND seat_id = ?",
+                    "SELECT status FROM ticket_box_inventory.t_screening_seat WHERE screening_id = 2 AND seat_id = ?",
                     Integer.class, seatId));
         }
     }
@@ -432,7 +432,7 @@ class MovieOrderApiIntegrationTest {
         int orderStatus = jdbc.queryForObject(
                 "SELECT status FROM t_movie_order WHERE order_no = ?", Integer.class, orderNo);
         int seatStatus = jdbc.queryForObject(
-                "SELECT status FROM t_screening_seat WHERE screening_id = 2 AND seat_id = ?",
+                "SELECT status FROM ticket_box_inventory.t_screening_seat WHERE screening_id = 2 AND seat_id = ?",
                 Integer.class, seatIds.get(0));
         if (orderStatus == 1) {
             assertEquals(2, seatStatus);

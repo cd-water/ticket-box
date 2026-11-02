@@ -21,6 +21,4 @@ public interface ShowRepository {
     Optional<ShowTicketType> findTicketType(Long showId, Long ticketTypeId);
 
     Map<Long, BigDecimal> findMinPrices(Collection<Long> showIds);
-
-    Map<String, Long> countAvailableSeatsByZone(Long showId);
 }

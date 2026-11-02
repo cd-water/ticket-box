@@ -3,7 +3,7 @@ package com.cdwater.ticketbox.cinema.application.query.converter;
 import com.cdwater.ticketbox.cinema.application.query.view.ScreeningView;
 import com.cdwater.ticketbox.cinema.application.query.view.SeatView;
 import com.cdwater.ticketbox.cinema.domain.model.ScreeningDetails;
-import com.cdwater.ticketbox.cinema.domain.model.SeatSnapshot;
+import com.cdwater.ticketbox.inventory.api.dto.MovieSeatDTO;
 import com.cdwater.ticketbox.cinema.application.query.view.SeatMapView;
 import com.cdwater.ticketbox.cinema.domain.model.Cinema;
 import com.cdwater.ticketbox.cinema.domain.model.Hall;
@@ -19,7 +19,8 @@ public interface ScreeningViewConverter {
     @Mapping(target = "availableSeats", source = "availableSeats")
     ScreeningView toView(ScreeningDetails details, long availableSeats);
 
-    SeatView toView(SeatSnapshot seat);
+    @Mapping(target = "seatId", source = "id")
+    SeatView toView(MovieSeatDTO seat);
 
 
     @Mapping(target = "screeningId", source = "screening.id")

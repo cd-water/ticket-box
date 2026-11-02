@@ -10,7 +10,9 @@ import com.cdwater.ticketbox.play.domain.repository.PlayOrderRepository;
 import com.cdwater.ticketbox.play.domain.repository.PlayRepository;
 import com.cdwater.ticketbox.common.exception.BizException;
 import com.cdwater.ticketbox.common.result.ResultCode;
+import com.cdwater.ticketbox.inventory.api.PlayStockApi;
 import lombok.RequiredArgsConstructor;
+import org.apache.dubbo.config.annotation.DubboReference;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,18 +29,26 @@ public class PlayOrderCommandService {
     private final PlayOrderExpiryService playOrderExpiryService;
     private final PlayOrderQueryService playOrderQueryService;
 
+    @DubboReference(check = false, timeout = 3000)
+    private PlayStockApi playStockApi;
+
     @Transactional
     public PlayOrderDetailView createOrder(Long userId, CreatePlayOrderCommand command) {
         PlayItem item = playRepository.findById(command.getItemId())
                 .filter(PlayItem::isOnSale)
                 .orElseThrow(() -> new BizException(ResultCode.NOT_FOUND, "玩乐项目不存在或已下架"));
-        if (!playRepository.deductStock(item.getId(), command.getQuantity())) {
+        if (!playStockApi.deduct(item.getId(), command.getQuantity())) {
             throw new BizException(ResultCode.CONFLICT, "余票不足");
         }
 
         PlayOrder order = PlayOrder.place(orderNoGenerator.nextOrderNo(), userId,
                 item, command.getQuantity(), LocalDateTime.now());
-        orderRepository.save(order);
+        try {
+            orderRepository.save(order);
+        } catch (RuntimeException e) {
+            playStockApi.restore(item.getId(), command.getQuantity());
+            throw e;
+        }
 
         return playOrderQueryService.getOrder(userId, order.getOrderNo());
     }
@@ -66,7 +76,7 @@ public class PlayOrderCommandService {
         if (!orderRepository.markCancelled(orderNo)) {
             throw new BizException(ResultCode.CONFLICT, "订单状态已变更");
         }
-        playRepository.restoreStock(order.getItemId(), order.getQuantity());
+        playStockApi.restore(order.getItemId(), order.getQuantity());
         return playOrderQueryService.getOrder(userId, orderNo);
     }
 

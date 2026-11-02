@@ -1,0 +1,32 @@
+server:
+  port: 8804
+
+spring:
+  application:
+    name: order
+  datasource:
+    url: jdbc:mysql://localhost:3306/${MYSQL_DATABASE_ORDER:ticket_box_order}
+    username: root
+    password: ${MYSQL_ROOT_PASSWORD:ticketmysql}
+  flyway:
+    enabled: false
+
+app:
+  snowflake:
+    worker-id: ${SNOWFLAKE_WORKER_ID:1}
+    datacenter-id: ${SNOWFLAKE_DATACENTER_ID:1}
+
+dubbo:
+  application:
+    name: order
+    qos-enable: false
+  registry:
+    address: nacos://${NACOS_ADDR:localhost:8848}
+    username: ${NACOS_USERNAME:nacos}
+    password: ${NACOS_PASSWORD:nacos}
+  protocol:
+    name: dubbo
+    port: 20883
+  consumer:
+    check: false
+    timeout: 3000

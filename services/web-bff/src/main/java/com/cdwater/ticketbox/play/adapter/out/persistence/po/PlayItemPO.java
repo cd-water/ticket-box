@@ -17,7 +17,6 @@ public class PlayItemPO {
     private String address;
     private String description;
     private BigDecimal price;
-    private Integer stock;
     private Integer status;
     private LocalDateTime createTime;
     private LocalDateTime updateTime;

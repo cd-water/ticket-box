@@ -3,8 +3,9 @@ package com.cdwater.ticketbox.play.application.command;
 import com.cdwater.ticketbox.play.domain.model.PlayOrder;
 import com.cdwater.ticketbox.play.domain.model.PlayOrderStatus;
 import com.cdwater.ticketbox.play.domain.repository.PlayOrderRepository;
-import com.cdwater.ticketbox.play.domain.repository.PlayRepository;
+import com.cdwater.ticketbox.inventory.api.PlayStockApi;
 import lombok.RequiredArgsConstructor;
+import org.apache.dubbo.config.annotation.DubboReference;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,7 +15,9 @@ import org.springframework.transaction.annotation.Transactional;
 public class PlayOrderExpiryService {
 
     private final PlayOrderRepository orderRepository;
-    private final PlayRepository playRepository;
+
+    @DubboReference(check = false, timeout = 3000)
+    private PlayStockApi playStockApi;
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void expire(Long orderNo) {
@@ -23,7 +26,7 @@ public class PlayOrderExpiryService {
             return;
         }
         if (orderRepository.markCancelled(orderNo)) {
-            playRepository.restoreStock(order.getItemId(), order.getQuantity());
+            playStockApi.restore(order.getItemId(), order.getQuantity());
         }
     }
 }

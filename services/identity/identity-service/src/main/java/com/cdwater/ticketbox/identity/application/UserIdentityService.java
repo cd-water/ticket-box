@@ -97,7 +97,8 @@ public class UserIdentityService {
             throw new BizException(ResultCode.BAD_REQUEST, "头像不能超过 2MB");
         }
         if (contentType == null || !AVATAR_TYPES.containsKey(contentType)
-                || extension == null || extension.isBlank()) {
+                || extension == null || extension.isBlank()
+                || !isImage(content, contentType)) {
             throw new BizException(ResultCode.BAD_REQUEST, "仅支持 jpg/png/webp 图片");
         }
 
@@ -123,6 +124,25 @@ public class UserIdentityService {
 
     public List<User> findByIds(Collection<Long> ids) {
         return userRepository.findByIds(ids);
+    }
+
+    private boolean isImage(byte[] content, String contentType) {
+        return switch (contentType) {
+            case "image/png" -> content.length >= 8
+                    && (content[0] & 0xFF) == 0x89 && content[1] == 0x50
+                    && content[2] == 0x4E && content[3] == 0x47
+                    && content[4] == 0x0D && content[5] == 0x0A
+                    && content[6] == 0x1A && content[7] == 0x0A;
+            case "image/jpeg" -> content.length >= 3
+                    && (content[0] & 0xFF) == 0xFF && (content[1] & 0xFF) == 0xD8
+                    && (content[2] & 0xFF) == 0xFF;
+            case "image/webp" -> content.length >= 12
+                    && content[0] == 'R' && content[1] == 'I'
+                    && content[2] == 'F' && content[3] == 'F'
+                    && content[8] == 'W' && content[9] == 'E'
+                    && content[10] == 'B' && content[11] == 'P';
+            default -> false;
+        };
     }
 
     private User requireUser(long userId) {

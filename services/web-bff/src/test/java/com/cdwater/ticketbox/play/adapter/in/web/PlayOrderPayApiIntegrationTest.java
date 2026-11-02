@@ -48,7 +48,7 @@ class PlayOrderPayApiIntegrationTest {
         }
         created.clear();
         stockBefore.forEach((itemId, stock) ->
-                jdbc.update("UPDATE t_play_item SET stock = ? WHERE id = ?", stock, itemId));
+                jdbc.update("UPDATE ticket_box_inventory.t_play_stock SET stock = ? WHERE item_id = ?", stock, itemId));
         stockBefore.clear();
     }
 
@@ -70,7 +70,7 @@ class PlayOrderPayApiIntegrationTest {
     }
 
     private int stock(long itemId) {
-        return jdbc.queryForObject("SELECT stock FROM t_play_item WHERE id = ?", Integer.class, itemId);
+        return jdbc.queryForObject("SELECT stock FROM ticket_box_inventory.t_play_stock WHERE item_id = ?", Integer.class, itemId);
     }
 
     private Long create(String token, long itemId, int quantity) {
@@ -147,7 +147,7 @@ class PlayOrderPayApiIntegrationTest {
         String token = token();
         int original = stock(6);
         stockBefore.put(6L, original);
-        jdbc.update("UPDATE t_play_item SET stock = 1 WHERE id = 6");
+        jdbc.update("UPDATE ticket_box_inventory.t_play_stock SET stock = 1 WHERE item_id = 6");
 
         ExecutorService pool = Executors.newFixedThreadPool(2);
         try {

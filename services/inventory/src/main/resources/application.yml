@@ -1,6 +1,0 @@
-server:
-  port: 8803
-
-spring:
-  application:
-    name: inventory

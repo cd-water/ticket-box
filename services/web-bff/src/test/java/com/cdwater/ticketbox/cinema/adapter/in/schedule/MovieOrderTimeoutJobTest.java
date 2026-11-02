@@ -25,7 +25,7 @@ class MovieOrderTimeoutJobTest {
     void cleanUp() {
         if (orderNo != null) {
             jdbc.update("""
-                    UPDATE t_screening_seat
+                    UPDATE ticket_box_inventory.t_screening_seat
                     SET status = 0, lock_order_no = NULL, lock_expire_time = NULL
                     WHERE lock_order_no = ?
                     """, orderNo);
@@ -37,7 +37,7 @@ class MovieOrderTimeoutJobTest {
     @Test
     void expired_order_is_timed_out_and_seats_released() {
         Long seatId = jdbc.queryForObject("""
-                SELECT id FROM t_seat WHERE hall_id = 5 AND row_num = 1 AND col_num = 1
+                SELECT id FROM ticket_box_inventory.t_seat WHERE hall_id = 5 AND row_num = 1 AND col_num = 1
                 """, Long.class);
         jdbc.update("""
                 INSERT INTO t_movie_order (order_no, user_id, screening_id, movie_title, cinema_name,
@@ -52,7 +52,7 @@ class MovieOrderTimeoutJobTest {
                 VALUES (?, ?, 1, 1, 42.90)
                 """, orderNo, seatId);
         jdbc.update("""
-                UPDATE t_screening_seat
+                UPDATE ticket_box_inventory.t_screening_seat
                 SET status = 1, lock_order_no = ?, lock_expire_time = DATE_SUB(NOW(), INTERVAL 1 MINUTE)
                 WHERE screening_id = 5 AND seat_id = ?
                 """, orderNo, seatId);
@@ -61,7 +61,7 @@ class MovieOrderTimeoutJobTest {
 
         assertEquals(2, jdbc.queryForObject("SELECT status FROM t_movie_order WHERE order_no = ?", Integer.class, orderNo));
         assertEquals(0, jdbc.queryForObject(
-                "SELECT status FROM t_screening_seat WHERE screening_id = 5 AND seat_id = ?",
+                "SELECT status FROM ticket_box_inventory.t_screening_seat WHERE screening_id = 5 AND seat_id = ?",
                 Integer.class, seatId));
     }
 }

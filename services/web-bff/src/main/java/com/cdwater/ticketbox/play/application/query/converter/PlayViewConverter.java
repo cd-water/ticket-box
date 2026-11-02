@@ -10,8 +10,10 @@ import org.mapstruct.ReportingPolicy;
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.ERROR)
 public interface PlayViewConverter {
 
+    @Mapping(target = "stock", ignore = true)
     PlayListItemView toListItemView(PlayItem item);
 
     @Mapping(target = "description", ignore = true)
+    @Mapping(target = "stock", ignore = true)
     PlayDetailView toDetailView(PlayItem item);
 }

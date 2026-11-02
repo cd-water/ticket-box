@@ -25,4 +25,6 @@ public interface MovieOrderRepository {
     boolean markCancelled(Long orderNo);
 
     boolean markPaid(Long orderNo, LocalDateTime payTime);
+
+    boolean markPending(Long orderNo);
 }

@@ -9,12 +9,13 @@ import com.cdwater.ticketbox.show.domain.model.Show;
 import com.cdwater.ticketbox.show.domain.model.ShowOrder;
 import com.cdwater.ticketbox.show.domain.model.ShowOrderSeat;
 import com.cdwater.ticketbox.show.domain.model.ShowOrderStatus;
-import com.cdwater.ticketbox.show.domain.model.ShowSeat;
 import com.cdwater.ticketbox.show.domain.model.ShowTicketType;
 import com.cdwater.ticketbox.show.domain.repository.ShowOrderRepository;
 import com.cdwater.ticketbox.show.domain.repository.ShowRepository;
-import com.cdwater.ticketbox.show.domain.repository.ShowSeatInventoryRepository;
+import com.cdwater.ticketbox.inventory.api.ShowSeatInventoryApi;
+import com.cdwater.ticketbox.inventory.api.dto.ShowSeatSnapshotDTO;
 import lombok.RequiredArgsConstructor;
+import org.apache.dubbo.config.annotation.DubboReference;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,10 +29,12 @@ public class ShowOrderCommandService {
 
     private final ShowRepository showRepository;
     private final ShowOrderRepository orderRepository;
-    private final ShowSeatInventoryRepository seatInventoryRepository;
     private final ShowOrderNoGenerator orderNoGenerator;
     private final ShowOrderExpiryService expiryService;
     private final ShowOrderQueryService showOrderQueryService;
+
+    @DubboReference(check = false, timeout = 3000)
+    private ShowSeatInventoryApi showSeatInventoryApi;
 
     @Transactional
     public ShowOrderDetailView createOrder(Long userId, CreateShowOrderCommand command) {
@@ -43,7 +46,7 @@ public class ShowOrderCommandService {
                 .findTicketType(show.getId(), command.getTicketTypeId())
                 .orElseThrow(() -> new BizException(ResultCode.NOT_FOUND, "票档不存在或已停售"));
 
-        long available = showRepository.countAvailableSeatsByZone(show.getId())
+        long available = showSeatInventoryApi.countAvailable(show.getId())
                 .getOrDefault(ticketType.getZone(), 0L);
         if (available < command.getQuantity()) {
             throw new BizException(ResultCode.CONFLICT, "该区域余票不足");
@@ -68,26 +71,29 @@ public class ShowOrderCommandService {
             expiryService.expire(orderNo);
             throw new BizException(ResultCode.CONFLICT, "订单已关闭");
         }
+        List<ShowSeatSnapshotDTO> picked = showSeatInventoryApi.sell(
+                order.getShowId(), order.getZone(), order.getQuantity(), orderNo);
+        try {
+            orderRepository.saveSeats(picked.stream().map(seat -> {
+                ShowOrderSeat orderSeat = new ShowOrderSeat();
+                orderSeat.setOrderNo(orderNo);
+                orderSeat.setSeatId(seat.getId());
+                orderSeat.setZone(seat.getZone());
+                orderSeat.setSeatNo(seat.getSeatNo());
+                orderSeat.setPrice(order.getUnitPrice());
+                return orderSeat;
+            }).toList());
+        } catch (RuntimeException e) {
+            showSeatInventoryApi.rollbackSale(orderNo);
+            throw e;
+        }
         if (!orderRepository.markPaid(orderNo, now)) {
+            ShowOrder current = orderRepository.findByOrderNo(orderNo).orElseThrow();
+            if (current.isPending()) {
+                showSeatInventoryApi.rollbackSale(orderNo);
+            }
             throw new BizException(ResultCode.CONFLICT, "订单状态已变更");
         }
-
-        List<ShowSeat> seats = seatInventoryRepository.lockAvailableSeats(order.getShowId(), order.getZone());
-        if (seats.size() < order.getQuantity()) {
-            throw new BizException(ResultCode.CONFLICT, "该区域余票不足");
-        }
-        List<ShowSeat> picked = SeatPicker.pick(seats, order.getQuantity());
-        seatInventoryRepository.markSold(
-                picked.stream().map(ShowSeat::getId).toList(), orderNo);
-        orderRepository.saveSeats(picked.stream().map(seat -> {
-            ShowOrderSeat orderSeat = new ShowOrderSeat();
-            orderSeat.setOrderNo(orderNo);
-            orderSeat.setSeatId(seat.getId());
-            orderSeat.setZone(seat.getZone());
-            orderSeat.setSeatNo(seat.getSeatNo());
-            orderSeat.setPrice(order.getUnitPrice());
-            return orderSeat;
-        }).toList());
 
         return showOrderQueryService.getOrder(userId, orderNo);
     }

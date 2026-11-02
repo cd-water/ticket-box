@@ -17,4 +17,10 @@ public interface MovieOrderMapper extends BaseMapper<MovieOrderPO> {
             WHERE order_no = #{orderNo} AND status = 0 AND expire_time > #{payTime}
             """)
     int markPaid(@Param("orderNo") Long orderNo, @Param("payTime") java.time.LocalDateTime payTime);
+
+    @Update("""
+            UPDATE t_movie_order SET status = 0, pay_time = NULL
+            WHERE order_no = #{orderNo} AND status = 1
+            """)
+    int markPending(@Param("orderNo") Long orderNo);
 }

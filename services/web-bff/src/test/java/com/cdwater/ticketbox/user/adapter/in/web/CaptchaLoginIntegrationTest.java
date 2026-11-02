@@ -49,7 +49,7 @@ class CaptchaLoginIntegrationTest {
     void setUp() {
         client = RestClient.builder().baseUrl("http://localhost:" + port).build();
         redis.delete("captcha:user:" + NEW_PHONE);
-        jdbc.update("DELETE FROM t_user WHERE phone = ?", NEW_PHONE);
+        jdbc.update("DELETE FROM ticket_box_identity.t_user WHERE phone = ?", NEW_PHONE);
     }
 
     private JsonNode post(String url, Map<String, String> body) {
@@ -101,7 +101,7 @@ class CaptchaLoginIntegrationTest {
         assertFalse(node.get("data").get("tokenValue").asString().isEmpty());
 
         Map<String, Object> user = jdbc.queryForMap(
-                "SELECT phone, password, nickname, status FROM t_user WHERE phone = ?",
+                "SELECT phone, password, nickname, status FROM ticket_box_identity.t_user WHERE phone = ?",
                 NEW_PHONE);
         assertNull(user.get("password"));
         assertEquals(1, ((Number) user.get("status")).intValue());
@@ -123,7 +123,7 @@ class CaptchaLoginIntegrationTest {
     @Test
     void login_by_code_captcha_atomic_consume() throws Exception {
         jdbc.update("""
-                INSERT INTO t_user (phone, nickname, avatar, status)
+                INSERT INTO ticket_box_identity.t_user (phone, nickname, avatar, status)
                 VALUES (?, 'user_aaa000', '', 1)
                 """, NEW_PHONE);
 

@@ -146,13 +146,13 @@ class UserAuthIntegrationTest {
 
     @Test
     void login_by_pwd_disabled_user_forbidden() {
-        jdbc.update("UPDATE t_user SET status = 0 WHERE phone = ?", USER1_PHONE);
+        jdbc.update("UPDATE ticket_box_identity.t_user SET status = 0 WHERE phone = ?", USER1_PHONE);
         try {
             JsonNode node = post("/api/user/login/by-pwd",
                     Map.of("phone", USER1_PHONE, "password", PASSWORD));
             assertEquals("C403", node.get("code").asString());
         } finally {
-            jdbc.update("UPDATE t_user SET status = 1 WHERE phone = ?", USER1_PHONE);
+            jdbc.update("UPDATE ticket_box_identity.t_user SET status = 1 WHERE phone = ?", USER1_PHONE);
         }
     }
 

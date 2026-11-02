@@ -11,11 +11,11 @@ import com.cdwater.ticketbox.cinema.application.query.view.MovieOrderDetailView;
 import com.cdwater.ticketbox.cinema.domain.model.MovieOrder;
 import com.cdwater.ticketbox.cinema.domain.model.MovieOrderSeat;
 import com.cdwater.ticketbox.cinema.domain.model.Screening;
-import com.cdwater.ticketbox.cinema.domain.model.SeatSnapshot;
 import com.cdwater.ticketbox.cinema.domain.repository.MovieOrderRepository;
 import com.cdwater.ticketbox.cinema.domain.repository.ScreeningRepository;
 import com.cdwater.ticketbox.common.exception.BizException;
 import com.cdwater.ticketbox.common.result.ResultCode;
+import com.cdwater.ticketbox.inventory.api.dto.MovieSeatSnapshotDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -62,16 +62,22 @@ public class MovieOrderCommandService {
             throw new BizException(ResultCode.NOT_FOUND, "电影不存在或已下架");
         }
 
-        MovieOrder order = MovieOrder.place(orderNoGenerator.nextOrderNo(), userId,
+        long orderNo = orderNoGenerator.nextOrderNo();
+        MovieOrder order = MovieOrder.place(orderNo, userId,
                 info.getScreeningId(), movie.getTitle(), info.getCinemaName(), info.getHallName(),
                 info.getStartTime(), info.getEndTime(), info.getPrice(), seatIds.size(), now);
-        orderRepository.save(order);
 
-        List<SeatSnapshot> snapshots = seatInventoryService.lockSeats(
-                info.getScreeningId(), seatIds, order.getOrderNo(), order.getExpireTime());
-        orderRepository.saveSeats(MovieOrder.seatsOf(order.getOrderNo(), snapshots, info.getPrice()));
+        List<MovieSeatSnapshotDTO> snapshots = seatInventoryService.lockSeats(
+                info.getScreeningId(), seatIds, orderNo, order.getExpireTime());
+        try {
+            orderRepository.save(order);
+            orderRepository.saveSeats(MovieOrder.seatsOf(orderNo, snapshots, info.getPrice()));
+        } catch (RuntimeException e) {
+            seatInventoryService.releaseByOrder(orderNo);
+            throw e;
+        }
 
-        return orderQueryService.getOrder(userId, order.getOrderNo());
+        return orderQueryService.getOrder(userId, orderNo);
     }
 
     @Transactional
@@ -89,7 +95,16 @@ public class MovieOrderCommandService {
             throw new BizException(ResultCode.CONFLICT, "订单状态已变更");
         }
         List<MovieOrderSeat> seats = orderRepository.findSeatsByOrderNo(orderNo);
-        if (seatInventoryService.markSoldByOrder(orderNo) != seats.size()) {
+        int sold;
+        try {
+            sold = seatInventoryService.markSoldByOrder(orderNo);
+        } catch (RuntimeException e) {
+            orderRepository.markPending(orderNo);
+            throw e;
+        }
+        if (sold != seats.size()) {
+            seatInventoryService.rollbackSale(orderNo);
+            orderRepository.markPending(orderNo);
             throw new BizException(ResultCode.CONFLICT, "座位已释放，请重新下单");
         }
         return orderQueryService.getOrder(userId, orderNo);

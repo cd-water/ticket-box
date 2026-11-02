@@ -2,7 +2,6 @@ package com.cdwater.ticketbox.cinema.adapter.out.persistence;
 
 import com.cdwater.ticketbox.cinema.adapter.out.persistence.mapper.ScreeningMapper;
 import com.cdwater.ticketbox.cinema.adapter.out.persistence.converter.ScreeningProjectionConverter;
-import com.cdwater.ticketbox.cinema.adapter.out.persistence.projection.SeatInventoryCountRow;
 import com.cdwater.ticketbox.cinema.adapter.out.persistence.converter.ScreeningConverter;
 import com.cdwater.ticketbox.cinema.adapter.out.persistence.po.ScreeningPO;
 import com.cdwater.ticketbox.cinema.domain.model.Screening;
@@ -40,15 +39,5 @@ public class ScreeningRepositoryImpl implements ScreeningRepository {
     @Override
     public Optional<Screening> findById(Long id) {
         return Optional.ofNullable(screeningMapper.selectById(id)).map(screeningConverter::toDomain);
-    }
-
-    @Override
-    public Map<Long, Long> countAvailableSeats(Collection<Long> screeningIds) {
-        if (screeningIds == null || screeningIds.isEmpty()) {
-            return Map.of();
-        }
-        return screeningMapper.selectAvailableCounts(screeningIds).stream()
-                .collect(Collectors.toMap(SeatInventoryCountRow::getScreeningId,
-                        SeatInventoryCountRow::getAvailableCount));
     }
 }
