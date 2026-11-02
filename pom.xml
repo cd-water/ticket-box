@@ -27,13 +27,29 @@
         <sa-token.version>1.46.0</sa-token.version>
         <mybatis-plus.version>3.5.17</mybatis-plus.version>
         <aws-sdk.version>2.55.0</aws-sdk.version>
+        <dubbo.version>3.3.0</dubbo.version>
     </properties>
 
     <dependencyManagement>
         <dependencies>
             <dependency>
+                <groupId>org.apache.dubbo</groupId>
+                <artifactId>dubbo-spring-boot-starter</artifactId>
+                <version>${dubbo.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.dubbo</groupId>
+                <artifactId>dubbo-nacos-spring-boot-starter</artifactId>
+                <version>${dubbo.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>com.cdwater</groupId>
                 <artifactId>common</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.cdwater</groupId>
+                <artifactId>identity-api</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

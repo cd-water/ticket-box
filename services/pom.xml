@@ -14,7 +14,7 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>api-gateway</module>
+        <module>web-bff</module>
         <module>identity</module>
         <module>content</module>
         <module>inventory</module>
