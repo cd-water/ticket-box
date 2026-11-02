@@ -18,6 +18,12 @@ public interface ShowOrderMapper extends BaseMapper<ShowOrderPO> {
             """)
     int markPaid(@Param("orderNo") Long orderNo, @Param("payTime") LocalDateTime payTime);
 
+    @Update("""
+            UPDATE t_show_order SET status = 0, pay_time = NULL
+            WHERE order_no = #{orderNo} AND status = 1
+            """)
+    int markPending(@Param("orderNo") Long orderNo);
+
     @Update("UPDATE t_show_order SET status = 2 WHERE order_no = #{orderNo} AND status = 0")
     int markCancelled(@Param("orderNo") Long orderNo);
 }

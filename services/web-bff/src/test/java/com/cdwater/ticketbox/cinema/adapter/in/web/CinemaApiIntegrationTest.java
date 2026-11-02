@@ -129,9 +129,9 @@ class CinemaApiIntegrationTest {
     @Test
     void cinema_detail_excludes_off_shelf_canceled_and_past() {
         String token = token();
-        jdbc.update("DELETE FROM t_screening WHERE id IN (9001, 9002, 9003)");
+        jdbc.update("DELETE FROM ticket_box_content.t_screening WHERE id IN (9001, 9002, 9003)");
         jdbc.update("""
-                INSERT INTO t_screening
+                INSERT INTO ticket_box_content.t_screening
                     (id, cinema_id, hall_id, movie_id, start_time, end_time, price, status)
                 VALUES
                     (9001, 1, 1, 5, DATE_ADD(NOW(), INTERVAL 1 HOUR),
@@ -150,7 +150,7 @@ class CinemaApiIntegrationTest {
             assertFalse(movies.contains("云端之城"));
             assertFalse(movies.contains("逆风飞翔"));
         } finally {
-            jdbc.update("DELETE FROM t_screening WHERE id IN (9001, 9002, 9003)");
+            jdbc.update("DELETE FROM ticket_box_content.t_screening WHERE id IN (9001, 9002, 9003)");
         }
     }
 

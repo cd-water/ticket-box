@@ -52,6 +52,11 @@ public class PlayOrderRepositoryImpl implements PlayOrderRepository {
     }
 
     @Override
+    public boolean markPending(Long orderNo) {
+        return playOrderMapper.markPending(orderNo) == 1;
+    }
+
+    @Override
     public boolean markCancelled(Long orderNo) {
         return playOrderMapper.markCancelled(orderNo) == 1;
     }

@@ -1,5 +1,6 @@
 package com.cdwater.ticketbox.show.domain.model;
 
+import com.cdwater.ticketbox.content.api.dto.ShowBookingDTO;
 import lombok.Data;
 
 import java.math.BigDecimal;
@@ -44,24 +45,22 @@ public class ShowOrder {
     }
 
     /** 创建演出订单：单票档 + 数量，5 分钟支付窗口。 */
-    public static ShowOrder place(Long orderNo, Long userId, Long showId,
-                                  String showTitle, String venueName, String venueAddress,
-                                  LocalDateTime startTime, ShowTicketType ticketType,
+    public static ShowOrder place(Long orderNo, Long userId, ShowBookingDTO booking,
                                   int quantity, LocalDateTime now) {
         ShowOrder order = new ShowOrder();
         order.setOrderNo(orderNo);
         order.setUserId(userId);
-        order.setShowId(showId);
-        order.setShowTitle(showTitle);
-        order.setVenueName(venueName);
-        order.setVenueAddress(venueAddress);
-        order.setStartTime(startTime);
-        order.setTicketTypeId(ticketType.getId());
-        order.setTicketTypeName(ticketType.getName());
-        order.setZone(ticketType.getZone());
-        order.setUnitPrice(ticketType.getPrice());
+        order.setShowId(booking.getShowId());
+        order.setShowTitle(booking.getTitle());
+        order.setVenueName(booking.getVenueName());
+        order.setVenueAddress(booking.getVenueAddress());
+        order.setStartTime(booking.getStartTime());
+        order.setTicketTypeId(booking.getTicketTypeId());
+        order.setTicketTypeName(booking.getTicketTypeName());
+        order.setZone(booking.getZone());
+        order.setUnitPrice(booking.getPrice());
         order.setQuantity(quantity);
-        order.setTotalAmount(ticketType.getPrice().multiply(BigDecimal.valueOf(quantity)));
+        order.setTotalAmount(booking.getPrice().multiply(BigDecimal.valueOf(quantity)));
         order.setStatus(ShowOrderStatus.PENDING.getCode());
         order.setExpireTime(now.plus(PAYMENT_TTL));
         return order;

@@ -5,15 +5,16 @@ import com.cdwater.ticketbox.common.result.ResultCode;
 import com.cdwater.ticketbox.show.application.port.ShowOrderNoGenerator;
 import com.cdwater.ticketbox.show.application.query.ShowOrderQueryService;
 import com.cdwater.ticketbox.show.application.query.view.ShowOrderDetailView;
-import com.cdwater.ticketbox.show.domain.model.Show;
 import com.cdwater.ticketbox.show.domain.model.ShowOrder;
 import com.cdwater.ticketbox.show.domain.model.ShowOrderSeat;
 import com.cdwater.ticketbox.show.domain.model.ShowOrderStatus;
-import com.cdwater.ticketbox.show.domain.model.ShowTicketType;
 import com.cdwater.ticketbox.show.domain.repository.ShowOrderRepository;
-import com.cdwater.ticketbox.show.domain.repository.ShowRepository;
+import com.cdwater.ticketbox.content.api.ContentCatalogApi;
+import com.cdwater.ticketbox.content.api.dto.ShowBookingDTO;
 import com.cdwater.ticketbox.inventory.api.ShowSeatInventoryApi;
 import com.cdwater.ticketbox.inventory.api.dto.ShowSeatSnapshotDTO;
+import com.cdwater.ticketbox.payment.api.PaymentApi;
+import com.cdwater.ticketbox.payment.api.dto.PaymentDTO;
 import lombok.RequiredArgsConstructor;
 import org.apache.dubbo.config.annotation.DubboReference;
 import org.springframework.stereotype.Service;
@@ -27,34 +28,34 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ShowOrderCommandService {
 
-    private final ShowRepository showRepository;
     private final ShowOrderRepository orderRepository;
     private final ShowOrderNoGenerator orderNoGenerator;
     private final ShowOrderExpiryService expiryService;
     private final ShowOrderQueryService showOrderQueryService;
 
     @DubboReference(check = false, timeout = 3000)
+    private ContentCatalogApi contentCatalogApi;
+
+    @DubboReference(check = false, timeout = 3000)
     private ShowSeatInventoryApi showSeatInventoryApi;
+
+    @DubboReference(check = false, timeout = 3000)
+    private PaymentApi paymentApi;
 
     @Transactional
     public ShowOrderDetailView createOrder(Long userId, CreateShowOrderCommand command) {
         LocalDateTime now = LocalDateTime.now();
-        Show show = showRepository.findById(command.getShowId())
-                .filter(s -> s.isUpcoming(now))
-                .orElseThrow(() -> new BizException(ResultCode.NOT_FOUND, "演出不存在或已开演"));
-        ShowTicketType ticketType = showRepository
-                .findTicketType(show.getId(), command.getTicketTypeId())
-                .orElseThrow(() -> new BizException(ResultCode.NOT_FOUND, "票档不存在或已停售"));
+        ShowBookingDTO booking = contentCatalogApi.getShowBooking(
+                command.getShowId(), command.getTicketTypeId());
 
-        long available = showSeatInventoryApi.countAvailable(show.getId())
-                .getOrDefault(ticketType.getZone(), 0L);
+        long available = showSeatInventoryApi.countAvailable(booking.getShowId())
+                .getOrDefault(booking.getZone(), 0L);
         if (available < command.getQuantity()) {
             throw new BizException(ResultCode.CONFLICT, "该区域余票不足");
         }
 
         ShowOrder order = ShowOrder.place(orderNoGenerator.nextOrderNo(), userId,
-                show.getId(), show.getTitle(), show.getVenueName(), show.getVenueAddress(),
-                show.getStartTime(), ticketType, command.getQuantity(), now);
+                booking, command.getQuantity(), now);
         orderRepository.save(order);
 
         return showOrderQueryService.getOrder(userId, order.getOrderNo());
@@ -71,9 +72,19 @@ public class ShowOrderCommandService {
             expiryService.expire(orderNo);
             throw new BizException(ResultCode.CONFLICT, "订单已关闭");
         }
-        List<ShowSeatSnapshotDTO> picked = showSeatInventoryApi.sell(
-                order.getShowId(), order.getZone(), order.getQuantity(), orderNo);
+        if (!orderRepository.markPaid(orderNo, now)) {
+            throw new BizException(ResultCode.CONFLICT, "订单状态已变更");
+        }
+        PaymentDTO payment;
         try {
+            payment = paymentApi.create(orderNo, order.getTotalAmount(), "MOCK");
+        } catch (RuntimeException e) {
+            orderRepository.markPending(orderNo);
+            throw e;
+        }
+        try {
+            List<ShowSeatSnapshotDTO> picked = showSeatInventoryApi.sell(
+                    order.getShowId(), order.getZone(), order.getQuantity(), orderNo);
             orderRepository.saveSeats(picked.stream().map(seat -> {
                 ShowOrderSeat orderSeat = new ShowOrderSeat();
                 orderSeat.setOrderNo(orderNo);
@@ -85,14 +96,9 @@ public class ShowOrderCommandService {
             }).toList());
         } catch (RuntimeException e) {
             showSeatInventoryApi.rollbackSale(orderNo);
+            orderRepository.markPending(orderNo);
+            paymentApi.close(payment.getPaymentNo());
             throw e;
-        }
-        if (!orderRepository.markPaid(orderNo, now)) {
-            ShowOrder current = orderRepository.findByOrderNo(orderNo).orElseThrow();
-            if (current.isPending()) {
-                showSeatInventoryApi.rollbackSale(orderNo);
-            }
-            throw new BizException(ResultCode.CONFLICT, "订单状态已变更");
         }
 
         return showOrderQueryService.getOrder(userId, orderNo);

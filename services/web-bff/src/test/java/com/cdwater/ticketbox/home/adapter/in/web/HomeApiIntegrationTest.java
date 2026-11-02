@@ -35,17 +35,17 @@ class HomeApiIntegrationTest {
     @BeforeEach
     void setUp() {
         client = RestClient.builder().baseUrl("http://localhost:" + port).build();
-        jdbc.query("SELECT id, start_time FROM t_show", rs -> {
+        jdbc.query("SELECT id, start_time FROM ticket_box_content.t_show", rs -> {
             originalShowTimes.put(rs.getLong("id"),
                     rs.getTimestamp("start_time").toLocalDateTime());
         });
-        jdbc.update("UPDATE t_show SET start_time = DATE_ADD(NOW(), INTERVAL id DAY)");
+        jdbc.update("UPDATE ticket_box_content.t_show SET start_time = DATE_ADD(NOW(), INTERVAL id DAY)");
     }
 
     @AfterEach
     void restoreShowTimes() {
         originalShowTimes.forEach((id, time) ->
-                jdbc.update("UPDATE t_show SET start_time = ? WHERE id = ?", time, id));
+                jdbc.update("UPDATE ticket_box_content.t_show SET start_time = ? WHERE id = ?", time, id));
         originalShowTimes.clear();
     }
 
@@ -113,15 +113,15 @@ class HomeApiIntegrationTest {
     @Test
     void empty_module_does_not_break_home() {
         List<Long> enabled = jdbc.queryForList(
-                "SELECT id FROM t_play_item WHERE status = 1", Long.class);
-        enabled.forEach(id -> jdbc.update("UPDATE t_play_item SET status = 0 WHERE id = ?", id));
+                "SELECT id FROM ticket_box_content.t_play_item WHERE status = 1", Long.class);
+        enabled.forEach(id -> jdbc.update("UPDATE ticket_box_content.t_play_item SET status = 0 WHERE id = ?", id));
         try {
             JsonNode node = get("/api/home");
             assertEquals("A200", node.get("code").asString(), node.toString());
             assertEquals(0, node.get("data").get("plays").size());
             assertEquals(8, node.get("data").get("movies").size());
         } finally {
-            enabled.forEach(id -> jdbc.update("UPDATE t_play_item SET status = 1 WHERE id = ?", id));
+            enabled.forEach(id -> jdbc.update("UPDATE ticket_box_content.t_play_item SET status = 1 WHERE id = ?", id));
         }
     }
 

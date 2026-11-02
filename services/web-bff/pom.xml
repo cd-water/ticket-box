@@ -23,7 +23,15 @@
         </dependency>
         <dependency>
             <groupId>com.cdwater</groupId>
+            <artifactId>content-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.cdwater</groupId>
             <artifactId>inventory-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.cdwater</groupId>
+            <artifactId>payment-api</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.dubbo</groupId>

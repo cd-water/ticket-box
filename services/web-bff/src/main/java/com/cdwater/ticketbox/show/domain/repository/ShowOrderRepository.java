@@ -22,6 +22,8 @@ public interface ShowOrderRepository {
 
     boolean markPaid(Long orderNo, LocalDateTime payTime);
 
+    boolean markPending(Long orderNo);
+
     boolean markCancelled(Long orderNo);
 
     List<ShowOrder> findExpiredPending(LocalDateTime now, int limit);

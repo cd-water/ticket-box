@@ -2,12 +2,13 @@ package com.cdwater.ticketbox.show.adapter.in.web;
 
 import com.cdwater.ticketbox.common.result.PageResult;
 import com.cdwater.ticketbox.common.result.Result;
-import com.cdwater.ticketbox.show.application.query.ShowListQuery;
-import com.cdwater.ticketbox.show.application.query.ShowQueryService;
-import com.cdwater.ticketbox.show.application.query.view.ShowDetailView;
-import com.cdwater.ticketbox.show.application.query.view.ShowListItemView;
+import com.cdwater.ticketbox.content.api.ShowQueryApi;
+import com.cdwater.ticketbox.content.api.dto.ShowDetailDTO;
+import com.cdwater.ticketbox.content.api.dto.ShowListItemDTO;
+import com.cdwater.ticketbox.content.api.dto.ShowListQueryDTO;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.apache.dubbo.config.annotation.DubboReference;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,15 +19,16 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class ShowController {
 
-    private final ShowQueryService showQueryService;
+    @DubboReference(check = false, timeout = 3000)
+    private ShowQueryApi showQueryApi;
 
     @GetMapping
-    public Result<PageResult<ShowListItemView>> list(@Valid ShowListQuery query) {
-        return Result.success(showQueryService.list(query));
+    public Result<PageResult<ShowListItemDTO>> list(@Valid ShowListQueryDTO query) {
+        return Result.success(showQueryApi.list(query));
     }
 
     @GetMapping("/{id}")
-    public Result<ShowDetailView> detail(@PathVariable Long id) {
-        return Result.success(showQueryService.detail(id));
+    public Result<ShowDetailDTO> detail(@PathVariable Long id) {
+        return Result.success(showQueryApi.detail(id));
     }
 }

@@ -17,6 +17,12 @@ public interface PlayOrderMapper extends BaseMapper<PlayOrderPO> {
             """)
     int markPaid(@Param("orderNo") Long orderNo, @Param("payTime") LocalDateTime payTime);
 
+    @Update("""
+            UPDATE t_play_order SET status = 0, pay_time = NULL
+            WHERE order_no = #{orderNo} AND status = 1
+            """)
+    int markPending(@Param("orderNo") Long orderNo);
+
     @Update("UPDATE t_play_order SET status = 2 WHERE order_no = #{orderNo} AND status = 0")
     int markCancelled(@Param("orderNo") Long orderNo);
 }

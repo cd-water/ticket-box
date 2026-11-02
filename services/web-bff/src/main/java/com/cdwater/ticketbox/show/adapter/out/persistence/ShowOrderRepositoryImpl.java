@@ -70,6 +70,11 @@ public class ShowOrderRepositoryImpl implements ShowOrderRepository {
     }
 
     @Override
+    public boolean markPending(Long orderNo) {
+        return orderMapper.markPending(orderNo) == 1;
+    }
+
+    @Override
     public boolean markCancelled(Long orderNo) {
         return orderMapper.markCancelled(orderNo) == 1;
     }

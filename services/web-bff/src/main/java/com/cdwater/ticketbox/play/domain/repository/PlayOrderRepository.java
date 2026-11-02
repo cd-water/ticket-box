@@ -17,6 +17,8 @@ public interface PlayOrderRepository {
 
     boolean markPaid(Long orderNo, LocalDateTime payTime);
 
+    boolean markPending(Long orderNo);
+
     boolean markCancelled(Long orderNo);
 
     List<PlayOrder> findExpiredPending(LocalDateTime now, int limit);

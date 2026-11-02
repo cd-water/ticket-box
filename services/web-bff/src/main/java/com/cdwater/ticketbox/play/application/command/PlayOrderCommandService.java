@@ -3,14 +3,15 @@ package com.cdwater.ticketbox.play.application.command;
 import com.cdwater.ticketbox.play.application.port.PlayOrderNoGenerator;
 import com.cdwater.ticketbox.play.application.query.PlayOrderQueryService;
 import com.cdwater.ticketbox.play.application.query.view.PlayOrderDetailView;
-import com.cdwater.ticketbox.play.domain.model.PlayItem;
 import com.cdwater.ticketbox.play.domain.model.PlayOrder;
 import com.cdwater.ticketbox.play.domain.model.PlayOrderStatus;
 import com.cdwater.ticketbox.play.domain.repository.PlayOrderRepository;
-import com.cdwater.ticketbox.play.domain.repository.PlayRepository;
 import com.cdwater.ticketbox.common.exception.BizException;
 import com.cdwater.ticketbox.common.result.ResultCode;
+import com.cdwater.ticketbox.content.api.ContentCatalogApi;
+import com.cdwater.ticketbox.content.api.dto.PlayItemDTO;
 import com.cdwater.ticketbox.inventory.api.PlayStockApi;
+import com.cdwater.ticketbox.payment.api.PaymentApi;
 import lombok.RequiredArgsConstructor;
 import org.apache.dubbo.config.annotation.DubboReference;
 import org.springframework.stereotype.Service;
@@ -23,20 +24,23 @@ import java.time.LocalDateTime;
 @RequiredArgsConstructor
 public class PlayOrderCommandService {
 
-    private final PlayRepository playRepository;
     private final PlayOrderRepository orderRepository;
     private final PlayOrderNoGenerator orderNoGenerator;
     private final PlayOrderExpiryService playOrderExpiryService;
     private final PlayOrderQueryService playOrderQueryService;
 
     @DubboReference(check = false, timeout = 3000)
+    private ContentCatalogApi contentCatalogApi;
+
+    @DubboReference(check = false, timeout = 3000)
     private PlayStockApi playStockApi;
+
+    @DubboReference(check = false, timeout = 3000)
+    private PaymentApi paymentApi;
 
     @Transactional
     public PlayOrderDetailView createOrder(Long userId, CreatePlayOrderCommand command) {
-        PlayItem item = playRepository.findById(command.getItemId())
-                .filter(PlayItem::isOnSale)
-                .orElseThrow(() -> new BizException(ResultCode.NOT_FOUND, "玩乐项目不存在或已下架"));
+        PlayItemDTO item = contentCatalogApi.getPlayItem(command.getItemId());
         if (!playStockApi.deduct(item.getId(), command.getQuantity())) {
             throw new BizException(ResultCode.CONFLICT, "余票不足");
         }
@@ -66,6 +70,12 @@ public class PlayOrderCommandService {
         }
         if (!orderRepository.markPaid(orderNo, now)) {
             throw new BizException(ResultCode.CONFLICT, "订单状态已变更");
+        }
+        try {
+            paymentApi.create(orderNo, order.getTotalAmount(), "MOCK");
+        } catch (RuntimeException e) {
+            orderRepository.markPending(orderNo);
+            throw e;
         }
         return playOrderQueryService.getOrder(userId, orderNo);
     }

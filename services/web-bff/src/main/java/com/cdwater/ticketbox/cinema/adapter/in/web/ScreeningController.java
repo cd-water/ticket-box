@@ -1,9 +1,10 @@
 package com.cdwater.ticketbox.cinema.adapter.in.web;
 
-import com.cdwater.ticketbox.cinema.application.query.view.SeatMapView;
-import com.cdwater.ticketbox.cinema.application.query.ScreeningQueryService;
 import com.cdwater.ticketbox.common.result.Result;
+import com.cdwater.ticketbox.content.api.ScreeningQueryApi;
+import com.cdwater.ticketbox.content.api.dto.SeatMapDTO;
 import lombok.RequiredArgsConstructor;
+import org.apache.dubbo.config.annotation.DubboReference;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -14,10 +15,11 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class ScreeningController {
 
-    private final ScreeningQueryService screeningQueryService;
+    @DubboReference(check = false, timeout = 3000)
+    private ScreeningQueryApi screeningQueryApi;
 
     @GetMapping("/{id}/seats")
-    public Result<SeatMapView> seats(@PathVariable Long id) {
-        return Result.success(screeningQueryService.seatMap(id));
+    public Result<SeatMapDTO> seats(@PathVariable Long id) {
+        return Result.success(screeningQueryApi.seatMap(id));
     }
 }

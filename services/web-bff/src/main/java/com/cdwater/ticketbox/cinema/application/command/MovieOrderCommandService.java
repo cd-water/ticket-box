@@ -1,22 +1,22 @@
 package com.cdwater.ticketbox.cinema.application.command;
 
 import com.cdwater.ticketbox.cinema.application.command.CreateMovieOrderCommand;
-import com.cdwater.ticketbox.cinema.application.port.MovieInfo;
-import com.cdwater.ticketbox.cinema.application.port.MovieInfoPort;
 import com.cdwater.ticketbox.cinema.application.port.MovieOrderNoGenerator;
 import com.cdwater.ticketbox.cinema.application.query.MovieOrderQueryService;
-import com.cdwater.ticketbox.cinema.application.query.ScreeningBookingInfo;
-import com.cdwater.ticketbox.cinema.application.query.ScreeningQueryService;
 import com.cdwater.ticketbox.cinema.application.query.view.MovieOrderDetailView;
 import com.cdwater.ticketbox.cinema.domain.model.MovieOrder;
 import com.cdwater.ticketbox.cinema.domain.model.MovieOrderSeat;
-import com.cdwater.ticketbox.cinema.domain.model.Screening;
 import com.cdwater.ticketbox.cinema.domain.repository.MovieOrderRepository;
-import com.cdwater.ticketbox.cinema.domain.repository.ScreeningRepository;
 import com.cdwater.ticketbox.common.exception.BizException;
 import com.cdwater.ticketbox.common.result.ResultCode;
+import com.cdwater.ticketbox.content.api.ContentCatalogApi;
+import com.cdwater.ticketbox.content.api.dto.MovieBriefDTO;
+import com.cdwater.ticketbox.content.api.dto.ScreeningBookingDTO;
 import com.cdwater.ticketbox.inventory.api.dto.MovieSeatSnapshotDTO;
+import com.cdwater.ticketbox.payment.api.PaymentApi;
+import com.cdwater.ticketbox.payment.api.dto.PaymentDTO;
 import lombok.RequiredArgsConstructor;
+import org.apache.dubbo.config.annotation.DubboReference;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,12 +29,15 @@ public class MovieOrderCommandService {
 
     private final MovieOrderRepository orderRepository;
     private final MovieOrderNoGenerator orderNoGenerator;
-    private final ScreeningRepository screeningRepository;
-    private final ScreeningQueryService screeningQueryService;
     private final SeatInventoryService seatInventoryService;
-    private final MovieInfoPort movieInfoPort;
     private final MovieOrderExpiryService orderExpiryService;
     private final MovieOrderQueryService orderQueryService;
+
+    @DubboReference(check = false, timeout = 3000)
+    private ContentCatalogApi contentCatalogApi;
+
+    @DubboReference(check = false, timeout = 3000)
+    private PaymentApi paymentApi;
 
     @Transactional
     public MovieOrderDetailView createOrder(Long userId, CreateMovieOrderCommand command) {
@@ -49,15 +52,8 @@ public class MovieOrderCommandService {
         }
 
         LocalDateTime now = LocalDateTime.now();
-        ScreeningBookingInfo info = screeningQueryService.getBookingInfo(command.getScreeningId());
-        Screening screening = screeningRepository.findById(command.getScreeningId())
-                .orElseThrow(() -> new BizException(ResultCode.NOT_FOUND, "排场不存在或已不可售"));
-        if (!screening.isBookable(now)) {
-            throw new BizException(ResultCode.NOT_FOUND, "排场不存在或已不可售");
-        }
-
-        MovieInfo movie = movieInfoPort.findById(info.getMovieId())
-                .orElseThrow(() -> new BizException(ResultCode.NOT_FOUND, "电影不存在或已下架"));
+        ScreeningBookingDTO info = contentCatalogApi.getScreeningBooking(command.getScreeningId());
+        MovieBriefDTO movie = contentCatalogApi.getMovie(info.getMovieId());
         if (movie.getStatus() == null || movie.getStatus() != 1) {
             throw new BizException(ResultCode.NOT_FOUND, "电影不存在或已下架");
         }
@@ -95,16 +91,19 @@ public class MovieOrderCommandService {
             throw new BizException(ResultCode.CONFLICT, "订单状态已变更");
         }
         List<MovieOrderSeat> seats = orderRepository.findSeatsByOrderNo(orderNo);
+        PaymentDTO payment = paymentApi.create(orderNo, order.getTotalAmount(), "MOCK");
         int sold;
         try {
             sold = seatInventoryService.markSoldByOrder(orderNo);
         } catch (RuntimeException e) {
             orderRepository.markPending(orderNo);
+            paymentApi.close(payment.getPaymentNo());
             throw e;
         }
         if (sold != seats.size()) {
             seatInventoryService.rollbackSale(orderNo);
             orderRepository.markPending(orderNo);
+            paymentApi.close(payment.getPaymentNo());
             throw new BizException(ResultCode.CONFLICT, "座位已释放，请重新下单");
         }
         return orderQueryService.getOrder(userId, orderNo);

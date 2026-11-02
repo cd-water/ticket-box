@@ -39,14 +39,14 @@ class ReviewWriteApiIntegrationTest {
     @AfterEach
     void cleanUp() {
         if (!createdIds.isEmpty()) {
-            jdbc.update("DELETE FROM t_movie_comment WHERE id IN (" +
+            jdbc.update("DELETE FROM ticket_box_content.t_movie_comment WHERE id IN (" +
                     String.join(",", createdIds.stream().map(String::valueOf).toList()) + ")");
         }
         jdbc.update("""
-                UPDATE t_movie_comment c
+                UPDATE ticket_box_content.t_movie_comment c
                 LEFT JOIN (
                     SELECT root_id, COUNT(*) AS cnt
-                    FROM t_movie_comment
+                    FROM ticket_box_content.t_movie_comment
                     WHERE root_id <> 0 AND status = 1
                     GROUP BY root_id
                 ) r ON r.root_id = c.id

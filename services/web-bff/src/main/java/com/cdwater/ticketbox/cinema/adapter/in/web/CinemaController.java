@@ -1,15 +1,16 @@
 package com.cdwater.ticketbox.cinema.adapter.in.web;
 
-import com.cdwater.ticketbox.cinema.application.query.CinemaListQuery;
-import com.cdwater.ticketbox.cinema.application.query.view.CinemaDetailView;
-import com.cdwater.ticketbox.cinema.application.query.view.CinemaListItemView;
-import com.cdwater.ticketbox.cinema.application.query.view.ScreeningView;
-import com.cdwater.ticketbox.cinema.application.query.CinemaQueryService;
-import com.cdwater.ticketbox.cinema.application.query.ScreeningQueryService;
 import com.cdwater.ticketbox.common.result.PageResult;
 import com.cdwater.ticketbox.common.result.Result;
+import com.cdwater.ticketbox.content.api.CinemaQueryApi;
+import com.cdwater.ticketbox.content.api.ScreeningQueryApi;
+import com.cdwater.ticketbox.content.api.dto.CinemaDetailDTO;
+import com.cdwater.ticketbox.content.api.dto.CinemaListItemDTO;
+import com.cdwater.ticketbox.content.api.dto.CinemaListQueryDTO;
+import com.cdwater.ticketbox.content.api.dto.ScreeningDTO;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.apache.dubbo.config.annotation.DubboReference;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -22,22 +23,25 @@ import java.util.List;
 @RequiredArgsConstructor
 public class CinemaController {
 
-    private final CinemaQueryService cinemaQueryService;
-    private final ScreeningQueryService screeningQueryService;
+    @DubboReference(check = false, timeout = 3000)
+    private CinemaQueryApi cinemaQueryApi;
+
+    @DubboReference(check = false, timeout = 3000)
+    private ScreeningQueryApi screeningQueryApi;
 
     @GetMapping
-    public Result<PageResult<CinemaListItemView>> list(@Valid CinemaListQuery query) {
-        return Result.success(cinemaQueryService.list(query));
+    public Result<PageResult<CinemaListItemDTO>> list(@Valid CinemaListQueryDTO query) {
+        return Result.success(cinemaQueryApi.list(query));
     }
 
     @GetMapping("/{id}")
-    public Result<CinemaDetailView> detail(@PathVariable Long id) {
-        return Result.success(cinemaQueryService.detail(id));
+    public Result<CinemaDetailDTO> detail(@PathVariable Long id) {
+        return Result.success(cinemaQueryApi.detail(id));
     }
 
     @GetMapping("/{cinemaId}/movies/{movieId}/screenings")
-    public Result<List<ScreeningView>> screenings(@PathVariable Long cinemaId,
+    public Result<List<ScreeningDTO>> screenings(@PathVariable Long cinemaId,
                                                 @PathVariable Long movieId) {
-        return Result.success(screeningQueryService.list(cinemaId, movieId));
+        return Result.success(screeningQueryApi.list(cinemaId, movieId));
     }
 }

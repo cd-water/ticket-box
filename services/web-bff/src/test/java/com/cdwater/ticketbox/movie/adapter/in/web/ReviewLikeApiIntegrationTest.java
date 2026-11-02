@@ -46,11 +46,11 @@ class ReviewLikeApiIntegrationTest {
 
     @AfterEach
     void cleanUp() {
-        jdbc.update("DELETE FROM t_movie_comment_like WHERE comment_id = ? AND user_id = ?",
+        jdbc.update("DELETE FROM ticket_box_content.t_movie_comment_like WHERE comment_id = ? AND user_id = ?",
                 COMMENT_ID, USER_ID);
         jdbc.update("""
-                UPDATE t_movie_comment c
-                SET c.like_count = (SELECT COUNT(*) FROM t_movie_comment_like l WHERE l.comment_id = c.id)
+                UPDATE ticket_box_content.t_movie_comment c
+                SET c.like_count = (SELECT COUNT(*) FROM ticket_box_content.t_movie_comment_like l WHERE l.comment_id = c.id)
                 WHERE c.id = ?
                 """, COMMENT_ID);
     }
@@ -90,11 +90,11 @@ class ReviewLikeApiIntegrationTest {
         ExecutorService pool = Executors.newFixedThreadPool(2);
         try {
             for (int round = 0; round < 10; round++) {
-                jdbc.update("INSERT IGNORE INTO t_movie_comment_like (comment_id, user_id) VALUES (?, ?)",
+                jdbc.update("INSERT IGNORE INTO ticket_box_content.t_movie_comment_like (comment_id, user_id) VALUES (?, ?)",
                         COMMENT_ID, USER_ID);
                 jdbc.update("""
-                        UPDATE t_movie_comment c
-                        SET c.like_count = (SELECT COUNT(*) FROM t_movie_comment_like l WHERE l.comment_id = c.id)
+                        UPDATE ticket_box_content.t_movie_comment c
+                        SET c.like_count = (SELECT COUNT(*) FROM ticket_box_content.t_movie_comment_like l WHERE l.comment_id = c.id)
                         WHERE c.id = ?
                         """, COMMENT_ID);
 
@@ -108,17 +108,17 @@ class ReviewLikeApiIntegrationTest {
                 }
 
                 Integer likeCount = jdbc.queryForObject(
-                        "SELECT like_count FROM t_movie_comment WHERE id = ?", Integer.class, COMMENT_ID);
+                        "SELECT like_count FROM ticket_box_content.t_movie_comment WHERE id = ?", Integer.class, COMMENT_ID);
                 Integer rowCount = jdbc.queryForObject(
-                        "SELECT COUNT(*) FROM t_movie_comment_like WHERE comment_id = ?",
+                        "SELECT COUNT(*) FROM ticket_box_content.t_movie_comment_like WHERE comment_id = ?",
                         Integer.class, COMMENT_ID);
                 assertEquals(rowCount, likeCount);
 
-                jdbc.update("DELETE FROM t_movie_comment_like WHERE comment_id = ? AND user_id = ?",
+                jdbc.update("DELETE FROM ticket_box_content.t_movie_comment_like WHERE comment_id = ? AND user_id = ?",
                         COMMENT_ID, USER_ID);
                 jdbc.update("""
-                        UPDATE t_movie_comment c
-                        SET c.like_count = (SELECT COUNT(*) FROM t_movie_comment_like l WHERE l.comment_id = c.id)
+                        UPDATE ticket_box_content.t_movie_comment c
+                        SET c.like_count = (SELECT COUNT(*) FROM ticket_box_content.t_movie_comment_like l WHERE l.comment_id = c.id)
                         WHERE c.id = ?
                         """, COMMENT_ID);
             }

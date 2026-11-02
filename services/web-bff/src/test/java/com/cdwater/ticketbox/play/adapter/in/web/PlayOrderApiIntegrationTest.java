@@ -56,17 +56,17 @@ class PlayOrderApiIntegrationTest {
                 jdbc.update("UPDATE ticket_box_inventory.t_play_stock SET stock = ? WHERE item_id = ?", stock, itemId));
         stockBefore.clear();
         for (Long itemId : itemsToDelete) {
-            jdbc.update("DELETE FROM t_play_item WHERE id = ?", itemId);
+            jdbc.update("DELETE FROM ticket_box_content.t_play_item WHERE id = ?", itemId);
             jdbc.update("DELETE FROM ticket_box_inventory.t_play_stock WHERE item_id = ?", itemId);
         }
         itemsToDelete.clear();
     }
 
     private void insertItem(long id) {
-        jdbc.update("DELETE FROM t_play_item WHERE id = ?", id);
+        jdbc.update("DELETE FROM ticket_box_content.t_play_item WHERE id = ?", id);
         jdbc.update("DELETE FROM ticket_box_inventory.t_play_stock WHERE item_id = ?", id);
         jdbc.update("""
-                INSERT INTO t_play_item (id, title, cover, address, description, price, status)
+                INSERT INTO ticket_box_content.t_play_item (id, title, cover, address, description, price, status)
                 VALUES (?, '测试项目', '', '测试地址', '测试项目', 10.00, 1)
                 """, id);
         jdbc.update("INSERT INTO ticket_box_inventory.t_play_stock (item_id, stock) VALUES (?, 5)", id);
@@ -201,18 +201,18 @@ class PlayOrderApiIntegrationTest {
     void off_sale_item_is_hidden_and_not_purchasable() {
         String token = token();
         int originalStatus = jdbc.queryForObject(
-                "SELECT status FROM t_play_item WHERE id = 5", Integer.class);
-        jdbc.update("UPDATE t_play_item SET status = 0 WHERE id = 5");
+                "SELECT status FROM ticket_box_content.t_play_item WHERE id = 5", Integer.class);
+        jdbc.update("UPDATE ticket_box_content.t_play_item SET status = 0 WHERE id = 5");
         try {
             long onSale = jdbc.queryForObject(
-                    "SELECT COUNT(*) FROM t_play_item WHERE status = 1", Long.class);
+                    "SELECT COUNT(*) FROM ticket_box_content.t_play_item WHERE status = 1", Long.class);
             JsonNode list = get("/api/plays?page=1&size=10", token);
             assertEquals(onSale, list.get("data").get("total").asLong());
             assertEquals("C404", get("/api/plays/5", token).get("code").asString());
             assertEquals("C404", post("/api/play-orders", token,
                     Map.of("itemId", 5, "quantity", 1)).get("code").asString());
         } finally {
-            jdbc.update("UPDATE t_play_item SET status = ? WHERE id = 5", originalStatus);
+            jdbc.update("UPDATE ticket_box_content.t_play_item SET status = ? WHERE id = 5", originalStatus);
         }
     }
 

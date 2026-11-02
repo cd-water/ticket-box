@@ -2,12 +2,13 @@ package com.cdwater.ticketbox.movie.adapter.in.web;
 
 import com.cdwater.ticketbox.common.result.PageResult;
 import com.cdwater.ticketbox.common.result.Result;
-import com.cdwater.ticketbox.movie.application.query.MovieListQuery;
-import com.cdwater.ticketbox.movie.application.query.MovieCatalogQueryService;
-import com.cdwater.ticketbox.movie.application.query.view.MovieDetailView;
-import com.cdwater.ticketbox.movie.application.query.view.MovieListItemView;
+import com.cdwater.ticketbox.content.api.MovieQueryApi;
+import com.cdwater.ticketbox.content.api.dto.MovieDetailDTO;
+import com.cdwater.ticketbox.content.api.dto.MovieListItemDTO;
+import com.cdwater.ticketbox.content.api.dto.MovieListQueryDTO;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.apache.dubbo.config.annotation.DubboReference;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,15 +19,16 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class MovieController {
 
-    private final MovieCatalogQueryService movieCatalogQueryService;
+    @DubboReference(check = false, timeout = 3000)
+    private MovieQueryApi movieQueryApi;
 
     @GetMapping
-    public Result<PageResult<MovieListItemView>> list(@Valid MovieListQuery query) {
-        return Result.success(movieCatalogQueryService.list(query));
+    public Result<PageResult<MovieListItemDTO>> list(@Valid MovieListQueryDTO query) {
+        return Result.success(movieQueryApi.list(query));
     }
 
     @GetMapping("/{id}")
-    public Result<MovieDetailView> detail(@PathVariable Long id) {
-        return Result.success(movieCatalogQueryService.detail(id));
+    public Result<MovieDetailDTO> detail(@PathVariable Long id) {
+        return Result.success(movieQueryApi.detail(id));
     }
 }

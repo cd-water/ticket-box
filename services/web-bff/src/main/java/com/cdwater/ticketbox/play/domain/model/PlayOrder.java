@@ -1,5 +1,6 @@
 package com.cdwater.ticketbox.play.domain.model;
 
+import com.cdwater.ticketbox.content.api.dto.PlayItemDTO;
 import lombok.Data;
 
 import java.math.BigDecimal;
@@ -39,7 +40,7 @@ public class PlayOrder {
     }
 
     /** 创建玩乐订单：下单即扣库存，30 分钟支付窗口。 */
-    public static PlayOrder place(Long orderNo, Long userId, PlayItem item,
+    public static PlayOrder place(Long orderNo, Long userId, PlayItemDTO item,
                                   int quantity, LocalDateTime now) {
         PlayOrder order = new PlayOrder();
         order.setOrderNo(orderNo);

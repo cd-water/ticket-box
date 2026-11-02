@@ -38,7 +38,7 @@ class ShowOrderApiIntegrationTest {
     @BeforeEach
     void setUp() {
         client = RestClient.builder().baseUrl("http://localhost:" + port).build();
-        jdbc.update("UPDATE t_show SET start_time = DATE_ADD(NOW(), INTERVAL id DAY)");
+        jdbc.update("UPDATE ticket_box_content.t_show SET start_time = DATE_ADD(NOW(), INTERVAL id DAY)");
     }
 
     @AfterEach
