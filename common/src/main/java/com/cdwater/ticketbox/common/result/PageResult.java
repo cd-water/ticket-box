@@ -1,4 +1,4 @@
-package com.cdwater.ticketbox.shared.query;
+package com.cdwater.ticketbox.common.result;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

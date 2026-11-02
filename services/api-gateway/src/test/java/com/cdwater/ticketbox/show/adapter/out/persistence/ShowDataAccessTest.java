@@ -4,7 +4,7 @@ import com.cdwater.ticketbox.show.domain.model.Show;
 import com.cdwater.ticketbox.show.domain.model.ShowTicketType;
 import com.cdwater.ticketbox.show.domain.repository.ShowRepository;
 import com.cdwater.ticketbox.show.domain.repository.ShowSeatInventoryRepository;
-import com.cdwater.ticketbox.shared.query.PageResult;
+import com.cdwater.ticketbox.common.result.PageResult;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

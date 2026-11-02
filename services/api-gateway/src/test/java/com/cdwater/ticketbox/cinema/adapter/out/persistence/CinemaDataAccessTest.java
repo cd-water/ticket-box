@@ -5,7 +5,7 @@ import com.cdwater.ticketbox.cinema.domain.model.SeatSnapshot;
 import com.cdwater.ticketbox.cinema.domain.repository.CinemaRepository;
 import com.cdwater.ticketbox.cinema.domain.repository.ScreeningRepository;
 import com.cdwater.ticketbox.cinema.domain.repository.SeatInventoryRepository;
-import com.cdwater.ticketbox.shared.query.PageResult;
+import com.cdwater.ticketbox.common.result.PageResult;
 import com.cdwater.ticketbox.support.SeedScreeningFixture;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

@@ -1,7 +1,7 @@
 package com.cdwater.ticketbox.movie.application.command;
 
-import com.cdwater.ticketbox.shared.error.BizException;
-import com.cdwater.ticketbox.shared.error.ResultCode;
+import com.cdwater.ticketbox.common.exception.BizException;
+import com.cdwater.ticketbox.common.result.ResultCode;
 import com.cdwater.ticketbox.movie.application.query.support.ReviewViewAssembler;
 import com.cdwater.ticketbox.movie.application.query.view.LikeResultView;
 import com.cdwater.ticketbox.movie.application.query.view.ReplyView;

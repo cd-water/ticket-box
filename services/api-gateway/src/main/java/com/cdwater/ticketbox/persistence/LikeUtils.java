@@ -1,4 +1,4 @@
-package com.cdwater.ticketbox.shared.persistence;
+package com.cdwater.ticketbox.persistence;
 
 public final class LikeUtils {
 

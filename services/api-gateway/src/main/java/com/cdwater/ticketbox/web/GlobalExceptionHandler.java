@@ -1,9 +1,10 @@
-package com.cdwater.ticketbox.shared.web;
+package com.cdwater.ticketbox.web;
 
 import cn.dev33.satoken.exception.NotLoginException;
 import cn.dev33.satoken.exception.NotRoleException;
-import com.cdwater.ticketbox.shared.error.BizException;
-import com.cdwater.ticketbox.shared.error.ResultCode;
+import com.cdwater.ticketbox.common.exception.BizException;
+import com.cdwater.ticketbox.common.result.Result;
+import com.cdwater.ticketbox.common.result.ResultCode;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.converter.HttpMessageNotReadableException;

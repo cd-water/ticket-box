@@ -2,8 +2,8 @@ package com.cdwater.ticketbox.cinema.application.command;
 
 import com.cdwater.ticketbox.cinema.domain.model.SeatSnapshot;
 import com.cdwater.ticketbox.cinema.domain.repository.SeatInventoryRepository;
-import com.cdwater.ticketbox.shared.error.BizException;
-import com.cdwater.ticketbox.shared.error.ResultCode;
+import com.cdwater.ticketbox.common.exception.BizException;
+import com.cdwater.ticketbox.common.result.ResultCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

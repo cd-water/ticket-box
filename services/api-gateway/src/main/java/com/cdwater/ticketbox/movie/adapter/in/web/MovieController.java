@@ -1,7 +1,7 @@
 package com.cdwater.ticketbox.movie.adapter.in.web;
 
-import com.cdwater.ticketbox.shared.query.PageResult;
-import com.cdwater.ticketbox.shared.web.Result;
+import com.cdwater.ticketbox.common.result.PageResult;
+import com.cdwater.ticketbox.common.result.Result;
 import com.cdwater.ticketbox.movie.application.query.MovieListQuery;
 import com.cdwater.ticketbox.movie.application.query.MovieCatalogQueryService;
 import com.cdwater.ticketbox.movie.application.query.view.MovieDetailView;

@@ -1,5 +1,6 @@
-package com.cdwater.ticketbox.shared.error;
+package com.cdwater.ticketbox.common.exception;
 
+import com.cdwater.ticketbox.common.result.ResultCode;
 import lombok.Getter;
 
 @Getter

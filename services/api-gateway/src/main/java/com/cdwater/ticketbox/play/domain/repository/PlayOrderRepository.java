@@ -1,7 +1,7 @@
 package com.cdwater.ticketbox.play.domain.repository;
 
 import com.cdwater.ticketbox.play.domain.model.PlayOrder;
-import com.cdwater.ticketbox.shared.query.PageResult;
+import com.cdwater.ticketbox.common.result.PageResult;
 
 import java.time.LocalDateTime;
 import java.util.List;

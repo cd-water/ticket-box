@@ -1,4 +1,4 @@
-package com.cdwater.ticketbox.shared.error;
+package com.cdwater.ticketbox.common.result;
 
 import lombok.Getter;
 

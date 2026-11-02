@@ -1,7 +1,7 @@
 package com.cdwater.ticketbox.cinema.domain.repository;
 
 import com.cdwater.ticketbox.cinema.domain.model.Cinema;
-import com.cdwater.ticketbox.shared.query.PageResult;
+import com.cdwater.ticketbox.common.result.PageResult;
 
 import java.util.Optional;
 

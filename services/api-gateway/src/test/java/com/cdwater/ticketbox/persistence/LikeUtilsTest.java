@@ -1,4 +1,4 @@
-package com.cdwater.ticketbox.shared.persistence;
+package com.cdwater.ticketbox.persistence;
 
 import org.junit.jupiter.api.Test;
 

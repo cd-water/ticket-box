@@ -1,8 +1,8 @@
 package com.cdwater.ticketbox.show.adapter.in.web;
 
-import com.cdwater.ticketbox.shared.query.PageResult;
-import com.cdwater.ticketbox.shared.security.CurrentUser;
-import com.cdwater.ticketbox.shared.web.Result;
+import com.cdwater.ticketbox.common.result.PageResult;
+import com.cdwater.ticketbox.common.security.CurrentUser;
+import com.cdwater.ticketbox.common.result.Result;
 import com.cdwater.ticketbox.show.application.command.CreateShowOrderCommand;
 import com.cdwater.ticketbox.show.application.command.ShowOrderCommandService;
 import com.cdwater.ticketbox.show.application.query.ShowOrderListQuery;

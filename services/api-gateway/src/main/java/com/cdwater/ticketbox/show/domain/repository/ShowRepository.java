@@ -2,7 +2,7 @@ package com.cdwater.ticketbox.show.domain.repository;
 
 import com.cdwater.ticketbox.show.domain.model.Show;
 import com.cdwater.ticketbox.show.domain.model.ShowTicketType;
-import com.cdwater.ticketbox.shared.query.PageResult;
+import com.cdwater.ticketbox.common.result.PageResult;
 
 import java.math.BigDecimal;
 import java.util.Collection;

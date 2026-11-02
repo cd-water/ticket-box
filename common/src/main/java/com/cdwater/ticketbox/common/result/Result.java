@@ -1,6 +1,5 @@
-package com.cdwater.ticketbox.shared.web;
+package com.cdwater.ticketbox.common.result;
 
-import com.cdwater.ticketbox.shared.error.ResultCode;
 import lombok.Data;
 
 @Data

@@ -1,8 +1,8 @@
 package com.cdwater.ticketbox.movie.application.query;
 
-import com.cdwater.ticketbox.shared.error.BizException;
-import com.cdwater.ticketbox.shared.query.PageResult;
-import com.cdwater.ticketbox.shared.error.ResultCode;
+import com.cdwater.ticketbox.common.exception.BizException;
+import com.cdwater.ticketbox.common.result.PageResult;
+import com.cdwater.ticketbox.common.result.ResultCode;
 import com.cdwater.ticketbox.movie.application.query.converter.MovieViewConverter;
 import com.cdwater.ticketbox.movie.application.query.view.PersonView;
 import com.cdwater.ticketbox.movie.application.query.view.MovieDetailView;

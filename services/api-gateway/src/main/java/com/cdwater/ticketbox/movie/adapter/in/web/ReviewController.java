@@ -1,8 +1,8 @@
 package com.cdwater.ticketbox.movie.adapter.in.web;
 
-import com.cdwater.ticketbox.shared.query.CursorResult;
-import com.cdwater.ticketbox.shared.security.CurrentUser;
-import com.cdwater.ticketbox.shared.web.Result;
+import com.cdwater.ticketbox.common.result.CursorResult;
+import com.cdwater.ticketbox.common.security.CurrentUser;
+import com.cdwater.ticketbox.common.result.Result;
 import com.cdwater.ticketbox.movie.application.command.CreateReviewCommand;
 import com.cdwater.ticketbox.movie.application.command.ReviewCommandService;
 import com.cdwater.ticketbox.movie.application.query.ReplyListQuery;

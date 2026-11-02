@@ -6,9 +6,9 @@ import com.cdwater.ticketbox.cinema.application.query.view.MovieOrderListItemVie
 import com.cdwater.ticketbox.cinema.domain.model.MovieOrder;
 import com.cdwater.ticketbox.cinema.domain.repository.MovieOrderRepository;
 import com.cdwater.ticketbox.cinema.application.command.MovieOrderExpiryService;
-import com.cdwater.ticketbox.shared.error.BizException;
-import com.cdwater.ticketbox.shared.error.ResultCode;
-import com.cdwater.ticketbox.shared.query.PageResult;
+import com.cdwater.ticketbox.common.exception.BizException;
+import com.cdwater.ticketbox.common.result.ResultCode;
+import com.cdwater.ticketbox.common.result.PageResult;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

@@ -2,7 +2,7 @@ package com.cdwater.ticketbox.show.domain.repository;
 
 import com.cdwater.ticketbox.show.domain.model.ShowOrder;
 import com.cdwater.ticketbox.show.domain.model.ShowOrderSeat;
-import com.cdwater.ticketbox.shared.query.PageResult;
+import com.cdwater.ticketbox.common.result.PageResult;
 
 import java.time.LocalDateTime;
 import java.util.List;

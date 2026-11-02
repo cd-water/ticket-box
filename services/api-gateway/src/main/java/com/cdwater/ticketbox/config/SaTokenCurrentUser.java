@@ -1,6 +1,6 @@
 package com.cdwater.ticketbox.config;
 
-import com.cdwater.ticketbox.shared.security.CurrentUser;
+import com.cdwater.ticketbox.common.security.CurrentUser;
 import org.springframework.stereotype.Component;
 
 @Component

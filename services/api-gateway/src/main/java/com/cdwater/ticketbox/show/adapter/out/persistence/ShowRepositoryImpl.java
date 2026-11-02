@@ -2,8 +2,8 @@ package com.cdwater.ticketbox.show.adapter.out.persistence;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.cdwater.ticketbox.shared.persistence.LikeUtils;
-import com.cdwater.ticketbox.shared.query.PageResult;
+import com.cdwater.ticketbox.persistence.LikeUtils;
+import com.cdwater.ticketbox.common.result.PageResult;
 import com.cdwater.ticketbox.show.adapter.out.persistence.mapper.ShowMapper;
 import com.cdwater.ticketbox.show.adapter.out.persistence.mapper.ShowSeatMapper;
 import com.cdwater.ticketbox.show.adapter.out.persistence.mapper.ShowTicketTypeMapper;

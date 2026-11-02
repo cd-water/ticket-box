@@ -3,7 +3,7 @@ package com.cdwater.ticketbox.admin.adapter.in.web;
 import com.cdwater.ticketbox.admin.application.command.AdminCommandService;
 import com.cdwater.ticketbox.admin.application.command.AdminLoginCommand;
 import com.cdwater.ticketbox.admin.application.query.view.LoginView;
-import com.cdwater.ticketbox.shared.web.Result;
+import com.cdwater.ticketbox.common.result.Result;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;

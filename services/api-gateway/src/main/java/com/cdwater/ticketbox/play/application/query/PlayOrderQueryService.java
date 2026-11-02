@@ -7,9 +7,9 @@ import com.cdwater.ticketbox.play.domain.model.PlayOrder;
 import com.cdwater.ticketbox.play.domain.model.PlayOrderStatus;
 import com.cdwater.ticketbox.play.application.query.converter.PlayOrderViewConverter;
 import com.cdwater.ticketbox.play.domain.repository.PlayOrderRepository;
-import com.cdwater.ticketbox.shared.error.BizException;
-import com.cdwater.ticketbox.shared.error.ResultCode;
-import com.cdwater.ticketbox.shared.query.PageResult;
+import com.cdwater.ticketbox.common.exception.BizException;
+import com.cdwater.ticketbox.common.result.ResultCode;
+import com.cdwater.ticketbox.common.result.PageResult;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

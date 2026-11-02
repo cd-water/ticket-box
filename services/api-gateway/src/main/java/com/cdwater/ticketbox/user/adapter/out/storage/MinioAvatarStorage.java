@@ -1,8 +1,8 @@
 package com.cdwater.ticketbox.user.adapter.out.storage;
 
 import com.cdwater.ticketbox.config.MinioProperties;
-import com.cdwater.ticketbox.shared.error.BizException;
-import com.cdwater.ticketbox.shared.error.ResultCode;
+import com.cdwater.ticketbox.common.exception.BizException;
+import com.cdwater.ticketbox.common.result.ResultCode;
 import com.cdwater.ticketbox.user.application.port.AvatarStorage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

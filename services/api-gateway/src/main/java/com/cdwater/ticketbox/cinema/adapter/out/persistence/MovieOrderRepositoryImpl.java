@@ -11,7 +11,7 @@ import com.cdwater.ticketbox.cinema.adapter.out.persistence.mapper.MovieOrderMap
 import com.cdwater.ticketbox.cinema.adapter.out.persistence.mapper.MovieOrderSeatMapper;
 import com.cdwater.ticketbox.cinema.adapter.out.persistence.po.MovieOrderPO;
 import com.cdwater.ticketbox.cinema.adapter.out.persistence.po.MovieOrderSeatPO;
-import com.cdwater.ticketbox.shared.query.PageResult;
+import com.cdwater.ticketbox.common.result.PageResult;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 

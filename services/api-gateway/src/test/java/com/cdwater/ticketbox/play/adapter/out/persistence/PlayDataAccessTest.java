@@ -2,7 +2,7 @@ package com.cdwater.ticketbox.play.adapter.out.persistence;
 
 import com.cdwater.ticketbox.play.domain.model.PlayItem;
 import com.cdwater.ticketbox.play.domain.repository.PlayRepository;
-import com.cdwater.ticketbox.shared.query.PageResult;
+import com.cdwater.ticketbox.common.result.PageResult;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;

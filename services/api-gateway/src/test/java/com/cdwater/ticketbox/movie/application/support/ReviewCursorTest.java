@@ -1,7 +1,7 @@
 package com.cdwater.ticketbox.movie.application.support;
 
-import com.cdwater.ticketbox.shared.error.BizException;
-import com.cdwater.ticketbox.shared.error.ResultCode;
+import com.cdwater.ticketbox.common.exception.BizException;
+import com.cdwater.ticketbox.common.result.ResultCode;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;

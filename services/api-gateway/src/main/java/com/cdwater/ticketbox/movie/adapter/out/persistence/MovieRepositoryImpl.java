@@ -12,8 +12,8 @@ import com.cdwater.ticketbox.movie.domain.model.Genre;
 import com.cdwater.ticketbox.movie.domain.model.Movie;
 import com.cdwater.ticketbox.movie.domain.model.MoviePerson;
 import com.cdwater.ticketbox.movie.domain.repository.MovieRepository;
-import com.cdwater.ticketbox.shared.persistence.LikeUtils;
-import com.cdwater.ticketbox.shared.query.PageResult;
+import com.cdwater.ticketbox.persistence.LikeUtils;
+import com.cdwater.ticketbox.common.result.PageResult;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 

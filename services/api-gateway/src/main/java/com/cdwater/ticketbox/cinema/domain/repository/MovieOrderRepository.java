@@ -2,7 +2,7 @@ package com.cdwater.ticketbox.cinema.domain.repository;
 
 import com.cdwater.ticketbox.cinema.domain.model.MovieOrder;
 import com.cdwater.ticketbox.cinema.domain.model.MovieOrderSeat;
-import com.cdwater.ticketbox.shared.query.PageResult;
+import com.cdwater.ticketbox.common.result.PageResult;
 
 import java.time.LocalDateTime;
 import java.util.List;

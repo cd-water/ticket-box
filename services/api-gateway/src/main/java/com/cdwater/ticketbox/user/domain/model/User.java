@@ -1,7 +1,7 @@
 package com.cdwater.ticketbox.user.domain.model;
 
-import com.cdwater.ticketbox.shared.error.BizException;
-import com.cdwater.ticketbox.shared.error.ResultCode;
+import com.cdwater.ticketbox.common.exception.BizException;
+import com.cdwater.ticketbox.common.result.ResultCode;
 import lombok.Data;
 
 import java.time.LocalDateTime;

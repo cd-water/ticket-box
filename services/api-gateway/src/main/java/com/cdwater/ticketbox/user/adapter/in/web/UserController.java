@@ -1,7 +1,7 @@
 package com.cdwater.ticketbox.user.adapter.in.web;
 
-import com.cdwater.ticketbox.shared.security.CurrentUser;
-import com.cdwater.ticketbox.shared.web.Result;
+import com.cdwater.ticketbox.common.security.CurrentUser;
+import com.cdwater.ticketbox.common.result.Result;
 import com.cdwater.ticketbox.user.application.command.CodeLoginCommand;
 import com.cdwater.ticketbox.user.application.command.PwdLoginCommand;
 import com.cdwater.ticketbox.user.application.command.SendCodeCommand;

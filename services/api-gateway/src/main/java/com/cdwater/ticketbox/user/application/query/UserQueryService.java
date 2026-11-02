@@ -1,7 +1,7 @@
 package com.cdwater.ticketbox.user.application.query;
 
-import com.cdwater.ticketbox.shared.error.BizException;
-import com.cdwater.ticketbox.shared.error.ResultCode;
+import com.cdwater.ticketbox.common.exception.BizException;
+import com.cdwater.ticketbox.common.result.ResultCode;
 import com.cdwater.ticketbox.user.application.query.converter.UserBriefConverter;
 import com.cdwater.ticketbox.user.application.query.converter.UserViewConverter;
 import com.cdwater.ticketbox.user.application.query.view.ProfileView;

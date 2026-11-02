@@ -1,7 +1,7 @@
 package com.cdwater.ticketbox.show.adapter.in.web;
 
-import com.cdwater.ticketbox.shared.query.PageResult;
-import com.cdwater.ticketbox.shared.web.Result;
+import com.cdwater.ticketbox.common.result.PageResult;
+import com.cdwater.ticketbox.common.result.Result;
 import com.cdwater.ticketbox.show.application.query.ShowListQuery;
 import com.cdwater.ticketbox.show.application.query.ShowQueryService;
 import com.cdwater.ticketbox.show.application.query.view.ShowDetailView;

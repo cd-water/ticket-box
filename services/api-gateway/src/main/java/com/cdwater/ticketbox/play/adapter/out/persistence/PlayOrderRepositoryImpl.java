@@ -6,7 +6,7 @@ import com.cdwater.ticketbox.play.adapter.out.persistence.mapper.PlayOrderMapper
 import com.cdwater.ticketbox.play.domain.model.PlayOrder;
 import com.cdwater.ticketbox.play.domain.model.PlayOrderStatus;
 import com.cdwater.ticketbox.play.domain.repository.PlayOrderRepository;
-import com.cdwater.ticketbox.shared.query.PageResult;
+import com.cdwater.ticketbox.common.result.PageResult;
 import com.cdwater.ticketbox.play.adapter.out.persistence.converter.PlayOrderConverter;
 import com.cdwater.ticketbox.play.adapter.out.persistence.po.PlayOrderPO;
 import lombok.RequiredArgsConstructor;

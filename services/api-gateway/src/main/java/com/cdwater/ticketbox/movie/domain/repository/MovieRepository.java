@@ -1,6 +1,6 @@
 package com.cdwater.ticketbox.movie.domain.repository;
 
-import com.cdwater.ticketbox.shared.query.PageResult;
+import com.cdwater.ticketbox.common.result.PageResult;
 import com.cdwater.ticketbox.movie.domain.model.Genre;
 import com.cdwater.ticketbox.movie.domain.model.Movie;
 import com.cdwater.ticketbox.movie.domain.model.MoviePerson;
